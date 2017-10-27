@@ -8,7 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-//import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 public class PeerProcess {
 
@@ -21,7 +22,7 @@ public class PeerProcess {
     int FileSize;
     int PieceSize;
 
-	//final static Logger logger = Logger.getLogger(PeerProcess.class);
+	final static Logger logger = Logger.getLogger(PeerProcess.class);
 
     public PeerProcess(int peerId) {
         myInfo = new PeerMeta(peerId);
@@ -31,7 +32,7 @@ public class PeerProcess {
         for(int i=0;i<peerMetaCfg.size();i++) {
             if(peerMetaCfg.get(i).peerId!=myInfo.peerId) {
                 //establish TCP connection
-                System.out.println("Establishes connection with peerId "+ peerMetaCfg.get(i).peerId);
+                logger.info("Establishes connection with peerId "+ peerMetaCfg.get(i).peerId);
             }
             else {
                 break;
@@ -40,7 +41,7 @@ public class PeerProcess {
     }
 
     void readPeerInfoFile() {
-        String fileName = "src/com/peer/peerInfo.cfg";
+        String fileName = "src/com/peer/configFiles/PeerInfo.cfg";
         peerMetaCfg = new ArrayList<>();
 
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
@@ -52,9 +53,8 @@ public class PeerProcess {
     }
 
     void readCommonCFGFile() {
-        String fileName = "src/com/peer/common.cfg";
+        String fileName = "src/com/peer/configFiles/Common.cfg";
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-
             Iterator<String> it = stream.iterator();
             NumberOfPreferredNeighbors = Integer.parseInt(it.next().split(" ")[1]);
             UnchokingInterval = Integer.parseInt(it.next().split(" ")[1]);
@@ -69,8 +69,9 @@ public class PeerProcess {
 
     }
 
-    public static void main(){
-
+    public static void main(String[] args){
+    	String log4jConfPath = "log4j.properties";
+    	PropertyConfigurator.configure(log4jConfPath);
     	 PeerProcess me = new PeerProcess(1004);
          me.readPeerInfoFile();
          me.establishTCPConnection();
