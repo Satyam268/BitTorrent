@@ -7,5 +7,7 @@ public interface Downloader {
 	void measureDownloadSpeed();
 
 	void mergePieces();
+	
+	void writePieceToFile();
 
 }
