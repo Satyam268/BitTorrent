@@ -30,7 +30,7 @@ public class Peer {
 
 	// records the pieces i have/don't have
 	private BitSet bitfield = null;
-	
+
 	//Connection Variables
 	private ServerSocket serverSocket;
     private Socket clientSocket;
@@ -38,17 +38,17 @@ public class Peer {
     private BufferedReader in;
     private Uploader uploader;
     private Downloader downloader;
-	public Peer() {
-		uploader = new Uploader();
+
+    public Peer() {
 		downloader = new Downloader();
 	}
-	
+
 	Map<Integer,PeerInfo> peerMap = new HashMap<>();
-	
+
 	private void calculatePeices() {
-		
+
 	}
-	
+
 	public byte doHandShake() {
 		return 0;
 	}
@@ -77,7 +77,7 @@ public class Peer {
 		this.bitfield = bitfield;
 	}
 
-		
+
 	//to do below this
 	public void startTCPServer(int port) throws IOException {
         ServerSocket serverSocket = new ServerSocket(port);
@@ -92,25 +92,29 @@ public class Peer {
             out.println("unrecognised greeting");
         }
     }
-	
+
 	public void stopTCPServer() throws IOException {
         in.close();
         out.close();
         clientSocket.close();
         serverSocket.close();
     }
-	
+
 	public void startConnection(String ip, int port) throws UnknownHostException, IOException {
         clientSocket = new Socket(ip, port);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
-	
-	
+
+
 	public void stopConnection() throws IOException {
 	        in.close();
 	        out.close();
 	        clientSocket.close();
 	}
-	 
+
+	public void processNeighbours(List<PeerMeta> peerMetaCfg) {
+		uploader = new Uploader(peerMetaCfg);
+	}
+
 }
