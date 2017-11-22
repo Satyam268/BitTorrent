@@ -11,37 +11,46 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 
-import com.peer.roles.Downloader;
-import com.peer.roles.Uploader;
+import com.peer.messages.types.BitField;
+import com.peer.roles.IDownloader;
+import com.peer.roles.IUploader;
 
-public class Peer implements Uploader, Downloader {
+public class Peer {
 
 	private int peerID;
-	// private List<PeerInfo> peerDetails;
-	private int peices;
+	// private List<Peer> peerDetails;
+	private int pieces;
 
-	// records the pieces i have, don't have
+	// records the pieces i have/don't have
 	private BitSet bitfield = null;
-
-	// to do
-	// currently processing list
-	// hashset ? or Enum array sort?
-	
 	
 	//Connection Variables
 	private ServerSocket serverSocket;
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-
+    private Uploader uploader;
+    private Downloader downloader;
 	public Peer() {
-
+		uploader = new Uploader();
+		downloader = new Downloader();
 	}
-
+	
+	Map<Integer,PeerInfo> peerMap = new HashMap<>();
+	
 	private void calculatePeices() {
-
+		
+	}
+	
+	public byte doHandShake() {
+		return 0;
 	}
 
 	public int getPeerID() {
@@ -53,11 +62,11 @@ public class Peer implements Uploader, Downloader {
 	}
 
 	public int getPeices() {
-		return peices;
+		return pieces;
 	}
 
-	public void setPeices(int peices) {
-		this.peices = peices;
+	public void setPeices(int pieces) {
+		this.pieces = pieces;
 	}
 
 	public BitSet getBitfield() {
@@ -68,55 +77,7 @@ public class Peer implements Uploader, Downloader {
 		this.bitfield = bitfield;
 	}
 
-	@Override
-	public byte doHandshake() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void selectKPeers() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void selectOptimisticUnchokedNeighbour() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void markPeiceReceived(int peiceIndex) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void measureDownloadSpeed() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mergePieces() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void writePieceToFile() {
-		Path path = Paths.get("output.txt");
-
-		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-			writer.write("Hello World !!");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-	
+		
 	//to do below this
 	public void startTCPServer(int port) throws IOException {
         ServerSocket serverSocket = new ServerSocket(port);

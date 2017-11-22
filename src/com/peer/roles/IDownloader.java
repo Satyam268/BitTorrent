@@ -1,6 +1,6 @@
 package com.peer.roles;
 
-public interface Downloader {
+public interface IDownloader {
 
 	void markPeiceReceived(int peiceIndex);
 
