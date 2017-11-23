@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,26 +32,15 @@ public class PeerProcess {
 
 	public PeerProcess(int peerId) {
 		peer = new Peer(peerId);
+		neighborMap = new HashMap<>();
+		activePeerIds = new ArrayList<>();
 	}
 
 
 	void establishTCPConnection() {
-		for (int i = 0; i < activePeerIds.size(); i++) {
-			connectTo(neighborMap.get(activePeerIds));
-		}
+		peer.connectToPeers(activePeerIds);
 	}
 
-	
-
-
-	private void connectTo(PeerInfo peerInfo) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	
-	
 	private void startServer() {
 		peer.startServer();
 	}
@@ -58,14 +48,23 @@ public class PeerProcess {
 
 	void readPeerInfoFile() {
 		String fileName = "src/com/peer/configFiles/PeerInfo.cfg";
-		
 		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-			stream.forEach(x -> {
-				PeerInfo peerInfo = new PeerInfo(x);
+			Iterator<String> it= stream.iterator();
+			boolean selfPeerIdNotRead=true;
+			
+			while(it.hasNext()) {
+				PeerInfo peerInfo = new PeerInfo(it.next());
 				neighborMap.put(peerInfo.getPeerId(),peerInfo);
-			});
+				if(selfPeerIdNotRead && peerInfo.getPeerId()!=peer.getPeerID()) {
+					activePeerIds.add(peerInfo.getPeerId());
+				}
+				else {
+					selfPeerIdNotRead=false;
+				}
+			}
 			myInfo = neighborMap.remove(peer.getPeerID());	
 			peer.setPeerMap(neighborMap);
+			peer.setMyInfo(myInfo);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -96,7 +95,7 @@ public class PeerProcess {
 		PeerProcess me = new PeerProcess(1002);
 		me.readPeerInfoFile();
 		me.readCommonCFGFile();
-		me.startServer();
 		me.establishTCPConnection();
+		me.startServer();
 	}
 }

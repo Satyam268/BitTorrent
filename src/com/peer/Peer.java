@@ -1,26 +1,16 @@
 package com.peer;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-
-import com.peer.messages.types.BitField;
-import com.peer.roles.IDownloader;
-import com.peer.roles.IUploader;
 
 public class Peer {
 
@@ -35,8 +25,6 @@ public class Peer {
     //private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-    private Uploader uploader;
-    private Downloader downloader;
     private Map<Integer,PeerInfo> peerMap = new HashMap<>();
     public Peer(int peerId){
     	peerID = peerId; 
@@ -51,32 +39,6 @@ public class Peer {
 	private void calculatePeices() {
 
 	}
-
-
-	public int getPeerID() {
-		return peerID;
-	}
-
-	public void setPeerID(int peerID) {
-		this.peerID = peerID;
-	}
-
-	public int getPeices() {
-		return pieces;
-	}
-
-	public void setPeices(int pieces) {
-		this.pieces = pieces;
-	}
-
-	public BitSet getBitfield() {
-		return bitfield;
-	}
-
-	public void setBitfield(BitSet bitfield) {
-		this.bitfield = bitfield;
-	}
-
 
 	//to do below this
 //	public void startTCPServer(int port) throws IOException {
@@ -93,26 +55,13 @@ public class Peer {
 //        }
 //    }
 
-	public void stopTCPServer() throws IOException {
-        in.close();
-        out.close();
-       // clientSocket.close();
-        serverSocket.close();
-    }
-
-	public void startConnection(String ip, int port) throws UnknownHostException, IOException {
-//        clientSocket = new Socket(ip, port);
-//        out = new PrintWriter(clientSocket.getOutputStream(), true);
-//        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-    }
-
-
-	public void stopConnection() throws IOException {
-	        in.close();
-	        out.close();
-	   //     clientSocket.close();
-	}
-
+//	public void stopTCPServer() throws IOException {
+//        in.close();
+//        out.close();
+//       // clientSocket.close();
+//        serverSocket.close();
+//    }
+//
 	public void startServer() {
 		try {
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
@@ -160,6 +109,8 @@ public class Peer {
 	
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
+			PrintWriter outer = new PrintWriter(neighborSocket.getOutputStream(), true);
+			outer.println("Hi from Yash");
 			peerMap.get(neighborId).setClientSocket(neighborSocket);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -179,9 +130,33 @@ public class Peer {
 		return myInfo;
 	}
 
-
 	public void setMyInfo(PeerInfo myInfo) {
 		this.myInfo = myInfo;
 	}
+	
+	public int getPeerID() {
+		return peerID;
+	}
+
+	public void setPeerID(int peerID) {
+		this.peerID = peerID;
+	}
+
+	public int getPeices() {
+		return pieces;
+	}
+
+	public void setPeices(int pieces) {
+		this.pieces = pieces;
+	}
+
+	public BitSet getBitfield() {
+		return bitfield;
+	}
+
+	public void setBitfield(BitSet bitfield) {
+		this.bitfield = bitfield;
+	}
+
 
 }

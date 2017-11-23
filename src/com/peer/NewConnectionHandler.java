@@ -25,8 +25,9 @@ public class NewConnectionHandler implements Runnable{
 			out = new PrintWriter(socket.getOutputStream(), true);
 			while(true) {
 				try {
-					in.readLine();
+					String s = in.readLine();
 					// call message handler and pass out to handler
+					out.println("Yash Says:"+s);
 		    	}
 				catch(IOException e) {
 					e.printStackTrace();
