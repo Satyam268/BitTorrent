@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,38 +14,58 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class PeerProcess {
 
-	PeerMeta myInfo;
-	List<PeerMeta> peerMetaCfg;
+	PeerInfo myInfo;
+	Map<Integer,PeerInfo> neighborMap;
+	List<Integer> activePeerIds;
 	int NumberOfPreferredNeighbors;
 	int UnchokingInterval;
 	int OptimisticUnchokingInterval;
 	String FileName;
 	int FileSize;
 	int PieceSize;
-
+	
 	List<Peer> interestedNeighbors = new ArrayList<>();
 
 	final static Logger logger = Logger.getLogger(PeerProcess.class);
-	Peer taskHandler = null;
+	Peer peer = null;
 
 	public PeerProcess(int peerId) {
-		myInfo = new PeerMeta(peerId);
-		taskHandler = new Peer();
+		peer = new Peer(peerId);
 	}
 
-	/*
-	 * void establishTCPConnection() { for(int i=0;i<peerMetaCfg.size();i++) {
-	 * if(peerMetaCfg.get(i).peerId!=myInfo.peerId) { //establish TCP connection
-	 * logger.info("Establishes connection with peerId "+
-	 * peerMetaCfg.get(i).peerId); } else { break; } } }
-	 */
+
+	void establishTCPConnection() {
+		for (int i = 0; i < activePeerIds.size(); i++) {
+			connectTo(neighborMap.get(activePeerIds));
+		}
+	}
+
+	
+
+
+	private void connectTo(PeerInfo peerInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	
+	
+	private void startServer() {
+		peer.startServer();
+	}
+
+
 	void readPeerInfoFile() {
 		String fileName = "src/com/peer/configFiles/PeerInfo.cfg";
-		peerMetaCfg = new ArrayList<>();
-
+		
 		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-			stream.forEach(x -> peerMetaCfg.add(new PeerMeta(x)));
-			taskHandler.processNeighbours(peerMetaCfg);
+			stream.forEach(x -> {
+				PeerInfo peerInfo = new PeerInfo(x);
+				neighborMap.put(peerInfo.getPeerId(),peerInfo);
+			});
+			myInfo = neighborMap.remove(peer.getPeerID());	
+			peer.setPeerMap(neighborMap);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -67,16 +86,17 @@ public class PeerProcess {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
+	
 
 	public static void main(String[] args) {
 		String log4jConfPath = "log4j.properties";
 		PropertyConfigurator.configure(log4jConfPath);
 
-		PeerProcess me = new PeerProcess(1004);
+		PeerProcess me = new PeerProcess(1002);
 		me.readPeerInfoFile();
-		// me.establishTCPConnection();
 		me.readCommonCFGFile();
+		me.startServer();
+		me.establishTCPConnection();
 	}
 }
