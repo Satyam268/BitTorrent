@@ -1,9 +1,11 @@
 package com.peer.messages;
 
+import com.peer.utilities.MessageType;
+
 public abstract class ActualMsg extends Message {
 
 	protected int length;//length includes type + payload
-	protected byte type;
+	protected MessageType type;
 	protected byte[] payload;
 
 	public int getLength() {
@@ -14,11 +16,11 @@ public abstract class ActualMsg extends Message {
 		this.length = length;
 	}
 
-	public byte getType() {
+	public MessageType getType() {
 		return type;
 	}
 
-	public void setType(byte type) {
+	public void setType(MessageType type) {
 		this.type = type;
 	}
 

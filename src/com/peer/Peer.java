@@ -17,20 +17,19 @@ public class Peer {
 	private int peerID;
 	private int pieces;
 	private PeerInfo myInfo;
+
 	// records the pieces i have/don't have
 	private BitSet bitfield = null;
 
 	//Connection Variables
 	private ServerSocket serverSocket;
-    //private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
     private Map<Integer,PeerInfo> peerMap = new HashMap<>();
     public Peer(int peerId){
-    	peerID = peerId; 
+    	peerID = peerId;
     }
-    
-    
+
     public Peer(PeerInfo peerInfo) {
     	setMyInfo(peerInfo);
     }
@@ -40,60 +39,40 @@ public class Peer {
 
 	}
 
-	//to do below this
-//	public void startTCPServer(int port) throws IOException {
-//        ServerSocket serverSocket = new ServerSocket(port);
-//        clientSocket = serverSocket.accept();
-//        out = new PrintWriter(clientSocket.getOutputStream(), true);
-//        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//        String greeting = in.readLine();
-//        System.out.println(greeting);
-//        if ("hello server".equals(greeting)) {
-//            out.println("hello client");
-//        } else {
-//            out.println("unrecognized greeting");
-//        }
-//    }
-
-//	public void stopTCPServer() throws IOException {
-//        in.close();
-//        out.close();
-//       // clientSocket.close();
-//        serverSocket.close();
-//    }
-//
 	public void startServer() {
 		try {
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
 			Socket clientSocket;
 			while(true) {
+				System.out.println("Waiting for socket");
 				clientSocket = serverSocket.accept();
+				System.out.println("accepted");
 				in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				String data = in.readLine();
 				//get peerId from data packet mostly handshake message....
-				//new connection first message 
-				//call message handler - 
+				//new connection first message
+				//call message handler -
 				System.out.println(data);
-		        int neighborId = 1001;
+		        int neighborId = 1002;
 				//get which client it is...check in hashmap whether there's already a connection
 				//pass clientSocket and the peerInfo of relevant peer based on what you get from
-				// message handler 
+				// message handler
 				// if new connection from same peerID then check old is deprecated or not
 				//socket to peerId mapping
 		        peerMap.get(neighborId).setClientSocket(clientSocket);
 		        Thread t = new Thread(new NewConnectionHandler(clientSocket, null));
 				t.start();
 				// client peerId to Socket hashMap -- so that one can delete the thread once done
-				
+
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
+
 	}
-	
+
 	public void connectToPeers(List<Integer> activePeerIds) {
 		for(int neighborId:activePeerIds) {
 			doHandShake(neighborId);
@@ -102,11 +81,11 @@ public class Peer {
 			t.start();
 		}
 	}
-	
+
 
 	public void doHandShake(int neighborId) {
 		PeerInfo neighborInfo = peerMap.get(neighborId);
-	
+
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
 			PrintWriter outer = new PrintWriter(neighborSocket.getOutputStream(), true);
@@ -117,8 +96,8 @@ public class Peer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+
 	}
 
 	public void setPeerMap(Map<Integer, PeerInfo> neighborMap) {
@@ -133,7 +112,7 @@ public class Peer {
 	public void setMyInfo(PeerInfo myInfo) {
 		this.myInfo = myInfo;
 	}
-	
+
 	public int getPeerID() {
 		return peerID;
 	}
