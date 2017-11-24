@@ -75,7 +75,6 @@ public class Peer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	private int handleHandshakeMessage(DataInputStream in2, DataOutputStream out2) {

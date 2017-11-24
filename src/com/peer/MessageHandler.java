@@ -3,15 +3,17 @@ package com.peer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.peer.messages.ActualMsg;
 import com.peer.messages.Message;
-import com.peer.messages.types.*;
+import com.peer.messages.types.BitField;
+import com.peer.messages.types.Interested;
+import com.peer.messages.types.Piece;
+import com.peer.messages.types.Request;
+import com.peer.messages.types.Unchoke;
 import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
 
@@ -81,13 +83,12 @@ public class MessageHandler implements Runnable {
 
 	private void handleRequest(ActualMsg message) throws ClassNotFoundException, IOException {
 		// send piece message
-		Piece pieceMessage = (Piece)Message.getInstance(MessageType.PIECE);
-		
+		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
 	}
 
 	private void handleHave(ActualMsg message) {
 		// update bit field of peerInfo and set it to 1
-		//TODO now
+		// TODO now
 	}
 
 	private void handleNotInterested(ActualMsg message) {
@@ -107,7 +108,8 @@ public class MessageHandler implements Runnable {
 
 	private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
 		Unchoke unchokeMessage = (Unchoke) message;
-		// select a piece you want to request based on what you want and what you
+		// select a piece you want to request based on what you want and what
+		// you
 		// haven't requested already
 		PeerInfo clientPeerInfo = map.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
@@ -123,7 +125,8 @@ public class MessageHandler implements Runnable {
 
 	private void handleChoke(ActualMsg message) {
 		// update in map choked is true
-		// cannot make request to this uploader and update requested for a particular
+		// cannot make request to this uploader and update requested for a
+		// particular
 		// piece
 		// if it was receiving one from another peer who choked it
 	}
