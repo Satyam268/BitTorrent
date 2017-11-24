@@ -99,7 +99,10 @@ public class PeerProcess {
 		PeerProcess me = new PeerProcess(1001);
 		me.readPeerInfoFile();
 		me.readCommonCFGFile();
+
+		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
+		logger.info("TCP connections to already connected peeers completed.\n");
 		me.startServer();
 	}
 

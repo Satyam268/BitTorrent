@@ -53,18 +53,23 @@ public class Peer {
 		try {
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
 			Socket clientSocket;
+			logger.info("\nStarting listening to my port\n");
 			while (true) {
-				System.out.println("Waiting for socket");
+				logger.info("\nWaiting for socket");
 				clientSocket = serverSocket.accept();
-				System.out.println("accepted");
+
 				in = new DataInputStream(clientSocket.getInputStream());
 				out = new DataOutputStream(clientSocket.getOutputStream());
 
 				// handshake message
 				int neighborId = handleHandshakeMessage(in, out);
+				logger.info("\n Accepted conection from " + neighborId);
+
 				// get which client it is...check in hashmap whether there's
 				// already a connection
 				peerMap.get(neighborId).setClientSocket(clientSocket);
+
+				//starting new thread for this neighbourID n me
 				Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId));
 				t.start();
 				// client peerId to Socket hashMap -- so that one can delete the
@@ -95,6 +100,7 @@ public class Peer {
 	public void connectToPeers(List<Integer> activePeerIds) {
 		for (int neighborId : activePeerIds) {
 			doHandShake(neighborId);
+			logger.info("\nHandshake completed with " + neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
 			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, in, out, myInfo, peerMap, neighborId));
 			t.start();
@@ -102,13 +108,17 @@ public class Peer {
 	}
 
 	public void doHandShake(int neighborId) {
+		logger.info("Starting handshake with neighbourID:" + neighborId);
 		PeerInfo neighborInfo = peerMap.get(neighborId);
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
 			HandshakeMsg handshakeMessage = new HandshakeMsg(myInfo.getPeerId());
+			logger.info("\nSent handshake msg to neighbourID:" + neighborId);
 			handshakeMessage.write(new DataOutputStream(neighborSocket.getOutputStream()));
 			handshakeMessage.read(new DataInputStream(neighborSocket.getInputStream()));
+			logger.info("\nReceived handshake msg from:" + neighborId);
 			peerMap.get(neighborId).setClientSocket(neighborSocket);
+
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -160,6 +170,6 @@ public class Peer {
 	public void setPieceSize(int pieceSize) {
 		this.pieceSize = pieceSize;
 	}
-	
+
 
 }

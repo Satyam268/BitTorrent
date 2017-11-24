@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.peer.messages.ActualMsg;
 import com.peer.messages.types.BitField;
 
@@ -21,7 +23,8 @@ public class NewConnectionHandler implements Runnable{
 	private Map<Integer,PeerInfo> peerMap;
 	private int neighborId;
 	private PeerInfo myInfo;
-	
+	final static Logger logger = Logger.getLogger(NewConnectionHandler.class);
+
 	public NewConnectionHandler(Socket clientSocket, PeerInfo peerInfo) {
 		socket = clientSocket;
 		peerClient = peerInfo;
@@ -46,16 +49,13 @@ public class NewConnectionHandler implements Runnable{
 
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
-
 			//send bitset
 			//ActualMsg bitFieldMessage = new BitField();
+			logger.info("should send bitset message here.");
 			int i=0;
 			while(true) {
 				try {
-
-
-
-					System.out.println("got response ");
+					//System.out.println("got response ");
 					// call message handler and pass out to handler
 					MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId);
 					Thread t= new Thread(messageHandler);

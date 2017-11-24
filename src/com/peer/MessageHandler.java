@@ -39,7 +39,7 @@ public class MessageHandler implements Runnable {
 		ActualMsg message = new ActualMsg(in);
 		MessageType msgType = message.getType();
 
-		logger.debug("Handler received: Msg-Type " + msgType);
+		logger.debug("\nMsg-Type " + msgType +" received from " + clientPeerID);
 		try {
 
 			switch (msgType) {
