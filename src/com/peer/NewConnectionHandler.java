@@ -1,20 +1,40 @@
 package com.peer;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Map;
+
+import com.peer.messages.ActualMsg;
+import com.peer.messages.types.BitField;
 
 public class NewConnectionHandler implements Runnable{
 
 	Socket socket;
 	PeerInfo peerClient;
-	private BufferedReader in;
-	private PrintWriter out;
+	private DataInputStream in;
+	private DataOutputStream out;
+	private Map<Integer,PeerInfo> peerMap;
+	private int neighborId;
+	private PeerInfo myInfo;
+	
 	public NewConnectionHandler(Socket clientSocket, PeerInfo peerInfo) {
 		socket = clientSocket;
 		peerClient = peerInfo;
+	}
+
+	public NewConnectionHandler(Socket clientSocket, DataInputStream in2, DataOutputStream out2, PeerInfo myInfo,
+			Map<Integer, PeerInfo> peerMap, int neighborId) {
+		socket = clientSocket;
+		this.in=in2;
+		this.out=out2;
+		this.myInfo = myInfo;
+		this.peerMap= peerMap;
+		this.neighborId = neighborId;
 	}
 
 	@Override
@@ -24,25 +44,24 @@ public class NewConnectionHandler implements Runnable{
 
 		try {
 
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			out = new PrintWriter(socket.getOutputStream(), true);
+			in = new DataInputStream(socket.getInputStream());
+			out = new DataOutputStream(socket.getOutputStream());
 
 			//send bitset
-
+			//ActualMsg bitFieldMessage = new BitField();
 			int i=0;
 			while(true) {
 				try {
 
-					/*out.println("Yash Says:"+i);
-					i++;
-*/
-					String s = in.readLine();
 
 
-					System.out.println("got response "+s);
+					System.out.println("got response ");
 					// call message handler and pass out to handler
+					MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId);
+					Thread t= new Thread(messageHandler);
+					t.start();
 		    	}
-				catch(IOException e) {
+				catch(Exception e) {
 					e.printStackTrace();
 				}
 			}

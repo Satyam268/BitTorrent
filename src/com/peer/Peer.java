@@ -32,6 +32,8 @@ public class Peer {
 	private DataOutputStream out;
 	private DataInputStream in;
 	private Map<Integer, PeerInfo> peerMap = new HashMap<>();
+	private int fileSize;
+	private int pieceSize;
 
 	final static Logger logger = Logger.getLogger(Peer.class);
 
@@ -44,7 +46,7 @@ public class Peer {
 	}
 
 	private void calculatePeices() {
-
+		pieces = fileSize/pieceSize;
 	}
 
 	public void startServer() {
@@ -63,7 +65,7 @@ public class Peer {
 				// get which client it is...check in hashmap whether there's
 				// already a connection
 				peerMap.get(neighborId).setClientSocket(clientSocket);
-				Thread t = new Thread(new NewConnectionHandler(clientSocket, null));
+				Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId));
 				t.start();
 				// client peerId to Socket hashMap -- so that one can delete the
 				// thread once done
@@ -95,7 +97,7 @@ public class Peer {
 		for (int neighborId : activePeerIds) {
 			doHandShake(neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
-			Thread t = new Thread(new NewConnectionHandler(neighborInfo.getClientSocket(), neighborInfo));
+			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, in, out, myInfo, peerMap, neighborId));
 			t.start();
 		}
 	}
@@ -151,5 +153,14 @@ public class Peer {
 	public void setBitfield(BitSet bitfield) {
 		this.bitfield = bitfield;
 	}
+
+	public void setFileSize(int fileSize) {
+		this.fileSize = fileSize;
+	}
+
+	public void setPieceSize(int pieceSize) {
+		this.pieceSize = pieceSize;
+	}
+	
 
 }

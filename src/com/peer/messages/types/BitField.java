@@ -1,9 +1,12 @@
 package com.peer.messages.types;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
 import com.peer.messages.ActualMsg;
+import com.peer.utilities.CommonUtils;
 
 public class BitField extends ActualMsg {
 	BitSet pieceField;
@@ -25,12 +28,7 @@ public class BitField extends ActualMsg {
 		this.pieceField.set(index, false);
 	}
 	
-	public BitSet compareBitFields(BitSet bitSet) {
-		BitSet ans = pieceField;
-		ans.flip(0, ans.length());
-		ans.and(bitSet);
-		return ans;
-	}
+	
 	
 	public List<Integer> findSetBitIndexes(BitSet bitSet){
 		List<Integer> setBits = new ArrayList<>();
@@ -40,15 +38,19 @@ public class BitField extends ActualMsg {
 		return setBits;
 	}
 	public List<Integer> getInterestedPieceNumbers(BitSet bitSet){
-		return findSetBitIndexes(this.compareBitFields(bitSet));
+		return findSetBitIndexes(CommonUtils.getRequiredPieces(pieceField, bitSet));
 	}
 	
-	public boolean hasAnyThingInteresting(BitSet bitSet) {
-		BitSet requiredPieces = this.compareBitFields(bitSet);
-		for(int i=0;i<requiredPieces.length();i++) {
-			if(requiredPieces.get(i)) return true;
-		}
-		return false;
-	}
+//	public boolean hasAnyThingInteresting(BitSet bitSet) {
+//		BitSet requiredPieces = CommonUtils.getRequiredPieces(pieceField, bitSet);
+//		for(int i=0;i<requiredPieces.length();i++) {
+//			if(requiredPieces.get(i)) return true;
+//		}
+//		return false;
+//	}
+	
+	public void write(DataOutputStream out) throws IOException {
+		
+	}	
 	
 }

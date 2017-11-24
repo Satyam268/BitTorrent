@@ -18,12 +18,12 @@ public class PeerProcess {
 	PeerInfo myInfo;
 	Map<Integer,PeerInfo> neighborMap;
 	List<Integer> activePeerIds;
-	int NumberOfPreferredNeighbors;
-	int UnchokingInterval;
-	int OptimisticUnchokingInterval;
-	String FileName;
-	int FileSize;
-	int PieceSize;
+	int numberOfPreferredNeighbors;
+	int unchokingInterval;
+	int optimisticUnchokingInterval;
+	String fileName;
+	int fileSize;
+	int pieceSize;
 
 	List<Peer> interestedNeighbors = new ArrayList<>();
 
@@ -65,6 +65,8 @@ public class PeerProcess {
 			myInfo = neighborMap.remove(peer.getPeerID());
 			peer.setPeerMap(neighborMap);
 			peer.setMyInfo(myInfo);
+			peer.setFileSize(fileSize);
+			peer.setPieceSize(pieceSize);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -72,15 +74,15 @@ public class PeerProcess {
 	}
 
 	void readCommonCFGFile() {
-		String fileName = "src/com/peer/configFiles/Common.cfg";
-		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+		String _fileName = "src/com/peer/configFiles/Common.cfg";
+		try (Stream<String> stream = Files.lines(Paths.get(_fileName))) {
 			Iterator<String> it = stream.iterator();
-			NumberOfPreferredNeighbors = Integer.parseInt(it.next().split(" ")[1]);
-			UnchokingInterval = Integer.parseInt(it.next().split(" ")[1]);
-			OptimisticUnchokingInterval = Integer.parseInt(it.next().split(" ")[1]);
-			FileName = it.next().split(" ")[1];
-			FileSize = Integer.parseInt(it.next().split(" ")[1]);
-			PieceSize = Integer.parseInt(it.next().split(" ")[1]);
+			numberOfPreferredNeighbors = Integer.parseInt(it.next().split(" ")[1]);
+			unchokingInterval = Integer.parseInt(it.next().split(" ")[1]);
+			optimisticUnchokingInterval = Integer.parseInt(it.next().split(" ")[1]);
+			fileName = it.next().split(" ")[1];
+			fileSize = Integer.parseInt(it.next().split(" ")[1]);
+			pieceSize = Integer.parseInt(it.next().split(" ")[1]);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -99,5 +101,10 @@ public class PeerProcess {
 		me.readCommonCFGFile();
 		me.establishTCPConnection();
 		me.startServer();
+	}
+
+
+	public int getNumberOfPieces() {
+		return (fileSize/pieceSize);
 	}
 }

@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.BitSet;
 
 public class PeerInfo {
-	Peer peer;
+	//Peer peer;
 	boolean choked;
 	int peerId;
 	int listeningPort;
@@ -28,7 +28,11 @@ public class PeerInfo {
         hostName = metaInfo[1];
         listeningPort = Integer.parseInt(metaInfo[2]);
         hasFile = Integer.parseInt(metaInfo[3]);
-    	setBitfield(new BitSet(peer.getPeices()));
+    	
+        //handle this AFTER PIECES
+        setBitfield(new BitSet());
+        
+        
         if(hasFile==1) {
         	bitfield.set(0, bitfield.size(), true);
         }
@@ -36,10 +40,6 @@ public class PeerInfo {
         	bitfield.set(0, bitfield.size(), false);
         }
     }
-
-	public PeerInfo(Peer peer) {
-		this.peer=peer;
-	}
 
 	public PeerInfo(int peerId) {
         this.peerId = peerId;
