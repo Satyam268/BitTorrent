@@ -16,19 +16,29 @@ public class NewConnectionHandler implements Runnable{
 		socket = clientSocket;
 		peerClient = peerInfo;
 	}
+
 	@Override
 	public void run() { // validate
-		// listen to the port and write to the port continuously 
+		// listen to the port and write to the port continuously
 		// message handler will be called here
+
 		try {
+
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out = new PrintWriter(socket.getOutputStream(), true);
+
+			//send bitset
+
 			int i=0;
 			while(true) {
 				try {
-					out.println("Yash Says:"+i);
+
+					/*out.println("Yash Says:"+i);
 					i++;
+*/
 					String s = in.readLine();
+
+
 					System.out.println("got response "+s);
 					// call message handler and pass out to handler
 		    	}
@@ -40,8 +50,8 @@ public class NewConnectionHandler implements Runnable{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		
+
+
 	}
-	
+
 }

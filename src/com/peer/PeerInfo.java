@@ -3,6 +3,9 @@ package com.peer;
 import java.net.Socket;
 import java.util.BitSet;
 
+import java.net.Socket;
+import java.util.BitSet;
+
 public class PeerInfo {
 	Peer peer;
 	boolean choked;
@@ -12,14 +15,15 @@ public class PeerInfo {
     Socket clientSocket;
     String hostName;
     boolean handShaked=false;
-	
+
     // records the pieces i have/don't have
-	private BitSet bitfield = null; 
-	
+	private BitSet bitfield = null;
+
 	public PeerInfo(String line){
         String[] metaInfo = line.split(" ");
         if(metaInfo.length!=4) {
         }
+
         peerId = Integer.parseInt(metaInfo[0]);
         hostName = metaInfo[1];
         listeningPort = Integer.parseInt(metaInfo[2]);
@@ -32,20 +36,20 @@ public class PeerInfo {
         	bitfield.set(0, bitfield.size(), false);
         }
     }
-	
+
 	public PeerInfo(Peer peer) {
 		this.peer=peer;
 	}
-	
+
 	public PeerInfo(int peerId) {
         this.peerId = peerId;
     }
-	
+
     public int getListeningPort() {
 		return listeningPort;
 	}
 
-	
+
     @Override
     public String toString() {
         return peerId+ " "+hostName+" "+listeningPort+" "+hasFile;
@@ -71,7 +75,7 @@ public class PeerInfo {
 	public String getHostName() {
 		return hostName;
 	}
-	
+
     public Socket getClientSocket() {
 		return clientSocket;
 	}
@@ -84,6 +88,4 @@ public class PeerInfo {
 	public void setHandShaked(boolean handShaked) {
 		this.handShaked = handShaked;
 	}
-
-	
 }

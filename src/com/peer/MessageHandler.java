@@ -54,14 +54,14 @@ public class MessageHandler {
 		map.get(clientPeerID).setBitfield(bitFieldMessage.getPieceField());
 		if(bitFieldMessage.hasAnyThingInteresting(myInfo.getBitfield())) {
 			// Send new Interested message
-		}	
+		}
 	}
 
 
 
 	private void handleUnchoke(ActualMsg message, PrintWriter out, PeerInfo myInfo, HashMap<Integer, PeerInfo> map, int clientPeerID) {
 		Unchoke unchokeMessage = (Unchoke)message;
-		map.get(clientPeerID).getBitfield()
+		map.get(clientPeerID).getBitfield();
 	}
 
 	private void handleChoke(ActualMsg message, PrintWriter out, PeerInfo myInfo, HashMap<Integer, PeerInfo> map, int clientPeerID) {

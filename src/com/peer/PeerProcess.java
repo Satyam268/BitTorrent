@@ -88,6 +88,8 @@ public class PeerProcess {
 	}
 
 
+	//establishTCPConnection and startServer both run by main thread?
+	//what if handshake fails? deadlock?
 	public static void main(String[] args) {
 		String log4jConfPath = "log4j.properties";
 		PropertyConfigurator.configure(log4jConfPath);

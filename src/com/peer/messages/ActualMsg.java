@@ -2,11 +2,12 @@ package com.peer.messages;
 
 import com.peer.utilities.MessageType;
 
-public abstract class ActualMsg extends Message {
+public class ActualMsg extends Message {
 
 	protected int length;//length includes type + payload
-	protected MessageType type;
+	protected MessageType type;//1 byte
 	protected byte[] payload;
+
 
 	public int getLength() {
 		return length;
