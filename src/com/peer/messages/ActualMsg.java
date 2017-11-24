@@ -7,8 +7,7 @@ import java.net.ProtocolException;
 
 import com.peer.utilities.MessageType;
 
-public class ActualMsg extends Message { /// rename methods !!! // throw exceptions if packets do not conform their protocol
-
+public class ActualMsg extends Message { 
 	protected int length;//length includes type + payload
 	protected MessageType type;//1 byte
 	protected byte[] payload;
@@ -19,21 +18,30 @@ public class ActualMsg extends Message { /// rename methods !!! // throw excepti
 		try {
 			read(in);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 	}
 
 	public void read(DataInputStream in) throws ProtocolException, IOException {
-		try {
-			setPacketLength(in);
-			setType(in);
-			setPayload(in);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			readPacketLength(in);
+			readPacketType(in);
+			readPacketPayload(in);
+	}
+
+	private void readPacketPayload(DataInputStream in) throws IOException {
+		byte[] payload = new byte[this.length-1];
+		in.readFully(payload, 0, this.length-1);
+		setPayload(payload);
+	}
+
+	private void readPacketType(DataInputStream in) throws IOException {
+		byte type = in.readByte();
+		setType((MessageType.getMessageType(type)));
+	}
+
+	private void readPacketLength(DataInputStream in) throws IOException {
+		setLength(in.readInt());
 	}
 
 	public void write(DataOutputStream out) throws IOException {
@@ -42,27 +50,6 @@ public class ActualMsg extends Message { /// rename methods !!! // throw excepti
 		out.write(this.getPayload(), 0, this.getPayload().length);
 	}
 
-
-	
-	
-	
-	
-	
-	private void setPayload(DataInputStream in) throws IOException {
-		// based on type set payload
-		payload = new byte[this.length-1];
-		in.readFully(payload, 0, this.length-1);
-		
-	}
-
-	private void setType(DataInputStream in) throws IOException {
-		byte type = in.readByte();
-		setType((MessageType.getMessageType(type)));
-	}
-
-	public void setPacketLength(DataInputStream in) throws IOException {
-		setLength(in.readInt());
-	}
 	public int getLength() {
 		return length;
 	}
