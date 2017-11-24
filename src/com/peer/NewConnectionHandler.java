@@ -23,11 +23,14 @@ public class NewConnectionHandler implements Runnable{
 		try {
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out = new PrintWriter(socket.getOutputStream(), true);
+			int i=0;
 			while(true) {
 				try {
+					out.println("Yash Says:"+i);
+					i++;
 					String s = in.readLine();
+					System.out.println("got response "+s);
 					// call message handler and pass out to handler
-					out.println("Yash Says:"+s);
 		    	}
 				catch(IOException e) {
 					e.printStackTrace();

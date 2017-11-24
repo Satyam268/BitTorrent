@@ -18,9 +18,6 @@ public class Peer {
 	private int pieces;
 	private PeerInfo myInfo;
 
-	// records the pieces i have/don't have
-	private BitSet bitfield = null;
-
 	//Connection Variables
 	private ServerSocket serverSocket;
     private PrintWriter out;
@@ -48,7 +45,10 @@ public class Peer {
 				clientSocket = serverSocket.accept();
 				System.out.println("accepted");
 				in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-				String data = in.readLine();
+				
+				if()
+				
+				
 				//get peerId from data packet mostly handshake message....
 				//new connection first message
 				//call message handler -
