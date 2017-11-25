@@ -28,14 +28,17 @@ public class Peer {
 	private Map<Integer, PeerInfo> peerMap = new HashMap<>();
 	private int fileSize;
 	private int pieceSize;
+	private FileHandler fileHandler;
 	final static Logger logger = Logger.getLogger(Peer.class);
 
 	public Peer(int peerId) {
 		peerID = peerId;
+		fileHandler = new FileHandler(peerId);
 	}
 
 	public Peer(PeerInfo peerInfo) {
 		setMyInfo(peerInfo);
+		
 	}
 
 	private void calculatePeices() {
@@ -61,7 +64,7 @@ public class Peer {
 				logger.info(" Accepted conection from " + neighborId);
 
 				setSocketDetails(neighborId, clientSocket, in, out);
-				Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId));
+				Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
 				t.start();
 				// client peerId to Socket hashMap -- so that one can delete the
 				// thread once done
@@ -93,7 +96,7 @@ public class Peer {
 			doHandShake(neighborId);
 			logger.info("\nHandshake completed with " + neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
-			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(), neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId));
+			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(), neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId, fileHandler));
 			t.start();
 		}
 	}

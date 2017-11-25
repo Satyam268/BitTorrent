@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.peer.file.FileOperations;
+import com.peer.file.SplitFile;
 import com.peer.utilities.CommonUtils;
 
 public class PeerProcess {
@@ -72,6 +74,7 @@ public class PeerProcess {
 			peer.setFileSize(fileSize);
 			peer.setPieceSize(pieceSize);
 			setCommonUtilities();
+			logger.debug("Common Utils set");
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -99,7 +102,9 @@ public class PeerProcess {
 			fileName = it.next().split(" ")[1];
 			fileSize = Integer.parseInt(it.next().split(" ")[1]);
 			pieceSize = Integer.parseInt(it.next().split(" ")[1]);
-
+			System.out.println("PeerProcess Config: "+numberOfPreferredNeighbors +" "+unchokingInterval+" "+optimisticUnchokingInterval);
+			
+			splitFileIntoPieceFiles(fileName, pieceSize);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -115,7 +120,8 @@ public class PeerProcess {
 		PeerProcess me = new PeerProcess(1002);
 		me.readPeerInfoFile();
 		me.readCommonCFGFile();
-
+		
+		
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");
@@ -123,8 +129,15 @@ public class PeerProcess {
 		me.startServer();
 	}
 
-
+	
+	
 	public int getNumberOfPieces() {
 		return (fileSize/pieceSize);
 	}
+	
+	public void splitFileIntoPieceFiles(String fileName, int pieceSize) {
+		String[] arguments = new String[] {fileName,pieceSize+""};
+		SplitFile.main(arguments);
+	}
+	
 }

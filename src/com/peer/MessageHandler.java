@@ -3,10 +3,10 @@ package com.peer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-
 import com.peer.messages.ActualMsg;
 import com.peer.messages.Message;
 import com.peer.messages.types.BitField;
@@ -21,20 +21,22 @@ import com.peer.utilities.MessageType;
 
 public class MessageHandler {
 	final static Logger logger = Logger.getLogger(MessageHandler.class);
-	DataInputStream in;
-	DataOutputStream out;
-	PeerInfo myInfo;
-	Map<Integer, PeerInfo> peerMap;
-	int clientPeerID;
+	private DataInputStream in;
+	private DataOutputStream out;
+	private PeerInfo myInfo;
+	private Map<Integer, PeerInfo> peerMap;
+	private int clientPeerID;
+	private FileHandler fileHandler;
 
 	public MessageHandler(DataInputStream in, DataOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> peerMap,
-			int clientPeerID) {
+			int clientPeerID, FileHandler fileHandler) {
 		logger.info("creating new object");
 		this.in = in;
 		this.out = out;
 		this.myInfo = myInfo;
 		this.peerMap = peerMap;
 		this.clientPeerID = clientPeerID;
+		this.fileHandler = fileHandler;
 	}
 
 	public void handleMessage() {
@@ -79,15 +81,41 @@ public class MessageHandler {
 		}
 	}
 
+	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
+		BitField bitFieldMessage = (BitField) message;
+		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
+
+		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
+			// Send new Interested message
+			Interested interestedMessage = (Interested) Message.getInstance(MessageType.INTERESTED);
+			interestedMessage.write(out);
+		}
+		else {
+			NotInterested notInterestedMessage = (NotInterested) Message.getInstance(MessageType.NOTINTERESTED);
+			notInterestedMessage.write(out);
+		}
+	}
+
+	
 	private void handlePiece(ActualMsg message) {
-		// write to file !! file manager
+		PeerInfo peerInfo = peerMap.get(clientPeerID);
+		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload());
+		peerInfo.setRequestedPieceIndex(-1);
+		// after you receive a piece send another request message....
+		//sendRequestMessage();
 	}
 
 	private void handleRequest(ActualMsg message) throws ClassNotFoundException, IOException {
 		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
 		// utilize file Manager methods to get pieces as array off bytes then create a packet to write on out.
+		int pieceIndex = CommonUtils.byteArrayToInt(message.getPayload());
+		byte[] piece = fileHandler.getPiece(pieceIndex);
+		pieceMessage.setLength(piece.length);
+		pieceMessage.setPayload(piece);
+		pieceMessage.write(out);
 	}
 
+	
 	private void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
 		// update bit field of peerInfo and set it to 1
 		// TODO now
@@ -103,36 +131,23 @@ public class MessageHandler {
 		// remove from list of interested messages
 	}
 
-	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
-		BitField bitFieldMessage = (BitField) message;
-		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPieceField());
-
-		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPieceField(), myInfo.getBitfield())) {
-			// Send new Interested message
-			Interested interestedMessage = (Interested) Message.getInstance(MessageType.INTERESTED);
-			interestedMessage.write(out);
-		}
-		else {
-			NotInterested notInterestedMessage = (NotInterested) Message.getInstance(MessageType.NOTINTERESTED);
-			notInterestedMessage.write(out);
-		}
-	}
-
+	
 	private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
 		Unchoke unchokeMessage = (Unchoke) message;
 		// select a piece you want to request based on what you want and what
 		// you
-		// haven't requested already
+		// haven't requested already 
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
-		int interestedPieceId = getInterestedPieceId(myInfo, clientPeerInfo);
+		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
+		clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the requested piece in Neighbor's PeerInfo
 		requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
 		requestMessage.write(out);
 
 	}
 
-	private int getInterestedPieceId(PeerInfo myInfo2, PeerInfo clientPeerInfo) {
-		return 10;
+	private int getInterestedPieceId(PeerInfo clientPeerInfo) {
+		return fileHandler.getPartToRequest(clientPeerInfo.getBitfield());
 	}
 
 	private void handleChoke(ActualMsg message) {
@@ -141,6 +156,10 @@ public class MessageHandler {
 		// particular
 		// piece
 		// if it was receiving one from another peer who choked it
+		// update the requested piece index
+		PeerInfo peerInfo = peerMap.get(clientPeerID);
+		peerInfo.setRequestedPieceIndex(-1);
+		
 	}
 
 	private void handleInterested(ActualMsg message) throws ClassNotFoundException, IOException {

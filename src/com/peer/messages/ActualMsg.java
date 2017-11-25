@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.util.BitSet;
 
 import com.peer.utilities.MessageType;
 
@@ -88,6 +89,10 @@ public class ActualMsg extends Message {
 
 	public void setPayload(byte[] payload) {
 		this.payload = payload;
+	}
+	
+	public BitSet getPayloadInBitSet() {
+		return BitSet.valueOf(this.payload);
 	}
 
 }

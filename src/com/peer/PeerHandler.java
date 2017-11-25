@@ -159,5 +159,4 @@ public class PeerHandler implements Runnable {
 		}
 		return interestedPeers;
 	}
-
 }

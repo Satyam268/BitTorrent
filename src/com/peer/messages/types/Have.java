@@ -9,11 +9,7 @@ public class Have extends ActualMsg {
 
 	public Have() {
 		setLength(5);
-		setType(MessageType.REQUEST);
+		setType(MessageType.HAVE);
 	}
-	public Have(DataInputStream in) {
-		super(in);
-	}
-	
 	
 }

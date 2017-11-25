@@ -7,14 +7,11 @@ import com.peer.utilities.MessageType;
 
 public class NotInterested extends ActualMsg {
 
-	public NotInterested(DataInputStream in) {
-		super(in);
-	}
 	
 	public NotInterested() {
 		setLength(1);
 		setType(MessageType.NOTINTERESTED);
-		setPayload(null); //make sure null is ok
+		setPayload(new byte[0]); 
 	}
 
 }

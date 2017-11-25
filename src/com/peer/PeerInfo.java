@@ -21,8 +21,10 @@ public class PeerInfo {
     AtomicInteger bytesDownloaded = new AtomicInteger(0);
     DataInputStream socketReader;
     DataOutputStream socketWriter;
-    
-	// records the pieces i have/don't have
+    int requestedPieceIndex=-1; // after every p time && whenever making a request and whenever piece
+    // comes reset it to -1
+	
+    // records the pieces i have/don't have
 	private BitSet bitfield = null;
 
 	public PeerInfo(String line){
@@ -121,5 +123,14 @@ public class PeerInfo {
 	public void setSocketWriter(DataOutputStream socketWriter) {
 		this.socketWriter = socketWriter;
 	}
+
+	public int getRequestedPieceIndex() {
+		return requestedPieceIndex;
+	}
+
+	public void setRequestedPieceIndex(int requestedPieceIndex) {
+		this.requestedPieceIndex = requestedPieceIndex;
+	}
+
 
 }

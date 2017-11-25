@@ -12,7 +12,5 @@ public class Request extends ActualMsg {
 		setLength(5);
 		setType(MessageType.REQUEST);
 	}
-	public Request(DataInputStream in) {
-		super(in);
-	}
+	
 }

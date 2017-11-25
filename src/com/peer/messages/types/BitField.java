@@ -1,28 +1,9 @@
 package com.peer.messages.types;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-
 import com.peer.messages.ActualMsg;
-import com.peer.utilities.CommonUtils;
+import com.peer.utilities.MessageType;
 
 public class BitField extends ActualMsg {
-	BitSet pieceField;
 	public BitField() {
-		
+		setType(MessageType.BITFIELD);
 	}
-	public BitSet getPieceField() {
-		return pieceField;
-	}
-	public void setPieceField(BitSet pieceField) {
-		this.pieceField = pieceField;
-	}
-	
-		
-	public void write(DataOutputStream out) throws IOException {
-		
-	}	
-	
 }
