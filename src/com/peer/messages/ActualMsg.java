@@ -44,10 +44,26 @@ public class ActualMsg extends Message {
 		setLength(in.readInt());
 	}
 
+	
+	
+	
+	
 	public void write(DataOutputStream out) throws IOException {
+		writePacketLength(out);
+		writePacketType(out);
+		writePacketPayload(out);
+	}
+
+	private void writePacketPayload(DataOutputStream out) throws IOException {
+		out.write(this.getPayload(), 0, this.getPayload().length);	
+	}
+
+	private void writePacketType(DataOutputStream out) throws IOException {
+		out.writeByte(this.getType().getValue());	
+	}
+
+	private void writePacketLength(DataOutputStream out) throws IOException {
 		out.writeInt(this.getLength());
-		out.writeByte(this.getType().getValue());
-		out.write(this.getPayload(), 0, this.getPayload().length);
 	}
 
 	public int getLength() {

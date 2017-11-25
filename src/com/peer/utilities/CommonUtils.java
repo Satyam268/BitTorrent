@@ -2,7 +2,9 @@ package com.peer.utilities;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 public class CommonUtils {
 
@@ -33,4 +35,23 @@ public class CommonUtils {
 		return false;
 	}
 	
+	public static void setBitFieldAtIndex(BitSet bitSet, int index) {
+		bitSet.set(index);
+	}
+	
+	public static void UnsetBitFieldAtIndex(BitSet bitSet, int index) {
+		bitSet.set(index, false);
+	}
+	
+	public static List<Integer> findSetBitIndexes(BitSet bitSet){
+		List<Integer> setBits = new ArrayList<>();
+		for(int i=0;i<bitSet.length();i++) {
+			if(bitSet.get(i)) setBits.add(i);
+		}
+		return setBits;
+	}
+	
+	public List<Integer> getInterestedPieceNumbers(BitSet pieceField, BitSet bitSet){
+		return findSetBitIndexes(CommonUtils.getRequiredPieces(pieceField, bitSet));
+	}
 }

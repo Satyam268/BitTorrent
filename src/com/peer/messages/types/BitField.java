@@ -20,26 +20,6 @@ public class BitField extends ActualMsg {
 		this.pieceField = pieceField;
 	}
 	
-	public void setPieceFieldIndex(int index) {
-		this.pieceField.set(index);
-	}
-	
-	public void unSetPieceFieldIndex(int index) {
-		this.pieceField.set(index, false);
-	}
-	
-	
-	
-	public List<Integer> findSetBitIndexes(BitSet bitSet){
-		List<Integer> setBits = new ArrayList<>();
-		for(int i=0;i<bitSet.length();i++) {
-			if(bitSet.get(i)) setBits.add(i);
-		}
-		return setBits;
-	}
-	public List<Integer> getInterestedPieceNumbers(BitSet bitSet){
-		return findSetBitIndexes(CommonUtils.getRequiredPieces(pieceField, bitSet));
-	}
 		
 	public void write(DataOutputStream out) throws IOException {
 		

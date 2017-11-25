@@ -84,8 +84,8 @@ public class MessageHandler {
 	}
 
 	private void handleRequest(ActualMsg message) throws ClassNotFoundException, IOException {
-		// send piece message
 		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
+		// utilize file Manager methods to get pieces as array off bytes then create a packet to write on out.
 	}
 
 	private void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
