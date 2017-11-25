@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.peer.messages.ActualMsg;
 import com.peer.messages.Message;
 import com.peer.messages.types.BitField;
+import com.peer.messages.types.Have;
 import com.peer.messages.types.Interested;
 import com.peer.messages.types.NotInterested;
 import com.peer.messages.types.Piece;
@@ -87,9 +88,15 @@ public class MessageHandler {
 		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
 	}
 
-	private void handleHave(ActualMsg message) {
+	private void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
 		// update bit field of peerInfo and set it to 1
 		// TODO now
+		Have haveMessage = (Have)Message.getInstance(MessageType.HAVE);
+		haveMessage.setPayload(message.getPayload());
+		map.get(clientPeerID).setBitfieldAtIndex(CommonUtils.byteArrayToInt(haveMessage.getPayload()));
+		// Call some process which sends interested messages.
+		// have to check whether I have sent interested messages already or not.
+		// if not then send interested messages.
 	}
 
 	private void handleNotInterested(ActualMsg message) {

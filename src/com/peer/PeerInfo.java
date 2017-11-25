@@ -69,6 +69,9 @@ public class PeerInfo {
 	public void setBitfield(BitSet bitfield) {
 		this.bitfield = bitfield;
 	}
+	public void setBitfieldAtIndex(int index) {
+		this.bitfield.set(index);
+	}
 	public int getPeerId() {
 		return peerId;
 	}
