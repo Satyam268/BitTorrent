@@ -1,5 +1,6 @@
 package com.peer;
 
-public class FileHandlerListner {
-
+public interface FileHandlerListner {
+	   public void fileCompleted();
+	   public void pieceArrived(int partIdx);
 }

@@ -29,6 +29,7 @@ public class MessageHandler {
 
 	public MessageHandler(DataInputStream in, DataOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> map,
 			int clientPeerID) {
+		logger.info("creating new object");
 		this.in = in;
 		this.out = out;
 		this.myInfo = myInfo;
@@ -36,7 +37,6 @@ public class MessageHandler {
 		this.clientPeerID = clientPeerID;
 	}
 
-	//@Override
 	public void handleMessage() {
 		ActualMsg message = new ActualMsg(in);
 		MessageType msgType = message.getType();

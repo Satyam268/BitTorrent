@@ -24,6 +24,7 @@ public class PeerProcess {
 	String fileName;
 	int fileSize;
 	int pieceSize;
+	//using int for size? fine?
 
 	List<Peer> interestedNeighbors = new ArrayList<>();
 
