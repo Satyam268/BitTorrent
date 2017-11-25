@@ -1,8 +1,10 @@
 package com.peer;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.BitSet;
-
+import java.util.concurrent.atomic.AtomicInteger;
 import java.net.Socket;
 import java.util.BitSet;
 
@@ -15,8 +17,12 @@ public class PeerInfo {
     Socket clientSocket;
     String hostName;
     boolean handShaked=false;
-
-    // records the pieces i have/don't have
+    boolean interested=false;
+    AtomicInteger bytesDownloaded = new AtomicInteger(0);
+    DataInputStream socketReader;
+    DataOutputStream socketWriter;
+    
+	// records the pieces i have/don't have
 	private BitSet bitfield = null;
 
 	public PeerInfo(String line){
@@ -91,4 +97,29 @@ public class PeerInfo {
 	public void setHandShaked(boolean handShaked) {
 		this.handShaked = handShaked;
 	}
+	
+	public boolean isInterested() {
+		return interested;
+	}
+
+	public void setInterested(boolean interested) {
+		this.interested = interested;
+	}
+
+	public DataInputStream getSocketReader() {
+		return socketReader;
+	}
+
+	public void setSocketReader(DataInputStream socketReader) {
+		this.socketReader = socketReader;
+	}
+
+	public DataOutputStream getSocketWriter() {
+		return socketWriter;
+	}
+
+	public void setSocketWriter(DataOutputStream socketWriter) {
+		this.socketWriter = socketWriter;
+	}
+
 }

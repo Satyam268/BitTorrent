@@ -8,6 +8,13 @@ import java.util.List;
 
 public class CommonUtils {
 
+	static int numberOfPreferredNeighbors;
+	static int unchokingInterval;
+	static int optimisticUnchokingInterval;
+	static String fileName;
+	static int fileSize;
+	static int pieceSize;	
+	
 	public static byte[] intToByteArray(int num) {
 		return ByteBuffer.allocate(4).putInt(num).array();
 	}
@@ -66,6 +73,58 @@ public class CommonUtils {
 		// Separate the elements, and pick one randomly
 		String[] indexes = set.substring(1, set.length() - 1).split(",");
 		return Integer.parseInt(indexes[(int) (Math.random() * (indexes.length - 1))].trim());
+	}
+
+	public static int getNumberOfPreferredNeighbors() {
+		return numberOfPreferredNeighbors;
+	}
+
+	public static void setNumberOfPreferredNeighbors(int numberOfPreferredNeighbors) {
+		CommonUtils.numberOfPreferredNeighbors = numberOfPreferredNeighbors;
+	}
+
+	public static int getUnchokingInterval() {
+		return unchokingInterval;
+	}
+
+	public static void setUnchokingInterval(int unchokingInterval) {
+		CommonUtils.unchokingInterval = 10000;
+	}
+
+	public static int getOptimisticUnchokingInterval() {
+		return optimisticUnchokingInterval;
+	}
+
+	public static void setOptimisticUnchokingInterval(int optimisticUnchokingInterval) {
+		CommonUtils.optimisticUnchokingInterval = optimisticUnchokingInterval*1000;
+	}
+
+	public static String getFileName() {
+		return fileName;
+	}
+
+	public static void setFileName(String fileName) {
+		CommonUtils.fileName = fileName;
+	}
+
+	public static int getFileSize() {
+		return fileSize;
+	}
+
+	public static void setFileSize(int fileSize) {
+		CommonUtils.fileSize = fileSize;
+	}
+
+	public static int getPieceSize() {
+		return pieceSize;
+	}
+
+	public static void setPieceSize(int pieceSize) {
+		CommonUtils.pieceSize = pieceSize;
+	}
+
+	public static int getNumberOfPieces() {
+		return fileSize/pieceSize;
 	}
 
 }

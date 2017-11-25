@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.peer.utilities.CommonUtils;
+
 public class PeerProcess {
 
 	PeerInfo myInfo;
@@ -43,6 +45,7 @@ public class PeerProcess {
 	}
 
 	private void startServer() {
+		peer.startPeerHandler();
 		peer.startServer();
 	}
 
@@ -68,11 +71,23 @@ public class PeerProcess {
 			peer.setMyInfo(myInfo);
 			peer.setFileSize(fileSize);
 			peer.setPieceSize(pieceSize);
+			setCommonUtilities();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
+	private void setCommonUtilities() {
+		CommonUtils.setFileName(fileName);
+		CommonUtils.setFileSize(fileSize);
+		CommonUtils.setOptimisticUnchokingInterval(optimisticUnchokingInterval);
+		CommonUtils.setNumberOfPreferredNeighbors(numberOfPreferredNeighbors);
+		CommonUtils.setPieceSize(pieceSize);
+		CommonUtils.setUnchokingInterval(unchokingInterval);
+		CommonUtils.setPieceSize(pieceSize);
+	}
+
 
 	void readCommonCFGFile() {
 		String _fileName = "src/com/peer/configFiles/Common.cfg";
@@ -104,6 +119,7 @@ public class PeerProcess {
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");
+		
 		me.startServer();
 	}
 

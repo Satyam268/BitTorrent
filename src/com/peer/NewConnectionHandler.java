@@ -54,7 +54,6 @@ public class NewConnectionHandler implements Runnable {
 
 			// send bitset
 			// ActualMsg bitFieldMessage = new BitField();
-
 			logger.info("should send bitset message here.");
 
 			while (true) {
@@ -65,12 +64,11 @@ public class NewConnectionHandler implements Runnable {
 						messageHandler.handleMessage();
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.warn("Invalid Message sent from peer: " +neighborId+" " +e);
 				}
 			}
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (Exception e1) {
+			logger.warn("Problem Connecting to peer: "+neighborId+" "+e1);
 		}
 
 	}

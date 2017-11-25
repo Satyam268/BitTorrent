@@ -1,11 +1,8 @@
 package com.peer;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -17,7 +14,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.peer.messages.HandshakeMsg;
-import com.peer.messages.Message;
 import com.peer.utilities.CommonUtils;
 
 public class Peer {
@@ -29,12 +25,9 @@ public class Peer {
 
 	// Connection Variables
 	private ServerSocket serverSocket;
-	private DataOutputStream out;
-	private DataInputStream in;
 	private Map<Integer, PeerInfo> peerMap = new HashMap<>();
 	private int fileSize;
 	private int pieceSize;
-
 	final static Logger logger = Logger.getLogger(Peer.class);
 
 	public Peer(int peerId) {
@@ -46,30 +39,28 @@ public class Peer {
 	}
 
 	private void calculatePeices() {
-		pieces = fileSize/pieceSize;
+		pieces = CommonUtils.getNumberOfPieces();
 	}
 
 	public void startServer() {
+
+		DataOutputStream out = null;
+		DataInputStream in = null;
 		try {
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
 			Socket clientSocket;
-			logger.info("\nStarting listening to my port\n");
+			logger.info(" Starting listening to my port\n");
 			while (true) {
-				logger.info("\nWaiting for socket");
+				logger.info(" Waiting for socket");
 				clientSocket = serverSocket.accept();
-
 				in = new DataInputStream(clientSocket.getInputStream());
 				out = new DataOutputStream(clientSocket.getOutputStream());
 
 				// handshake message
 				int neighborId = handleHandshakeMessage(in, out);
-				logger.info("\n Accepted conection from " + neighborId);
+				logger.info(" Accepted conection from " + neighborId);
 
-				// get which client it is...check in hashmap whether there's
-				// already a connection
-				peerMap.get(neighborId).setClientSocket(clientSocket);
-
-				//starting new thread for this neighbourID n me
+				setSocketDetails(neighborId, clientSocket, in, out);
 				Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId));
 				t.start();
 				// client peerId to Socket hashMap -- so that one can delete the
@@ -102,7 +93,7 @@ public class Peer {
 			doHandShake(neighborId);
 			logger.info("\nHandshake completed with " + neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
-			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, in, out, myInfo, peerMap, neighborId));
+			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(), neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId));
 			t.start();
 		}
 	}
@@ -113,17 +104,31 @@ public class Peer {
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
 			HandshakeMsg handshakeMessage = new HandshakeMsg(myInfo.getPeerId());
-			logger.info("\nSent handshake msg to neighbourID:" + neighborId);
-			handshakeMessage.write(new DataOutputStream(neighborSocket.getOutputStream()));
-			handshakeMessage.read(new DataInputStream(neighborSocket.getInputStream()));
-			logger.info("\nReceived handshake msg from:" + neighborId);
-			peerMap.get(neighborId).setClientSocket(neighborSocket);
-
+			
+			logger.info(" Sent handshake msg to neighbourID:" + neighborId);
+			
+			DataOutputStream out = new DataOutputStream(neighborSocket.getOutputStream());
+			DataInputStream in = new DataInputStream(neighborSocket.getInputStream());
+			
+			handshakeMessage.write(out);
+			handshakeMessage.read(in);
+			
+			logger.info(" Received handshake msg from:" + neighborId);
+			
+			setSocketDetails(neighborId, neighborSocket, in, out);
+		
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			logger.warn("Unable to make TCP connection with TCP host: "+neighborInfo.getHostName()+e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn("Unable to make TCP connection with TCP host: "+neighborInfo.getHostName()+e);
 		}
+
+	}
+
+	private void setSocketDetails(int neighborId, Socket neighborSocket, DataInputStream in, DataOutputStream out) {
+		peerMap.get(neighborId).setClientSocket(neighborSocket);
+		peerMap.get(neighborId).setSocketReader(in);
+		peerMap.get(neighborId).setSocketWriter(out);
 
 	}
 
@@ -171,5 +176,11 @@ public class Peer {
 		this.pieceSize = pieceSize;
 	}
 
+	public void startPeerHandler() {
+		// TODO Auto-generated method stub
+		PeerHandler peerHandler = new PeerHandler(peerMap);
+		Thread peerHandlerThread = new Thread(peerHandler);
+		peerHandlerThread.start();
+	}
 
 }

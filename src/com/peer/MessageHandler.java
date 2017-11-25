@@ -24,16 +24,16 @@ public class MessageHandler {
 	DataInputStream in;
 	DataOutputStream out;
 	PeerInfo myInfo;
-	Map<Integer, PeerInfo> map;
+	Map<Integer, PeerInfo> peerMap;
 	int clientPeerID;
 
-	public MessageHandler(DataInputStream in, DataOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> map,
+	public MessageHandler(DataInputStream in, DataOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> peerMap,
 			int clientPeerID) {
 		logger.info("creating new object");
 		this.in = in;
 		this.out = out;
 		this.myInfo = myInfo;
-		this.map = map;
+		this.peerMap = peerMap;
 		this.clientPeerID = clientPeerID;
 	}
 
@@ -93,7 +93,7 @@ public class MessageHandler {
 		// TODO now
 		Have haveMessage = (Have)Message.getInstance(MessageType.HAVE);
 		haveMessage.setPayload(message.getPayload());
-		map.get(clientPeerID).setBitfieldAtIndex(CommonUtils.byteArrayToInt(haveMessage.getPayload()));
+		peerMap.get(clientPeerID).setBitfieldAtIndex(CommonUtils.byteArrayToInt(haveMessage.getPayload()));
 		// Call some process which sends interested messages.
 		// have to check whether I have sent interested messages already or not.
 		// if not then send interested messages.
@@ -105,7 +105,7 @@ public class MessageHandler {
 
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
 		BitField bitFieldMessage = (BitField) message;
-		map.get(clientPeerID).setBitfield(bitFieldMessage.getPieceField());
+		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPieceField());
 
 		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPieceField(), myInfo.getBitfield())) {
 			// Send new Interested message
@@ -123,7 +123,7 @@ public class MessageHandler {
 		// select a piece you want to request based on what you want and what
 		// you
 		// haven't requested already
-		PeerInfo clientPeerInfo = map.get(clientPeerID);
+		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(myInfo, clientPeerInfo);
 		requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
@@ -143,8 +143,9 @@ public class MessageHandler {
 		// if it was receiving one from another peer who choked it
 	}
 
-	private void handleInterested(ActualMsg message) {
-		// add to the list of interested peers !!
+	private void handleInterested(ActualMsg message) throws ClassNotFoundException, IOException {
+		peerMap.get(clientPeerID).setInterested(true);
+		
 	}
 
 }
