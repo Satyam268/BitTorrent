@@ -96,7 +96,7 @@ public class PeerProcess {
 		String log4jConfPath = "log4j.properties";
 		PropertyConfigurator.configure(log4jConfPath);
 
-		PeerProcess me = new PeerProcess(1001);
+		PeerProcess me = new PeerProcess(1002);
 		me.readPeerInfoFile();
 		me.readCommonCFGFile();
 

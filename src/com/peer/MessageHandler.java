@@ -11,13 +11,14 @@ import com.peer.messages.ActualMsg;
 import com.peer.messages.Message;
 import com.peer.messages.types.BitField;
 import com.peer.messages.types.Interested;
+import com.peer.messages.types.NotInterested;
 import com.peer.messages.types.Piece;
 import com.peer.messages.types.Request;
 import com.peer.messages.types.Unchoke;
 import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
 
-public class MessageHandler implements Runnable {
+public class MessageHandler {
 	final static Logger logger = Logger.getLogger(MessageHandler.class);
 	DataInputStream in;
 	DataOutputStream out;
@@ -34,8 +35,8 @@ public class MessageHandler implements Runnable {
 		this.clientPeerID = clientPeerID;
 	}
 
-	@Override
-	public void run() {
+	//@Override
+	public void handleMessage() {
 		ActualMsg message = new ActualMsg(in);
 		MessageType msgType = message.getType();
 
@@ -103,6 +104,10 @@ public class MessageHandler implements Runnable {
 			// Send new Interested message
 			Interested interestedMessage = (Interested) Message.getInstance(MessageType.INTERESTED);
 			interestedMessage.write(out);
+		}
+		else {
+			NotInterested notInterestedMessage = (NotInterested) Message.getInstance(MessageType.NOTINTERESTED);
+			notInterestedMessage.write(out);
 		}
 	}
 

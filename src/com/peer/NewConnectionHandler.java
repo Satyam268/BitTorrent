@@ -13,6 +13,8 @@ import org.apache.log4j.Logger;
 
 import com.peer.messages.ActualMsg;
 import com.peer.messages.types.BitField;
+import com.peer.utilities.CommonUtils;
+import com.peer.utilities.MessageType;
 
 public class NewConnectionHandler implements Runnable{
 
@@ -46,20 +48,24 @@ public class NewConnectionHandler implements Runnable{
 		// message handler will be called here
 
 		try {
-
+			MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId);
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
 			//send bitset
 			//ActualMsg bitFieldMessage = new BitField();
 			logger.info("should send bitset message here.");
-			int i=0;
+			ActualMsg tempPacket = new ActualMsg();
+			tempPacket.setLength(5);
+	 		tempPacket.setType(MessageType.HAVE);
+			tempPacket.setPayload(CommonUtils.intToByteArray(10));
+			tempPacket.write(out);
+			tempPacket.write(out);
 			while(true) {
 				try {
 					//System.out.println("got response ");
 					// call message handler and pass out to handler
-					MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId);
-					Thread t= new Thread(messageHandler);
-					t.start();
+					if(in.available()>0)
+						messageHandler.handleMessage();
 		    	}
 				catch(Exception e) {
 					e.printStackTrace();
