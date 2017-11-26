@@ -1,8 +1,8 @@
 package com.peer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -41,9 +41,8 @@ public class Peer {
 	}
 
 	public void startServer() {
-
-		DataOutputStream out = null;
-		DataInputStream in = null;
+		ObjectOutputStream out = null;
+		ObjectInputStream in = null;
 		try {
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
 			Socket clientSocket;
@@ -51,16 +50,15 @@ public class Peer {
 			while (true) {
 				logger.info(" Waiting for socket");
 				clientSocket = serverSocket.accept();
-				in = new DataInputStream(clientSocket.getInputStream());
-				out = new DataOutputStream(clientSocket.getOutputStream());
+				in = new ObjectInputStream(clientSocket.getInputStream());
+				out = new ObjectOutputStream(clientSocket.getOutputStream());
 
 				// handshake message
 				int neighborId = handleHandshakeMessage(in, out);
 				logger.info(" Accepted conection from " + neighborId);
 
 				setSocketDetails(neighborId, clientSocket, in, out);
-				Thread t = new Thread(
-						new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
+				Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
 				t.start();
 				// client peerId to Socket hashMap -- so that one can delete the
 				// thread once done
@@ -72,7 +70,7 @@ public class Peer {
 		}
 	}
 
-	private int handleHandshakeMessage(DataInputStream in2, DataOutputStream out2) {
+	private int handleHandshakeMessage(ObjectInputStream in2, ObjectOutputStream out2) {
 		HandshakeMsg handshakeMessage = new HandshakeMsg(peerID);
 		try {
 			handshakeMessage.read(in2);
@@ -110,8 +108,8 @@ public class Peer {
 
 			logger.info(" Sent handshake msg to neighbourID:" + neighborId);
 
-			DataOutputStream out = new DataOutputStream(neighborSocket.getOutputStream());
-			DataInputStream in = new DataInputStream(neighborSocket.getInputStream());
+			ObjectOutputStream out = new ObjectOutputStream(neighborSocket.getOutputStream());
+			ObjectInputStream in = new ObjectInputStream(neighborSocket.getInputStream());
 
 			handshakeMessage.write(out);
 			handshakeMessage.read(in);
@@ -128,11 +126,10 @@ public class Peer {
 		return true;
 	}
 
-	private void setSocketDetails(int neighborId, Socket neighborSocket, DataInputStream in, DataOutputStream out) {
+	private void setSocketDetails(int neighborId, Socket neighborSocket, ObjectInputStream in, ObjectOutputStream out) {
 		peerMap.get(neighborId).setClientSocket(neighborSocket);
 		peerMap.get(neighborId).setSocketReader(in);
 		peerMap.get(neighborId).setSocketWriter(out);
-
 	}
 
 	public void setPeerMap(Map<Integer, PeerInfo> neighborMap) {

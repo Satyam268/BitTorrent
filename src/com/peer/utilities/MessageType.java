@@ -1,6 +1,11 @@
 package com.peer.utilities;
 
+import org.apache.log4j.Logger;
+
+import com.peer.messages.ActualMsg;
+
 public enum MessageType {
+
 	CHOKE(0),
 	UNCHOKE(1),
 	INTERESTED(2),
@@ -16,13 +21,16 @@ public enum MessageType {
 	public byte getValue() {
 		return value;
 	}
-	
+
 	public static MessageType getMessageType(byte val) {
+		final Logger logger = Logger.getLogger(MessageType.class);
+		logger.info("- inside message type -");
+
 		for(MessageType type:MessageType.values()) {
 			if(type.getValue()==val) {
 				return type;
 			}
 		}
-		throw new IllegalArgumentException();  
+		throw new IllegalArgumentException();
 	}
 }

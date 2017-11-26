@@ -1,8 +1,8 @@
 package com.peer.messages;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ProtocolException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -22,7 +22,7 @@ public class HandshakeMsg extends Message {
 		myPeerID = CommonUtils.intToByteArray(peerID);
 	}
 
-	public void read(DataInputStream in) throws IOException {
+	public void read(ObjectInputStream in) throws IOException {
 		byte[] protocolId = new byte[handshakeHeader.length()];
 
 		if (in.read(protocolId, 0, handshakeHeader.length()) < handshakeHeader.length()) {
@@ -44,14 +44,15 @@ public class HandshakeMsg extends Message {
 		}
 	}
 
-	public void write(DataOutputStream out) throws IOException {
+	public void write(ObjectOutputStream out) throws IOException {
 
 		if (peerId.length > handshakeHeader.length()) {
 			throw new IOException("protocol id length is " + peerId.length + " instead of " + handshakeHeader.length());
 		}
-		out.write(handshakeHeader.getBytes(), 0, handshakeHeader.length());
+		out.writeObject(this);
+		/*out.write(handshakeHeader.getBytes(), 0, handshakeHeader.length());
 		out.write(zeroBits, 0, zeroBits.length);
-		out.write(myPeerID, 0, myPeerID.length);
+		out.write(myPeerID, 0, myPeerID.length);*/
 	}
 
 	public static boolean validateHeader(byte[] handShakeData) {

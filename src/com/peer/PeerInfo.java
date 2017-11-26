@@ -2,6 +2,8 @@ package com.peer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,8 +19,8 @@ public class PeerInfo {
     boolean handShaked=false;
     boolean interested=false;
     AtomicInteger bytesDownloaded = new AtomicInteger(0);
-    DataInputStream socketReader;
-    DataOutputStream socketWriter;
+    ObjectInputStream socketReader;
+    ObjectOutputStream socketWriter;
     AtomicInteger requestedPieceIndex= new AtomicInteger(-1); // after every p time && whenever making a request and whenever piece
 
     // records the pieces i have/don't have
@@ -106,19 +108,19 @@ public class PeerInfo {
 		this.interested = interested;
 	}
 
-	public DataInputStream getSocketReader() {
+	public ObjectInputStream getSocketReader() {
 		return socketReader;
 	}
 
-	public void setSocketReader(DataInputStream socketReader) {
+	public void setSocketReader(ObjectInputStream socketReader) {
 		this.socketReader = socketReader;
 	}
 
-	public DataOutputStream getSocketWriter() {
+	public ObjectOutputStream getSocketWriter() {
 		return socketWriter;
 	}
 
-	public void setSocketWriter(DataOutputStream socketWriter) {
+	public void setSocketWriter(ObjectOutputStream socketWriter) {
 		this.socketWriter = socketWriter;
 	}
 

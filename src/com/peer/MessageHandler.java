@@ -3,6 +3,8 @@ package com.peer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -20,14 +22,14 @@ import com.peer.utilities.MessageType;
 
 public class MessageHandler implements Runnable {
 	final static Logger logger = Logger.getLogger(MessageHandler.class);
-	private DataInputStream in;
-	private DataOutputStream out;
+	private ObjectInputStream in;
+	private ObjectOutputStream out;
 	private PeerInfo myInfo;
 	private Map<Integer, PeerInfo> peerMap;
 	private int clientPeerID;
 	private FileHandler fileHandler;
 
-	public MessageHandler(DataInputStream in, DataOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> peerMap,
+	public MessageHandler(ObjectInputStream in, ObjectOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> peerMap,
 			int clientPeerID, FileHandler fileHandler) {
 		logger.info("creating new object of message handler");
 		this.in = in;
@@ -38,36 +40,40 @@ public class MessageHandler implements Runnable {
 		this.fileHandler = fileHandler;
 	}
 
+	// public void handleMessage(){
 	public void run() {
-		ActualMsg message = new ActualMsg(in);
-		MessageType msgType = message.getType();
-
-		logger.debug("\nMsg-Type " + msgType + " received from " + clientPeerID);
+		ActualMsg message = null;
 		try {
-
+			message = (ActualMsg) in.readObject();
+			MessageType msgType = message.getType();
+			logger.debug("\nMsg-Type " + msgType + " received from " + clientPeerID);
 			switch (msgType) {
 			case BITFIELD:
 				handleBitfield(message);
 				break;
 			case CHOKE:
 				handleChoke(message);
-				logger.debug("Peer [peer_ID"+myInfo.peerId+"] is unchoked by [peer_ID "+clientPeerID+"]");
+				logger.debug("Peer [peer_ID" + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
 				break;
 			case UNCHOKE:
 				handleUnchoke(message);
-				logger.debug("Peer [peer_ID "+myInfo.peerId+"] is unchoked by [peer_ID "+clientPeerID+"]");
+				logger.debug("Peer [peer_ID " + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
 				break;
 			case INTERESTED:
 				handleInterested(message);
-				logger.debug("Peer [peer_ID "+myInfo.peerId+"] received the ‘interested’ message from [peer_ID "+clientPeerID+"]");
+				logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘interested’ message from [peer_ID "
+						+ clientPeerID + "]");
 				break;
 			case NOTINTERESTED:
 				handleNotInterested(message);
-				logger.debug("Peer [peer_ID "+myInfo.peerId+"] received the ‘not interested’ message from [peer_ID "+clientPeerID+"]");
+				logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘not interested’ message from [peer_ID "
+						+ clientPeerID + "]");
 				break;
 			case HAVE:
 				handleHave(message);
-				logger.debug("Peer [peer_ID "+myInfo.peerId+"] received the ‘have’ message from [peer_ID "+clientPeerID+"] for the piece ["+(CommonUtils.byteArrayToInt(message.getPayload()))+"]");
+				logger.debug(
+						"Peer [peer_ID " + myInfo.peerId + "] received the ‘have’ message from [peer_ID " + clientPeerID
+								+ "] for the piece [" + (CommonUtils.byteArrayToInt(message.getPayload())) + "]");
 				break;
 			case REQUEST:
 				handleRequest(message);
@@ -76,9 +82,14 @@ public class MessageHandler implements Runnable {
 				handlePiece(message);
 				break;
 			}
+		} catch (ClassNotFoundException e1) {
+			logger.info("Invalid packet - " + e1);
+		} catch (IOException e1) {
+			logger.info("can't read from socket" + e1);
 		} catch (Exception e) {
 			logger.warn("Message type not found exception " + e);
 		}
+
 	}
 
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
@@ -91,36 +102,39 @@ public class MessageHandler implements Runnable {
 		}
 	}
 
-	private void sendNotInterestedMessage(DataOutputStream out) throws IOException, ClassNotFoundException {
+	private void sendNotInterestedMessage(ObjectOutputStream out) throws IOException, ClassNotFoundException {
 		NotInterested notInterestedMessage = (NotInterested) Message.getInstance(MessageType.NOTINTERESTED);
 		notInterestedMessage.write(out);
 
 	}
 
-	private void sendInterestedMessage(DataOutputStream out) throws ClassNotFoundException, IOException {
+	private void sendInterestedMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
 		Interested interestedMessage = (Interested) Message.getInstance(MessageType.INTERESTED);
 		interestedMessage.write(out);
-
 	}
 
 	private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload());
-		logger.debug("Peer [peer_ID "+myInfo.peerId+"] has downloaded the piece ["+ peerInfo.getRequestedPieceIndex() +"] from [peer_ID "+ clientPeerID+"]");
+		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
+				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]");
 		peerInfo.setRequestedPieceIndex(-1);
 		// after you receive a piece send another request message....
 		sendRequestMessage(out);
 	}
 
-	private void sendRequestMessage(DataOutputStream out) throws ClassNotFoundException, IOException {
+	private void sendRequestMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
 		if (interestedPieceId != -1) {
-			clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the requested piece in Neighbor's PeerInfo
+			clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the
+																		// requested
+																		// piece
+																		// in
+																		// Neighbor's
+																		// PeerInfo
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
-
-
 			requestMessage.write(out);
 		}
 	}

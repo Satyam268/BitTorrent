@@ -1,8 +1,8 @@
 package com.peer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Map;
 
@@ -15,8 +15,8 @@ public class NewConnectionHandler implements Runnable {
 
 	Socket socket;
 	PeerInfo peerClient;
-	private DataInputStream in;
-	private DataOutputStream out;
+	private ObjectInputStream in;
+	private ObjectOutputStream out;
 	private Map<Integer, PeerInfo> peerMap;
 	private int neighborId;
 	private PeerInfo myInfo;
@@ -28,7 +28,7 @@ public class NewConnectionHandler implements Runnable {
 		peerClient = peerInfo;
 	}
 
-	public NewConnectionHandler(Socket clientSocket, DataInputStream in2, DataOutputStream out2, PeerInfo myInfo,
+	public NewConnectionHandler(Socket clientSocket, ObjectInputStream in2, ObjectOutputStream out2, PeerInfo myInfo,
 			Map<Integer, PeerInfo> peerMap, int neighborId, FileHandler fileHandler) {
 		socket = clientSocket;
 		this.in = in2;
@@ -45,8 +45,8 @@ public class NewConnectionHandler implements Runnable {
 		// message handler will be called here
 
 		try {
-			in = new DataInputStream(socket.getInputStream());
-			out = new DataOutputStream(socket.getOutputStream());
+			in = new ObjectInputStream(socket.getInputStream());
+			out = new ObjectOutputStream(socket.getOutputStream());
 
 			// send BitSet
 			sendBitFieldMessage(out);
@@ -61,6 +61,7 @@ public class NewConnectionHandler implements Runnable {
 						Thread t = new Thread(messageHandler);
 						t.start();
 					}
+
 				} catch (Exception e) {
 					logger.warn("Invalid Message sent from peer: " + neighborId + " " + e);
 				}
@@ -71,11 +72,14 @@ public class NewConnectionHandler implements Runnable {
 
 	}
 
-	private void sendBitFieldMessage(DataOutputStream out2) {
+	private void sendBitFieldMessage(ObjectOutputStream out2) {
 		try {
+			logger.info("trying to send bitfield");
 			ActualMsg bitFieldMessage = new BitField();
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
+			bitFieldMessage.setLength(myInfo.getBitfield().length()+1);
 			bitFieldMessage.write(out2);
+
 			logger.info("Sent bitField Message to Peer "+neighborId);
 		} catch (IOException e) {
 			logger.warn("Unable to write bitField Message to Peer: "+ neighborId + " "+ e);

@@ -29,7 +29,6 @@ public class PeerProcess {
 	String fileName;
 	int fileSize;
 	int pieceSize;
-	// using int for size? fine?
 
 	List<Peer> interestedNeighbors = new ArrayList<>();
 
@@ -47,7 +46,7 @@ public class PeerProcess {
 	}
 
 	private void startServer() {
-		peer.startPeerHandler();
+		//peer.startPeerHandler();
 		peer.startServer();
 	}
 
@@ -86,14 +85,15 @@ public class PeerProcess {
 			pieceSize = Integer.parseInt(it.next().split(" ")[1]);
 			System.out.println("PeerProcess Config: " + numberOfPreferredNeighbors + " " + unchokingInterval + " "
 					+ optimisticUnchokingInterval);
-			if (myInfo.hasFile == 1) {
+
+			/*if (myInfo.hasFile == 1) {
 				try {
 					File file = new File(fileName);
 					splitFileIntoPieceFiles(file, pieceSize);
 				} catch (Exception e) {
 					logger.warn("Cannot split file: "+e);
 				}
-			}
+			}*/
 		} catch (IOException e) {
 
 			e.printStackTrace();
@@ -101,11 +101,11 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerID = 1002;
+		int peerID = 1001;
 		String log4jConfPath = "log4j.properties";
 		System.setProperty("file.name", "log_peer_" + peerID + ".log");
 		PropertyConfigurator.configure(log4jConfPath);
-		PeerProcess me = new PeerProcess(1001);
+		PeerProcess me = new PeerProcess(peerID);
 		me.readPeerInfoFile();
 		me.readCommonCFGFile();
 		me.setPeerProperties();
