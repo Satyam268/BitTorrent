@@ -27,10 +27,12 @@ public class PeerHandler implements Runnable {
 	Collection<PeerInfo> kPreferredNeighbors = new HashSet<PeerInfo>();
 	AtomicBoolean randomlySelectPreferredNeighbors = new AtomicBoolean(false);
 	PeerProperties peerProperties;
-	
-	public PeerHandler(Map<Integer, PeerInfo> peerMap2, PeerProperties peerProperties) {
+	int peerID;
+
+	public PeerHandler(int peerID, Map<Integer, PeerInfo> peerMap2, PeerProperties peerProperties) {
 		this.peerMap = peerMap2;
 		this.peerProperties = peerProperties;
+		this.peerID = peerID;
 	}
 
 	@Override
@@ -77,14 +79,15 @@ public class PeerHandler implements Runnable {
 				kPreferredNeighbors.clear();
 				kPreferredNeighbors.addAll(interestedPeers.subList(0,
 						Math.min(peerProperties.getNumberOfPreferredNeighbors(), interestedPeers.size())));
+
 				if (kPreferredNeighbors.size() > 0) {
-					logger.debug(kPreferredNeighbors);
+					logger.debug("Peer ["+peerID+"] has the preferred neighbours "+kPreferredNeighbors);
 				}
 
 				// 3) SELECT ALLE THE INTERESTED AND UNINTERESTED PEERS, REMOVE THE PREFERRED.
 				// THE RESULTS ARE THE CHOKED PEERS
 
-				Collection<PeerInfo> chokedPeers = new LinkedList<>(peerMap.values());
+				Collection<PeerInfo> chokedPeers = new LinkedList<>(getAllConnectedNeighbours());
 				chokedPeers.removeAll(kPreferredNeighbors);
 				chokedPeersIDs.addAll(getPeerIds(chokedPeers));
 
@@ -144,6 +147,16 @@ public class PeerHandler implements Runnable {
 		// if (optUnchokablePeers != null) {
 		// _optUnchoker.setChokedNeighbors(optUnchokablePeers);
 		// }
+	}
+
+	private List<PeerInfo> getAllConnectedNeighbours() {
+		List<PeerInfo> connectedNieghbors=new ArrayList<>();
+		peerMap.values().forEach(peerInfo ->{
+			if(peerInfo.getClientSocket()!=null){
+				connectedNieghbors.add(peerInfo);
+			}
+		});
+		return connectedNieghbors;
 	}
 
 	private Collection<Integer> getPeerIds(Collection<PeerInfo> chokedPeers) {

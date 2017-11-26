@@ -51,18 +51,23 @@ public class MessageHandler implements Runnable {
 				break;
 			case CHOKE:
 				handleChoke(message);
+				logger.debug("Peer [peer_ID"+myInfo.peerId+"] is unchoked by [peer_ID "+clientPeerID+"]");
 				break;
 			case UNCHOKE:
 				handleUnchoke(message);
+				logger.debug("Peer [peer_ID "+myInfo.peerId+"] is unchoked by [peer_ID "+clientPeerID+"]");
 				break;
 			case INTERESTED:
 				handleInterested(message);
+				logger.debug("Peer [peer_ID "+myInfo.peerId+"] received the ‘interested’ message from [peer_ID "+clientPeerID+"]");
 				break;
 			case NOTINTERESTED:
 				handleNotInterested(message);
+				logger.debug("Peer [peer_ID "+myInfo.peerId+"] received the ‘not interested’ message from [peer_ID "+clientPeerID+"]");
 				break;
 			case HAVE:
 				handleHave(message);
+				logger.debug("Peer [peer_ID "+myInfo.peerId+"] received the ‘have’ message from [peer_ID "+clientPeerID+"] for the piece ["+(CommonUtils.byteArrayToInt(message.getPayload()))+"]");
 				break;
 			case REQUEST:
 				handleRequest(message);
@@ -101,6 +106,7 @@ public class MessageHandler implements Runnable {
 	private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload());
+		logger.debug("Peer [peer_ID "+myInfo.peerId+"] has downloaded the piece ["+ peerInfo.getRequestedPieceIndex() +"] from [peer_ID "+ clientPeerID+"]");
 		peerInfo.setRequestedPieceIndex(-1);
 		// after you receive a piece send another request message....
 		sendRequestMessage(out);
@@ -111,13 +117,10 @@ public class MessageHandler implements Runnable {
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
 		if (interestedPieceId != -1) {
-			clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the
-																		// requested
-																		// piece
-																		// in
-																		// Neighbor's
-																		// PeerInfo
+			clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the requested piece in Neighbor's PeerInfo
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
+
+
 			requestMessage.write(out);
 		}
 	}
