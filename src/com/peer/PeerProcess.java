@@ -1,6 +1,7 @@
 package com.peer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -68,12 +69,10 @@ public class PeerProcess {
 			myInfo = neighborMap.remove(peer.getPeerID());
 			peer.setPeerMap(neighborMap);
 			peer.setMyInfo(myInfo);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
 
 	void readCommonCFGFile() {
 		String _fileName = "src/com/peer/configFiles/Common.cfg";
@@ -87,9 +86,16 @@ public class PeerProcess {
 			pieceSize = Integer.parseInt(it.next().split(" ")[1]);
 			System.out.println("PeerProcess Config: " + numberOfPreferredNeighbors + " " + unchokingInterval + " "
 					+ optimisticUnchokingInterval);
-			if (myInfo.hasFile == 1)
-				splitFileIntoPieceFiles(new File(fileName), pieceSize);
+			if (myInfo.hasFile == 1) {
+				try {
+					File file = new File(fileName);
+					splitFileIntoPieceFiles(file, pieceSize);
+				} catch (Exception e) {
+					logger.warn("Cannot split file: "+e);
+				}
+			}
 		} catch (IOException e) {
+
 			e.printStackTrace();
 		}
 	}
@@ -97,7 +103,7 @@ public class PeerProcess {
 	public static void main(String[] args) {
 		int peerID = 1002;
 		String log4jConfPath = "log4j.properties";
-		System.setProperty("file.name", "log_peer_"+peerID+".log");
+		System.setProperty("file.name", "log_peer_" + peerID + ".log");
 		PropertyConfigurator.configure(log4jConfPath);
 		PeerProcess me = new PeerProcess(1001);
 		me.readPeerInfoFile();
@@ -120,7 +126,8 @@ public class PeerProcess {
 	}
 
 	private void setPeerProperties() {
-		this.peer.setProperties(new PeerProperties(this.fileName,fileSize,optimisticUnchokingInterval,numberOfPreferredNeighbors,pieceSize, unchokingInterval));
+		this.peer.setProperties(new PeerProperties(this.fileName, fileSize, optimisticUnchokingInterval,
+				numberOfPreferredNeighbors, pieceSize, unchokingInterval));
 	}
 
 }

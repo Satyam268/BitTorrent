@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,6 +94,7 @@ public class FileOperations {
         int fileSize = (int) inputFile.length();
         int nChunks = 0, read = 0, readLength = pieceSize;
         byte[] byteChunkPart;
+      //  if(inputFile)
         try {
             inputStream = new FileInputStream(inputFile);
             while (fileSize > 0) {
@@ -102,9 +106,9 @@ public class FileOperations {
                 fileSize -= read;
                 assert (read == byteChunkPart.length);
                 nChunks++;
-                newFileName = inputFile.getParent() + "/pieces/" +
-                        inputFile.getName() + "/" + Integer.toString(nChunks - 1);
-                filePart = new FileOutputStream(new File(newFileName));
+                Path path = Paths.get(inputFile.getParent(), "pieces",Integer.toString(nChunks - 1));
+                Files.createDirectories(path.getParent());
+                filePart = new FileOutputStream(new File(path.toString()));
                 filePart.write(byteChunkPart);
                 filePart.flush();
                 filePart.close();
@@ -113,7 +117,7 @@ public class FileOperations {
             }
             inputStream.close();
         } catch (IOException e) {
-            logger.warn(e);
+            logger.warn("Fail to process file into pieces "+ e);
         }
     }
 	
@@ -126,7 +130,8 @@ public class FileOperations {
 		int bytesRead = 0;
 		List<File> list = new ArrayList<>();
 		for (int i = 0; i < numpieces; i++) {
-			list.add(new File(pieceDir.getPath() + "/" + i));
+			Path path = Paths.get(pieceDir.getPath(), Integer.toString(i));
+			list.add(new File(path.toString()));
 		}
 		try {
 			fos = new FileOutputStream(ofile);
