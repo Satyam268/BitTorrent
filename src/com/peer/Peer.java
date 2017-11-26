@@ -78,7 +78,7 @@ public class Peer {
 
 			handshakeMessage.write(out2);
 			return neighbourID;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.debug("Unable to perform handshake.\n" + e);
 		}
 		return 0;
@@ -116,7 +116,7 @@ public class Peer {
 
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		}
 

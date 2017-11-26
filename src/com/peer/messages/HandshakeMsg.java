@@ -12,7 +12,7 @@ import com.peer.utilities.CommonUtils;
 
 public class HandshakeMsg extends Message {
 
-	private final static String handshakeHeader = "P2PFILESHARINGPROJ";
+	private final String handshakeHeader = "P2PFILESHARINGPROJ";
 	private final byte[] zeroBits = new byte[10];
 	byte[] peerId = new byte[4];
 
@@ -22,26 +22,50 @@ public class HandshakeMsg extends Message {
 		myPeerID = CommonUtils.intToByteArray(peerID);
 	}
 
-	public void read(ObjectInputStream in) throws IOException {
+	public void read(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		HandshakeMsg message = (HandshakeMsg)in.readObject();
 		byte[] protocolId = new byte[handshakeHeader.length()];
 
-		if (in.read(protocolId, 0, handshakeHeader.length()) < handshakeHeader.length()) {
+		if (message.getHandshakeHeader().length() < this.handshakeHeader.length()) {
 			throw new ProtocolException(
 					"protocol id is " + Arrays.toString(protocolId) + " instead of " + handshakeHeader);
 		}
 
-		if (!handshakeHeader.equals(new String(protocolId, "US-ASCII"))) {
+		if (!handshakeHeader.equals(new String(message.handshakeHeader.getBytes(), "US-ASCII"))) {
 			throw new ProtocolException(
 					"protocol id is " + Arrays.toString(protocolId) + " instead of " + handshakeHeader);
 		}
 
-		if (in.read(zeroBits, 0, zeroBits.length) < zeroBits.length) {
+		if (message.zeroBits.length < zeroBits.length) {
 			throw new ProtocolException("zero bit bytes read are less than " + zeroBits.length);
 		}
 
-		if (in.read(peerId, 0, peerId.length) < peerId.length) {
+		if (message.peerId.length < peerId.length) {
 			throw new ProtocolException("peer id bytes read are less than " + peerId.length);
 		}
+
+		
+//		if (in.read(protocolId, 0, handshakeHeader.length()) < handshakeHeader.length()) {
+//			throw new ProtocolException(
+//					"protocol id is " + Arrays.toString(protocolId) + " instead of " + handshakeHeader);
+//		}
+//
+//		if (!handshakeHeader.equals(new String(protocolId, "US-ASCII"))) {
+//			throw new ProtocolException(
+//					"protocol id is " + Arrays.toString(protocolId) + " instead of " + handshakeHeader);
+//		}
+//
+//		if (in.read(zeroBits, 0, zeroBits.length) < zeroBits.length) {
+//			throw new ProtocolException("zero bit bytes read are less than " + zeroBits.length);
+//		}
+//
+//		if (in.read(peerId, 0, peerId.length) < peerId.length) {
+//			throw new ProtocolException("peer id bytes read are less than " + peerId.length);
+//		}
+	}
+
+	public String getHandshakeHeader() {
+		return handshakeHeader;
 	}
 
 	public void write(ObjectOutputStream out) throws IOException {
