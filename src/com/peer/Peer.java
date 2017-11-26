@@ -14,20 +14,18 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.peer.messages.HandshakeMsg;
-import com.peer.utilities.CommonUtils;
+import com.peer.utilities.PeerProperties;
 
 public class Peer {
 
 	private int peerID;
-	private int pieces;
 	private PeerInfo myInfo;
 	private BitSet bitfield;
 
+	PeerProperties properties;
 	// Connection Variables
 	private ServerSocket serverSocket;
 	private Map<Integer, PeerInfo> peerMap = new HashMap<>();
-	private int fileSize;
-	private int pieceSize;
 	private FileHandler fileHandler;
 	final static Logger logger = Logger.getLogger(Peer.class);
 
@@ -39,10 +37,6 @@ public class Peer {
 	public Peer(PeerInfo peerInfo) {
 		setMyInfo(peerInfo);
 
-	}
-
-	private void calculatePeices() {
-		pieces = CommonUtils.getNumberOfPieces();
 	}
 
 	public void startServer() {
@@ -157,14 +151,6 @@ public class Peer {
 		this.peerID = peerID;
 	}
 
-	public int getPeices() {
-		return pieces;
-	}
-
-	public void setPeices(int pieces) {
-		this.pieces = pieces;
-	}
-
 	public BitSet getBitfield() {
 		return bitfield;
 	}
@@ -173,19 +159,15 @@ public class Peer {
 		this.bitfield = bitfield;
 	}
 
-	public void setFileSize(int fileSize) {
-		this.fileSize = fileSize;
-	}
-
-	public void setPieceSize(int pieceSize) {
-		this.pieceSize = pieceSize;
-	}
-
 	public void startPeerHandler() {
 		// TODO Auto-generated method stub
-		PeerHandler peerHandler = new PeerHandler(peerMap);
+		PeerHandler peerHandler = new PeerHandler(peerMap, properties);
 		Thread peerHandlerThread = new Thread(peerHandler);
 		peerHandlerThread.start();
+	}
+
+	public void setProperties(PeerProperties peerProperties) {
+		this.properties = peerProperties;
 	}
 
 }

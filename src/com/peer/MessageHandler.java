@@ -15,7 +15,6 @@ import com.peer.messages.types.Interested;
 import com.peer.messages.types.NotInterested;
 import com.peer.messages.types.Piece;
 import com.peer.messages.types.Request;
-import com.peer.messages.types.Unchoke;
 import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
 
@@ -72,20 +71,15 @@ public class MessageHandler implements Runnable {
 				handlePiece(message);
 				break;
 			}
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (Exception e) {
+			logger.warn("Message type not found exception "+e);
+		} 
 	}
 
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
 		BitField bitFieldMessage = (BitField) message;
 		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
 		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
-			// Send new Interested message
 			sendInterestedMessage(out);
 		}
 		else {
@@ -126,20 +120,16 @@ public class MessageHandler implements Runnable {
 	}
 
 	private void handleRequest(ActualMsg message) throws ClassNotFoundException, IOException {
-		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
-		// utilize file Manager methods to get pieces as array off bytes then create a packet to write on out.
 		int pieceIndex = CommonUtils.byteArrayToInt(message.getPayload());
 		byte[] piece = fileHandler.getPiece(pieceIndex);
+		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
 		pieceMessage.setLength(piece.length);
 		pieceMessage.setPayload(piece);
 		pieceMessage.write(out);
 		
 	}
 
-	
 	private void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
-		// update bit field of peerInfo and set it to 1
-		// TODO now
 		Have haveMessage = (Have)Message.getInstance(MessageType.HAVE);
 		haveMessage.setPayload(message.getPayload());
 		int pieceIndex = CommonUtils.byteArrayToInt(haveMessage.getPayload());
@@ -152,14 +142,12 @@ public class MessageHandler implements Runnable {
 	}
 
 	private void handleNotInterested(ActualMsg message) {
-		// remove from list of interested messages
 		PeerInfo peerInfo =  peerMap.get(clientPeerID);
 		peerInfo.setInterested(false);
 	}
 
 	
 	private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
-		Unchoke unchokeMessage = (Unchoke) message;
 		sendRequestMessage(out);
 	}
 
@@ -168,20 +156,13 @@ public class MessageHandler implements Runnable {
 	}
 
 	private void handleChoke(ActualMsg message) {
-		// update in map choked is true
-		// cannot make request to this uploader and update requested for a
-		// particular
-		// piece
-		// if it was receiving one from another peer who choked it
-		// update the requested piece index
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		peerInfo.setRequestedPieceIndex(-1);
 		
 	}
 
 	private void handleInterested(ActualMsg message) throws ClassNotFoundException, IOException {
-		peerMap.get(clientPeerID).setInterested(true);
-		
+		peerMap.get(clientPeerID).setInterested(true);	
 	}
 
 }

@@ -19,9 +19,8 @@ public class PeerInfo {
     AtomicInteger bytesDownloaded = new AtomicInteger(0);
     DataInputStream socketReader;
     DataOutputStream socketWriter;
-    int requestedPieceIndex=-1; // after every p time && whenever making a request and whenever piece
-    // comes reset it to -1
-	
+    AtomicInteger requestedPieceIndex= new AtomicInteger(-1); // after every p time && whenever making a request and whenever piece
+    
     // records the pieces i have/don't have
 	private BitSet bitfield = null;
 
@@ -123,11 +122,11 @@ public class PeerInfo {
 	}
 
 	public int getRequestedPieceIndex() {
-		return requestedPieceIndex;
+		return requestedPieceIndex.get();
 	}
 
 	public void setRequestedPieceIndex(int requestedPieceIndex) {
-		this.requestedPieceIndex = requestedPieceIndex;
+		this.requestedPieceIndex.set(requestedPieceIndex);
 	}
 
 

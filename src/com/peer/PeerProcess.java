@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.peer.file.FileOperations;
-import com.peer.utilities.CommonUtils;
+import com.peer.utilities.PeerProperties;
 
 public class PeerProcess {
 
@@ -71,24 +71,10 @@ public class PeerProcess {
 			myInfo = neighborMap.remove(peer.getPeerID());
 			peer.setPeerMap(neighborMap);
 			peer.setMyInfo(myInfo);
-			peer.setFileSize(fileSize);
-			peer.setPieceSize(pieceSize);
-			setCommonUtilities();
-			logger.debug("Common Utils set");
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void setCommonUtilities() {
-		CommonUtils.setFileName(fileName);
-		CommonUtils.setFileSize(fileSize);
-		CommonUtils.setOptimisticUnchokingInterval(optimisticUnchokingInterval);
-		CommonUtils.setNumberOfPreferredNeighbors(numberOfPreferredNeighbors);
-		CommonUtils.setPieceSize(pieceSize);
-		CommonUtils.setUnchokingInterval(unchokingInterval);
-		CommonUtils.setPieceSize(pieceSize);
 	}
 
 
@@ -108,34 +94,35 @@ public class PeerProcess {
 			e.printStackTrace();
 		}
 	}
-
-
+	
 	//establishTCPConnection and startServer both run by main thread?
 	//what if handshake fails? deadlock?
 	public static void main(String[] args) {
 		String log4jConfPath = "log4j.properties";
 		PropertyConfigurator.configure(log4jConfPath);
-
 		PeerProcess me = new PeerProcess(1002);
 		me.readPeerInfoFile();
 		me.readCommonCFGFile();
-		
-		
+		me.setPeerProperties();
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");
-		
+		System.out.println(me.peer.properties.getUnchokingInterval());
 		me.startServer();
 	}
 
-	
-	
 	public int getNumberOfPieces() {
-		return (fileSize/pieceSize);
+		return peer.properties.getNumberOfPieces();
 	}
 	
 	public void splitFileIntoPieceFiles(File file, int pieceSize) {
 		FileOperations.processFileIntoPieceFiles(file, pieceSize);
 	}
+
+	private void setPeerProperties() {
+		this.peer.setProperties(new PeerProperties(this.fileName,fileSize,optimisticUnchokingInterval,numberOfPreferredNeighbors,pieceSize, unchokingInterval));
+	}
+	
+	
 	
 }

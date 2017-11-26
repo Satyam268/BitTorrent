@@ -1,8 +1,7 @@
 package com.peer;
 
+import java.io.IOException;
 import java.util.BitSet;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -17,7 +16,6 @@ import com.peer.utilities.MessageType;
 //manages the 2 BitSets, depicting requestedParts and receivedParts
 public class FileHandler {
 	final static Logger logger = Logger.getLogger(NewConnectionHandler.class);
-	private final Collection<FileHandlerListner> listeners = new LinkedList<>();
 	private FileOperations fileOps;
 
 	private BitSet receivedPieces;// piece I have
@@ -87,8 +85,19 @@ public class FileHandler {
 				return false;
 			}
 		}
+		closeAllSockets();
 		return true;
 
+	}
+
+	private void closeAllSockets() {
+		peerMap.values().forEach(peerInfo -> {
+			try {
+				peerInfo.getClientSocket().close();
+			} catch (IOException e) {
+				logger.warn("Problem closing Socket: "+ e);
+			}
+		});
 	}
 
 	/**
@@ -147,5 +156,4 @@ public class FileHandler {
 		return true;
 	}
 	
-	public
 }
