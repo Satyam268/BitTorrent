@@ -3,10 +3,10 @@ package com.peer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.BitSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
 import com.peer.messages.ActualMsg;
 import com.peer.messages.Message;
 import com.peer.messages.types.BitField;
@@ -84,25 +84,45 @@ public class MessageHandler implements Runnable {
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
 		BitField bitFieldMessage = (BitField) message;
 		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
-
 		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
 			// Send new Interested message
-			Interested interestedMessage = (Interested) Message.getInstance(MessageType.INTERESTED);
-			interestedMessage.write(out);
+			sendInterestedMessage(out);
 		}
 		else {
-			NotInterested notInterestedMessage = (NotInterested) Message.getInstance(MessageType.NOTINTERESTED);
-			notInterestedMessage.write(out);
+			sendNotInterestedMessage(out);	
 		}
 	}
 
 	
-	private void handlePiece(ActualMsg message) {
+	private void sendNotInterestedMessage(DataOutputStream out) throws IOException, ClassNotFoundException {
+		NotInterested notInterestedMessage = (NotInterested) Message.getInstance(MessageType.NOTINTERESTED);
+		notInterestedMessage.write(out);
+
+	}
+
+	private void sendInterestedMessage(DataOutputStream out) throws ClassNotFoundException, IOException {
+		Interested interestedMessage = (Interested) Message.getInstance(MessageType.INTERESTED);
+		interestedMessage.write(out);
+
+	}
+
+	private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload());
 		peerInfo.setRequestedPieceIndex(-1);
 		// after you receive a piece send another request message....
-		//sendRequestMessage();
+		sendRequestMessage(out);
+	}
+
+	private void sendRequestMessage(DataOutputStream out) throws ClassNotFoundException, IOException {
+		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
+		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
+		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
+		if(interestedPieceId!=-1) {
+			clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the requested piece in Neighbor's PeerInfo
+			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
+			requestMessage.write(out);
+		}
 	}
 
 	private void handleRequest(ActualMsg message) throws ClassNotFoundException, IOException {
@@ -122,29 +142,25 @@ public class MessageHandler implements Runnable {
 		// TODO now
 		Have haveMessage = (Have)Message.getInstance(MessageType.HAVE);
 		haveMessage.setPayload(message.getPayload());
-		peerMap.get(clientPeerID).setBitfieldAtIndex(CommonUtils.byteArrayToInt(haveMessage.getPayload()));
-		// Call some process which sends interested messages.
-		// have to check whether I have sent interested messages already or not.
-		// if not then send interested messages.
+		int pieceIndex = CommonUtils.byteArrayToInt(haveMessage.getPayload());
+		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
+		if(!fileHandler.hasPiece(pieceIndex))
+			sendInterestedMessage(out);
+		if(fileHandler.isEverythingComplete()){
+			System.exit(0);
+		}
 	}
 
 	private void handleNotInterested(ActualMsg message) {
 		// remove from list of interested messages
+		PeerInfo peerInfo =  peerMap.get(clientPeerID);
+		peerInfo.setInterested(false);
 	}
 
 	
 	private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
 		Unchoke unchokeMessage = (Unchoke) message;
-		// select a piece you want to request based on what you want and what
-		// you
-		// haven't requested already 
-		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
-		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
-		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
-		clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the requested piece in Neighbor's PeerInfo
-		requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
-		requestMessage.write(out);
-
+		sendRequestMessage(out);
 	}
 
 	private int getInterestedPieceId(PeerInfo clientPeerInfo) {

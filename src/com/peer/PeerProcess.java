@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.peer.file.FileOperations;
-import com.peer.file.SplitFile;
 import com.peer.utilities.CommonUtils;
 
 public class PeerProcess {

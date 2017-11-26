@@ -27,7 +27,7 @@ public class FileHandler {
 	int bitsetSize;
 	int peerID;
 
-	FileHandler(int peerId, String fileName, int fileSize, int pieceSize, int unchokingInterval,
+	public FileHandler(int peerId, String fileName, int fileSize, int pieceSize, int unchokingInterval,
 			Map<Integer, PeerInfo> peerMap) {
 		this.peerMap = peerMap;
 		this.pieceSize = pieceSize;
@@ -81,7 +81,7 @@ public class FileHandler {
 		});
 	}
 
-	private synchronized boolean isEverythingComplete() {
+	public synchronized boolean isEverythingComplete() {
 		for (PeerInfo peerInfo : peerMap.values()) {
 			if (peerInfo.getBitfield().cardinality() != peerInfo.getBitfield().size()) {
 				return false;
@@ -146,4 +146,6 @@ public class FileHandler {
 		}
 		return true;
 	}
+	
+	public
 }

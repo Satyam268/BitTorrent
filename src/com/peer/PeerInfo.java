@@ -5,8 +5,6 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.net.Socket;
-import java.util.BitSet;
 
 public class PeerInfo {
 
