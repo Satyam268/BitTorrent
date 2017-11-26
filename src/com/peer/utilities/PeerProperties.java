@@ -11,8 +11,8 @@ public class PeerProperties {
 	 public PeerProperties(String fileName2, int fileSize2, int optimisticUnchokingInterval2,
 				int numberOfPreferredNeighbors2, int pieceSize2, int unchokingInterval2) {
 			numberOfPreferredNeighbors=numberOfPreferredNeighbors2;
-			unchokingInterval=unchokingInterval2;
-			optimisticUnchokingInterval=optimisticUnchokingInterval2;
+			unchokingInterval=unchokingInterval2*1000;
+			optimisticUnchokingInterval=optimisticUnchokingInterval2*1000;
 			fileSize=fileSize2;
 			fileName=fileName2;
 			pieceSize=pieceSize2;
