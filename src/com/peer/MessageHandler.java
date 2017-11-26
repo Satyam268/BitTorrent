@@ -29,7 +29,7 @@ public class MessageHandler implements Runnable {
 
 	public MessageHandler(DataInputStream in, DataOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> peerMap,
 			int clientPeerID, FileHandler fileHandler) {
-		logger.info("creating new object");
+		logger.info("creating new object of message handler");
 		this.in = in;
 		this.out = out;
 		this.myInfo = myInfo;
@@ -42,7 +42,7 @@ public class MessageHandler implements Runnable {
 		ActualMsg message = new ActualMsg(in);
 		MessageType msgType = message.getType();
 
-		logger.debug("\nMsg-Type " + msgType +" received from " + clientPeerID);
+		logger.debug("\nMsg-Type " + msgType + " received from " + clientPeerID);
 		try {
 
 			switch (msgType) {
@@ -72,8 +72,8 @@ public class MessageHandler implements Runnable {
 				break;
 			}
 		} catch (Exception e) {
-			logger.warn("Message type not found exception "+e);
-		} 
+			logger.warn("Message type not found exception " + e);
+		}
 	}
 
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
@@ -81,13 +81,11 @@ public class MessageHandler implements Runnable {
 		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
 		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
 			sendInterestedMessage(out);
-		}
-		else {
-			sendNotInterestedMessage(out);	
+		} else {
+			sendNotInterestedMessage(out);
 		}
 	}
 
-	
 	private void sendNotInterestedMessage(DataOutputStream out) throws IOException, ClassNotFoundException {
 		NotInterested notInterestedMessage = (NotInterested) Message.getInstance(MessageType.NOTINTERESTED);
 		notInterestedMessage.write(out);
@@ -112,8 +110,13 @@ public class MessageHandler implements Runnable {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
-		if(interestedPieceId!=-1) {
-			clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the requested piece in Neighbor's PeerInfo
+		if (interestedPieceId != -1) {
+			clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the
+																		// requested
+																		// piece
+																		// in
+																		// Neighbor's
+																		// PeerInfo
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.write(out);
 		}
@@ -126,27 +129,26 @@ public class MessageHandler implements Runnable {
 		pieceMessage.setLength(piece.length);
 		pieceMessage.setPayload(piece);
 		pieceMessage.write(out);
-		
+
 	}
 
 	private void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
-		Have haveMessage = (Have)Message.getInstance(MessageType.HAVE);
+		Have haveMessage = (Have) Message.getInstance(MessageType.HAVE);
 		haveMessage.setPayload(message.getPayload());
 		int pieceIndex = CommonUtils.byteArrayToInt(haveMessage.getPayload());
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
-		if(!fileHandler.hasPiece(pieceIndex))
+		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
-		if(fileHandler.isEverythingComplete()){
+		if (fileHandler.isEverythingComplete()) {
 			System.exit(0);
 		}
 	}
 
 	private void handleNotInterested(ActualMsg message) {
-		PeerInfo peerInfo =  peerMap.get(clientPeerID);
+		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		peerInfo.setInterested(false);
 	}
 
-	
 	private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
 		sendRequestMessage(out);
 	}
@@ -158,11 +160,11 @@ public class MessageHandler implements Runnable {
 	private void handleChoke(ActualMsg message) {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		peerInfo.setRequestedPieceIndex(-1);
-		
+
 	}
 
 	private void handleInterested(ActualMsg message) throws ClassNotFoundException, IOException {
-		peerMap.get(clientPeerID).setInterested(true);	
+		peerMap.get(clientPeerID).setInterested(true);
 	}
 
 }

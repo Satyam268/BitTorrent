@@ -51,7 +51,7 @@ public class FileHandler {
 	 */
 	public synchronized void addPiece(int pieceID, byte[] piece) {
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
-	
+
 		receivedPieces.set(pieceID);
 
 		if (isNewPiece) {
@@ -87,7 +87,6 @@ public class FileHandler {
 		}
 		closeAllSockets();
 		return true;
-
 	}
 
 	private void closeAllSockets() {
@@ -155,5 +154,5 @@ public class FileHandler {
 		}
 		return true;
 	}
-	
+
 }

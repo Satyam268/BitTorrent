@@ -7,6 +7,7 @@ import java.util.BitSet;
 import java.util.List;
 
 public class CommonUtils {
+
 	public static byte[] intToByteArray(int num) {
 		return ByteBuffer.allocate(4).putInt(num).array();
 	}
@@ -66,4 +67,5 @@ public class CommonUtils {
 		String[] indexes = set.substring(1, set.length() - 1).split(",");
 		return Integer.parseInt(indexes[(int) (Math.random() * (indexes.length - 1))].trim());
 	}
+
 }

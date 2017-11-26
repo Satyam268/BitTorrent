@@ -20,7 +20,7 @@ import com.peer.utilities.PeerProperties;
 public class PeerProcess {
 
 	PeerInfo myInfo;
-	Map<Integer,PeerInfo> neighborMap;
+	Map<Integer, PeerInfo> neighborMap;
 	List<Integer> activePeerIds;
 	int numberOfPreferredNeighbors;
 	int unchokingInterval;
@@ -28,7 +28,7 @@ public class PeerProcess {
 	String fileName;
 	int fileSize;
 	int pieceSize;
-	//using int for size? fine?
+	// using int for size? fine?
 
 	List<Peer> interestedNeighbors = new ArrayList<>();
 
@@ -41,7 +41,6 @@ public class PeerProcess {
 		activePeerIds = new ArrayList<>();
 	}
 
-
 	void establishTCPConnection() {
 		peer.connectToPeers(activePeerIds);
 	}
@@ -51,21 +50,19 @@ public class PeerProcess {
 		peer.startServer();
 	}
 
-
 	void readPeerInfoFile() {
 		String fileName = "src/com/peer/configFiles/PeerInfo.cfg";
 		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-			Iterator<String> it= stream.iterator();
-			boolean selfPeerIdNotRead=true;
+			Iterator<String> it = stream.iterator();
+			boolean selfPeerIdNotRead = true;
 
-			while(it.hasNext()) {
+			while (it.hasNext()) {
 				PeerInfo peerInfo = new PeerInfo(it.next());
-				neighborMap.put(peerInfo.getPeerId(),peerInfo);
-				if(selfPeerIdNotRead && peerInfo.getPeerId()!=peer.getPeerID()) {
+				neighborMap.put(peerInfo.getPeerId(), peerInfo);
+				if (selfPeerIdNotRead && peerInfo.getPeerId() != peer.getPeerID()) {
 					activePeerIds.add(peerInfo.getPeerId());
-				}
-				else {
-					selfPeerIdNotRead=false;
+				} else {
+					selfPeerIdNotRead = false;
 				}
 			}
 			myInfo = neighborMap.remove(peer.getPeerID());
@@ -88,22 +85,25 @@ public class PeerProcess {
 			fileName = it.next().split(" ")[1];
 			fileSize = Integer.parseInt(it.next().split(" ")[1]);
 			pieceSize = Integer.parseInt(it.next().split(" ")[1]);
-			System.out.println("PeerProcess Config: "+numberOfPreferredNeighbors +" "+unchokingInterval+" "+optimisticUnchokingInterval);
-			if(myInfo.hasFile==1)splitFileIntoPieceFiles(new File(fileName), pieceSize); // Check if File present then set all pieces!!!
+			System.out.println("PeerProcess Config: " + numberOfPreferredNeighbors + " " + unchokingInterval + " "
+					+ optimisticUnchokingInterval);
+			if (myInfo.hasFile == 1)
+				splitFileIntoPieceFiles(new File(fileName), pieceSize);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	//establishTCPConnection and startServer both run by main thread?
-	//what if handshake fails? deadlock?
+
 	public static void main(String[] args) {
+		int peerID = 1002;
 		String log4jConfPath = "log4j.properties";
+		System.setProperty("file.name", "log_peer_"+peerID+".log");
 		PropertyConfigurator.configure(log4jConfPath);
-		PeerProcess me = new PeerProcess(1002);
+		PeerProcess me = new PeerProcess(1001);
 		me.readPeerInfoFile();
 		me.readCommonCFGFile();
 		me.setPeerProperties();
+
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");
@@ -114,7 +114,7 @@ public class PeerProcess {
 	public int getNumberOfPieces() {
 		return peer.properties.getNumberOfPieces();
 	}
-	
+
 	public void splitFileIntoPieceFiles(File file, int pieceSize) {
 		FileOperations.processFileIntoPieceFiles(file, pieceSize);
 	}
@@ -122,7 +122,5 @@ public class PeerProcess {
 	private void setPeerProperties() {
 		this.peer.setProperties(new PeerProperties(this.fileName,fileSize,optimisticUnchokingInterval,numberOfPreferredNeighbors,pieceSize, unchokingInterval));
 	}
-	
-	
-	
+
 }
