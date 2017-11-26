@@ -1,16 +1,17 @@
 package com.peer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.peer.file.FileOperations;
+import com.peer.messages.Message;
+import com.peer.messages.types.Have;
+import com.peer.utilities.CommonUtils;
+import com.peer.utilities.MessageType;
 
 //peer has a file handler
 //manages the 2 BitSets, depicting requestedParts and receivedParts
@@ -19,19 +20,22 @@ public class FileHandler {
 	private final Collection<FileHandlerListner> listeners = new LinkedList<>();
 	private FileOperations fileOps;
 
-	private BitSet receivedPieces;//piece I have
-	private RequestedPieces piecesBeingRequested; //pieces I have requested for
-	
+	private BitSet receivedPieces;// piece I have
+	private RequestedPieces piecesBeingRequested; // pieces I have requested for
+	private Map<Integer, PeerInfo> peerMap;
 	int pieceSize;
 	int bitsetSize;
 	int peerID;
 
-	FileHandler(int peerId, String fileName, int fileSize, int pieceSize, int unchokingInterval) {
+	FileHandler(int peerId, String fileName, int fileSize, int pieceSize, int unchokingInterval,
+			Map<Integer, PeerInfo> peerMap) {
+		this.peerMap = peerMap;
 		this.pieceSize = pieceSize;
 		bitsetSize = (int) Math.ceil(fileSize / pieceSize);
 		this.peerID = peerId;
 
-		logger.debug("File size set to " + fileSize + "\tPart size set to " + pieceSize + "\tBitset size set to "+ bitsetSize);
+		logger.debug("File size set to " + fileSize + "\tPart size set to " + pieceSize + "\tBitset size set to "
+				+ bitsetSize);
 		receivedPieces = new BitSet(bitsetSize);
 		piecesBeingRequested = new RequestedPieces(bitsetSize, unchokingInterval);
 		fileOps = new FileOperations(peerId, fileName);
@@ -49,31 +53,50 @@ public class FileHandler {
 	 */
 	public synchronized void addPiece(int pieceID, byte[] piece) {
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
-		//write into a file
+	
 		receivedPieces.set(pieceID);
 
 		if (isNewPiece) {
 			fileOps.writePieceToFile(piece, pieceID);
-			
-			
-			for (FileHandlerListner listener : listeners) {
-				listener.pieceArrived(pieceID);
-			}
+			broadcastHaveMessageToAllPeers(pieceID);
 		}
 		if (isFileCompleted()) {
 			fileOps.mergeFile(receivedPieces.cardinality());
-			for (FileHandlerListner listener : listeners) {
-				listener.fileCompleted();
+			if (isEverythingComplete()) {
+				logger.info("No.of active threads were: " + Thread.activeCount());
+				System.exit(0);
 			}
 		}
+	}
+
+	private synchronized void broadcastHaveMessageToAllPeers(int pieceId) {
+		peerMap.values().forEach(peerInfo -> {
+			try {
+				Have haveMessage = (Have) Message.getInstance(MessageType.HAVE);
+				haveMessage.setPayload(CommonUtils.intToByteArray(pieceId));
+				haveMessage.write(peerInfo.getSocketWriter());
+			} catch (Exception e) {
+				logger.warn("Could not broadcast \'Have\' to peer_" + peerInfo.getPeerId() + " " + e);
+			}
+		});
+	}
+
+	private synchronized boolean isEverythingComplete() {
+		for (PeerInfo peerInfo : peerMap.values()) {
+			if (peerInfo.getBitfield().cardinality() != peerInfo.getBitfield().size()) {
+				return false;
+			}
+		}
+		return true;
+
 	}
 
 	/**
 	 * @param availableParts
 	 *            parts that are available at the remote peer
-	 * @return the ID of the part to request, if any, or a negative number in
-	 *         case all the missing parts are already being requested or the
-	 *         file is complete.
+	 * @return the ID of the part to request, if any, or a negative number in case
+	 *         all the missing parts are already being requested or the file is
+	 *         complete.
 	 */
 	synchronized int getPartToRequest(BitSet availableParts) {
 		availableParts.andNot(getReceivedParts());
@@ -91,7 +114,7 @@ public class FileHandler {
 	/**
 	 * Set all parts as received.
 	 */
-	public synchronized void setAllParts() {
+	public synchronized void setAllPieces() {
 		for (int i = 0; i < bitsetSize; i++) {
 			receivedPieces.set(i, true);
 		}
@@ -102,21 +125,13 @@ public class FileHandler {
 		return receivedPieces.cardinality();
 	}
 
-	byte[] getPiece(int partId) {
-		byte[] piece = fileOps.getPartAsByteArray(partId);
+	byte[] getPiece(int pieceId) {
+		byte[] piece = fileOps.getPieceFromFile(pieceId);
 		return piece;
 	}
 
-	public void registerListener(FileHandlerListner listener) {
-		listeners.add(listener);
-	}
-
-	public void splitFile() {
-		fileOps.splitFile((int) pieceSize);
-	}
-
 	public byte[][] getAllPieces() {
-		return fileOps.getAllPartsAsByteArrays();
+		return fileOps.getAllpiecesAsByteArrays();
 	}
 
 	public int getBitmapSize() {
@@ -132,6 +147,3 @@ public class FileHandler {
 		return true;
 	}
 }
-
-
-

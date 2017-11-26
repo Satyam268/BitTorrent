@@ -19,7 +19,7 @@ import com.peer.messages.types.Unchoke;
 import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
 
-public class MessageHandler {
+public class MessageHandler implements Runnable {
 	final static Logger logger = Logger.getLogger(MessageHandler.class);
 	private DataInputStream in;
 	private DataOutputStream out;
@@ -39,7 +39,7 @@ public class MessageHandler {
 		this.fileHandler = fileHandler;
 	}
 
-	public void handleMessage() {
+	public void run() {
 		ActualMsg message = new ActualMsg(in);
 		MessageType msgType = message.getType();
 
@@ -113,6 +113,7 @@ public class MessageHandler {
 		pieceMessage.setLength(piece.length);
 		pieceMessage.setPayload(piece);
 		pieceMessage.write(out);
+		
 	}
 
 	

@@ -16,17 +16,17 @@ public class FileOperations {
 	private final File file;
 	private final File pieceDir;
 	private int peerId;
-	private static final String partsLocation = "files/parts/";
+	private static final String piecesLocation = "files/pieces/";
 	final static Logger logger = Logger.getLogger(FileOperations.class);
 
 	public FileOperations(int peerId, String fileName) {
 		this.peerId = peerId;
-		pieceDir = new File("./peer_" + peerId + "/" + partsLocation + fileName);
+		pieceDir = new File("./peer_" + peerId + "/" + piecesLocation + fileName);
 		pieceDir.mkdirs();
 		file = new File(pieceDir.getParent() + "/../" + fileName);
 	}
 
-	public byte[][] getAllPartsAsByteArrays() {
+	public byte[][] getAllpiecesAsByteArrays() {
 		File[] files = pieceDir.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
@@ -40,8 +40,8 @@ public class FileOperations {
 		return ba;
 	}
 
-	public byte[] getPieceFromFile(int partId) {
-		File file = new File(pieceDir.getAbsolutePath() + "/" + partId);
+	public byte[] getPieceFromFile(int pieceId) {
+		File file = new File(pieceDir.getAbsolutePath() + "/" + pieceId);
 		return getByteArrayFromFile(file);
 	}
 
@@ -83,20 +83,49 @@ public class FileOperations {
 		return null;
 	}
 
-	public void splitFile(int partSize) {
-		// SplitFile sf = new SplitFile();
-		// sf.process(_file, partSize);
-		logger.debug("File has been split");
-	}
+	// Common Methods for Splitting and merging file
+	public static void processFileIntoPieceFiles(File inputFile, int pieceSize){
+        FileInputStream inputStream;
+        String newFileName;
+        FileOutputStream filePart;
+        int fileSize = (int) inputFile.length();
+        int nChunks = 0, read = 0, readLength = pieceSize;
+        byte[] byteChunkPart;
+        try {
+            inputStream = new FileInputStream(inputFile);
+            while (fileSize > 0) {
+                if (fileSize <= 5) {
+                    readLength = fileSize;
+                }
+                byteChunkPart = new byte[readLength];
+                read = inputStream.read(byteChunkPart, 0, readLength);
+                fileSize -= read;
+                assert (read == byteChunkPart.length);
+                nChunks++;
+                newFileName = inputFile.getParent() + "/pieces/" +
+                        inputFile.getName() + "/" + Integer.toString(nChunks - 1);
+                filePart = new FileOutputStream(new File(newFileName));
+                filePart.write(byteChunkPart);
+                filePart.flush();
+                filePart.close();
+                byteChunkPart = null;
+                filePart = null;
+            }
+            inputStream.close();
+        } catch (IOException e) {
+            logger.warn(e);
+        }
+    }
+	
 
-	public void mergeFile(int numParts) {
+	public void mergeFile(int numpieces) {
 		File ofile = file;
 		FileOutputStream fos;
 		FileInputStream fis;
 		byte[] fileBytes;
 		int bytesRead = 0;
 		List<File> list = new ArrayList<>();
-		for (int i = 0; i < numParts; i++) {
+		for (int i = 0; i < numpieces; i++) {
 			list.add(new File(pieceDir.getPath() + "/" + i));
 		}
 		try {
@@ -120,39 +149,5 @@ public class FileOperations {
 		}
 	}
 
-	// Common Methods for Splitting and merging file
-	
-		public static void SplitOrginalFileToPieces(String fileName, int pieceSize) {
-			FileInputStream inputStream;
-	        String newFileName;
-	        FileOutputStream filePart;
-	        int fileSize = (int) inputFile.length();
-	        int nChunks = 0, read = 0, readLength = partSize;
-	        byte[] byteChunkPart;
-	        try {
-	            inputStream = new FileInputStream(inputFile);
-	            while (fileSize > 0) {
-	                if (fileSize <= 5) {
-	                    readLength = fileSize;
-	                }
-	                byteChunkPart = new byte[readLength];
-	                read = inputStream.read(byteChunkPart, 0, readLength);
-	                fileSize -= read;
-	                assert (read == byteChunkPart.length);
-	                nChunks++;
-	                newFileName = inputFile.getParent() + "/parts/" +
-	                        inputFile.getName() + "/" + Integer.toString(nChunks - 1);
-	                filePart = new FileOutputStream(new File(newFileName));
-	                filePart.write(byteChunkPart);
-	                filePart.flush();
-	                filePart.close();
-	                byteChunkPart = null;
-	                filePart = null;
-	            }
-	            inputStream.close();
-	        } catch (IOException e) {
-	            logger.warn(e);
-	        }
-		}
 
 }

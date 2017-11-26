@@ -47,9 +47,8 @@ public class NewConnectionHandler implements Runnable {
 		try {
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
-			MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId, fileHandler);
-
-			// send bitset
+			
+			// send BitSet
 			sendBitFieldMessage(out);
 			logger.info("should send bitset message here.");
 
@@ -57,9 +56,11 @@ public class NewConnectionHandler implements Runnable {
 				try {
 					// System.out.println("got response ");
 					// call message handler and pass out to handler
-					if (in.available() > 0)
-						messageHandler.handleMessage();
-
+					if (in.available() > 0) {
+						MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId, fileHandler);
+						Thread t = new Thread(messageHandler);
+						t.start();
+					}
 				} catch (Exception e) {
 					logger.warn("Invalid Message sent from peer: " + neighborId + " " + e);
 				}

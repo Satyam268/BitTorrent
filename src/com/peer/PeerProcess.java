@@ -1,5 +1,6 @@
 package com.peer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -103,8 +104,7 @@ public class PeerProcess {
 			fileSize = Integer.parseInt(it.next().split(" ")[1]);
 			pieceSize = Integer.parseInt(it.next().split(" ")[1]);
 			System.out.println("PeerProcess Config: "+numberOfPreferredNeighbors +" "+unchokingInterval+" "+optimisticUnchokingInterval);
-			
-			splitFileIntoPieceFiles(fileName, pieceSize);
+			if(myInfo.hasFile==1)splitFileIntoPieceFiles(new File(fileName), pieceSize); // Check if File present then set all pieces!!!
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -135,9 +135,8 @@ public class PeerProcess {
 		return (fileSize/pieceSize);
 	}
 	
-	public void splitFileIntoPieceFiles(String fileName, int pieceSize) {
-		String[] arguments = new String[] {fileName,pieceSize+""};
-		SplitFile.main(arguments);
+	public void splitFileIntoPieceFiles(File file, int pieceSize) {
+		FileOperations.processFileIntoPieceFiles(file, pieceSize);
 	}
 	
 }

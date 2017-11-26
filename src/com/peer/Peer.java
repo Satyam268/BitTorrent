@@ -38,7 +38,7 @@ public class Peer {
 
 	public Peer(PeerInfo peerInfo) {
 		setMyInfo(peerInfo);
-		
+
 	}
 
 	private void calculatePeices() {
@@ -64,7 +64,8 @@ public class Peer {
 				logger.info(" Accepted conection from " + neighborId);
 
 				setSocketDetails(neighborId, clientSocket, in, out);
-				Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
+				Thread t = new Thread(
+						new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
 				t.start();
 				// client peerId to Socket hashMap -- so that one can delete the
 				// thread once done
@@ -96,7 +97,8 @@ public class Peer {
 			doHandShake(neighborId);
 			logger.info("\nHandshake completed with " + neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
-			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(), neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId, fileHandler));
+			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(),
+					neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId, fileHandler));
 			t.start();
 		}
 	}
@@ -107,23 +109,23 @@ public class Peer {
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
 			HandshakeMsg handshakeMessage = new HandshakeMsg(myInfo.getPeerId());
-			
+
 			logger.info(" Sent handshake msg to neighbourID:" + neighborId);
-			
+
 			DataOutputStream out = new DataOutputStream(neighborSocket.getOutputStream());
 			DataInputStream in = new DataInputStream(neighborSocket.getInputStream());
-			
+
 			handshakeMessage.write(out);
 			handshakeMessage.read(in);
-			
+
 			logger.info(" Received handshake msg from:" + neighborId);
-			
+
 			setSocketDetails(neighborId, neighborSocket, in, out);
-		
+
 		} catch (UnknownHostException e) {
-			logger.warn("Unable to make TCP connection with TCP host: "+neighborInfo.getHostName()+e);
+			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		} catch (IOException e) {
-			logger.warn("Unable to make TCP connection with TCP host: "+neighborInfo.getHostName()+e);
+			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		}
 
 	}
