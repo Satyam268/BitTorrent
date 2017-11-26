@@ -79,6 +79,7 @@ public class Peer {
 			int neighbourID = handshakeMessage.getPeerID();
 			peerMap.put(neighbourID, new PeerInfo(neighbourID));
 			handshakeMessage.write(out2);
+			logger.debug("Peer ["+peerID+"] is connected from ["+neighbourID+"]");
 			return neighbourID;
 		} catch (IOException e) {
 			logger.debug("Unable to perform handshake.\n" + e);
@@ -88,9 +89,9 @@ public class Peer {
 
 	public void connectToPeers(List<Integer> activePeerIds) {
 		for (int neighborId : activePeerIds) {
-
 			if (doHandShake(neighborId)) {
-				logger.info("\nHandshake completed with " + neighborId);
+				logger.debug("Peer ["+peerID+"] makes connection to Peer ["+neighborId+"]");
+				//logger.info("\nHandshake completed with " + neighborId);
 				PeerInfo neighborInfo = peerMap.get(neighborId);
 				Thread t = new Thread(
 						new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(),
@@ -164,7 +165,7 @@ public class Peer {
 
 	public void startPeerHandler() {
 		// TODO Auto-generated method stub
-		PeerHandler peerHandler = new PeerHandler(peerMap, properties);
+		PeerHandler peerHandler = new PeerHandler(peerID, peerMap, properties);
 		Thread peerHandlerThread = new Thread(peerHandler);
 		peerHandlerThread.start();
 	}

@@ -47,7 +47,7 @@ public class NewConnectionHandler implements Runnable {
 		try {
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
-			
+
 			// send BitSet
 			sendBitFieldMessage(out);
 			logger.info("should send bitset message here.");

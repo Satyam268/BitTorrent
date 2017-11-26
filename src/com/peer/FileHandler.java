@@ -152,6 +152,7 @@ public class FileHandler {
 				return false;
 			}
 		}
+		logger.debug("Peer ["+peerID+"]has downloaded the complete file");
 		return true;
 	}
 

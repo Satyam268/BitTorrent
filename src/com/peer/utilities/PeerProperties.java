@@ -1,13 +1,13 @@
 package com.peer.utilities;
 
 public class PeerProperties {
-	
+
 	 int numberOfPreferredNeighbors;
 	 int unchokingInterval;
 	 int optimisticUnchokingInterval;
 	 String fileName;
 	 int fileSize;
-	 int pieceSize;	
+	 int pieceSize;
 	 public PeerProperties(String fileName2, int fileSize2, int optimisticUnchokingInterval2,
 				int numberOfPreferredNeighbors2, int pieceSize2, int unchokingInterval2) {
 			numberOfPreferredNeighbors=numberOfPreferredNeighbors2;
@@ -39,5 +39,5 @@ public class PeerProperties {
 	public int getNumberOfPieces() {
 		return fileSize/pieceSize;
 	}
-	
+
 }

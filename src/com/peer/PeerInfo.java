@@ -20,7 +20,7 @@ public class PeerInfo {
     DataInputStream socketReader;
     DataOutputStream socketWriter;
     AtomicInteger requestedPieceIndex= new AtomicInteger(-1); // after every p time && whenever making a request and whenever piece
-    
+
     // records the pieces i have/don't have
 	private BitSet bitfield = null;
 
@@ -55,9 +55,10 @@ public class PeerInfo {
 	}
 
 
+    //overridden for log generation purpose
     @Override
     public String toString() {
-        return peerId+ " "+hostName+" "+listeningPort+" "+hasFile;
+        return peerId+"";//+ " "+hostName+" "+listeningPort+" "+hasFile;
     }
 	public boolean isChoked() {
 		return choked;
@@ -96,7 +97,7 @@ public class PeerInfo {
 	public void setHandShaked(boolean handShaked) {
 		this.handShaked = handShaked;
 	}
-	
+
 	public boolean isInterested() {
 		return interested;
 	}
