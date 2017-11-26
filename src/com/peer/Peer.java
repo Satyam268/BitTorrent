@@ -7,9 +7,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -25,8 +25,7 @@ public class Peer {
 	PeerProperties properties;
 	// Connection Variables
 	private ServerSocket serverSocket;
-
-	private Map<Integer, PeerInfo> peerMap = new ConcurrentHashMap<>();
+	private Map<Integer, PeerInfo> peerMap = new HashMap<>();
 	private FileHandler fileHandler;
 	final static Logger logger = Logger.getLogger(Peer.class);
 
@@ -76,30 +75,27 @@ public class Peer {
 			handshakeMessage.read(in2);
 			int neighbourID = handshakeMessage.getPeerID();
 			peerMap.put(neighbourID, new PeerInfo(neighbourID));
+
 			handshakeMessage.write(out2);
-			logger.debug("Peer ["+peerID+"] is connected from ["+neighbourID+"]");
 			return neighbourID;
 		} catch (IOException e) {
 			logger.debug("Unable to perform handshake.\n" + e);
 		}
-		return -1;
+		return 0;
 	}
 
 	public void connectToPeers(List<Integer> activePeerIds) {
 		for (int neighborId : activePeerIds) {
-			if (doHandShake(neighborId)) {
-				logger.debug("Peer ["+peerID+"] makes connection to Peer ["+neighborId+"]");
-				//logger.info("\nHandshake completed with " + neighborId);
-				PeerInfo neighborInfo = peerMap.get(neighborId);
-				Thread t = new Thread(
-						new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(),
-								neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId, fileHandler));
-				t.start();
-			}
+			doHandShake(neighborId);
+			logger.info("\nHandshake completed with " + neighborId);
+			PeerInfo neighborInfo = peerMap.get(neighborId);
+			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(),
+					neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId, fileHandler));
+			t.start();
 		}
 	}
 
-	public boolean doHandShake(int neighborId) {
+	public void doHandShake(int neighborId) {
 		logger.info("Starting handshake with neighbourID:" + neighborId);
 		PeerInfo neighborInfo = peerMap.get(neighborId);
 		try {
@@ -113,17 +109,17 @@ public class Peer {
 
 			handshakeMessage.write(out);
 			handshakeMessage.read(in);
+
 			logger.info(" Received handshake msg from:" + neighborId);
+
 			setSocketDetails(neighborId, neighborSocket, in, out);
 
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
-			return false;
 		} catch (IOException e) {
 			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
-			return false;
 		}
-		return true;
+
 	}
 
 	private void setSocketDetails(int neighborId, Socket neighborSocket, ObjectInputStream in, ObjectOutputStream out) {
@@ -161,8 +157,7 @@ public class Peer {
 	}
 
 	public void startPeerHandler() {
-		// TODO Auto-generated method stub
-		PeerHandler peerHandler = new PeerHandler(peerID, peerMap, properties);
+		PeerHandler peerHandler = new PeerHandler(peerID,peerMap, properties);
 		Thread peerHandlerThread = new Thread(peerHandler);
 		peerHandlerThread.start();
 	}

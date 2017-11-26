@@ -1,5 +1,7 @@
 package com.peer;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
@@ -28,16 +31,85 @@ public class PeerHandler implements Runnable {
 	AtomicBoolean randomlySelectPreferredNeighbors = new AtomicBoolean(false);
 	PeerProperties peerProperties;
 	int peerID;
+	/*
+	class OptimisticUnchoker extends Thread {
+        private final int numberOfOptimisticallyUnchokedNeighbors;
+        private final int optimisticUnchokingInterval;
+        private final List<PeerInfo> chokedNeighbors = new ArrayList<>();
+        final Collection<PeerInfo> optimisticallyUnchokedPeers =
+                Collections.newSetFromMap(new ConcurrentHashMap<PeerInfo, Boolean>());
+
+        OptimisticUnchoker(PeerProperties conf) {
+            super("OptimisticUnchoker");
+            numberOfOptimisticallyUnchokedNeighbors = 1;
+            optimisticUnchokingInterval = conf.getOptimisticUnchokingInterval();
+        }
+
+        synchronized void setChokedNeighbors(Collection<PeerInfo> chokedNeighbors) {
+            chokedNeighbors.clear();
+            chokedNeighbors.addAll(chokedNeighbors);
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(optimisticUnchokingInterval);
+                } catch (InterruptedException ex) {
+                }
+
+                synchronized (this) {
+                    // Randomly shuffle the remaining neighbors, and select some to optimistically unchoke
+                    if (!chokedNeighbors.isEmpty()) {
+                        Collections.shuffle(chokedNeighbors);
+                        optimisticallyUnchokedPeers.clear();
+                        optimisticallyUnchokedPeers.addAll(chokedNeighbors.subList(0,
+                                Math.min(numberOfOptimisticallyUnchokedNeighbors, chokedNeighbors.size())));
+                    }
+                }
+
+                if (chokedNeighbors.size() > 0) {
+                    logger.debug("STATE: OPT UNCHOKED(" + numberOfOptimisticallyUnchokedNeighbors + "): " + optimisticallyUnchokedPeers);
+                }
+//                for (PeerManagerListener listener : _listeners) {
+//                    listener.unchockedPeers(RemotePeerInfo.toIdSet(optmisticallyUnchokedPeers));
+//                }
+                
+                optimisticallyUnchokedPeers.forEach(peerInfo -> {
+                	peerInfo.unChoke();
+                	try {
+                		sendUnchoke(peerInfo.getSocketWriter());
+                	}
+                	catch(Exception e) {
+                		logger.warn("Unable to choke peer: "+ peerInfo.getPeerId()+ " "+ e);
+                	}
+                });
+                
+            }
+        }
+    }
+	
+	private final OptimisticUnchoker optUnchoker;*/
 
 	public PeerHandler(int peerID, Map<Integer, PeerInfo> peerMap2, PeerProperties peerProperties) {
 		this.peerMap = peerMap2;
 		this.peerProperties = peerProperties;
 		this.peerID = peerID;
+	//	this.optUnchoker= new OptimisticUnchoker(peerProperties);
 	}
 
+	public void sendUnchoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
+		Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.CHOKE);
+		unchokeMessage.write(socketWriter);
+	}
+	
+	public void sendChoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
+		Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
+		chokeMessage.write(socketWriter);
+	}
 	@Override
 	public void run() {
-		// optUnchoker.start();
+	//	optUnchoker.start();
 
 		while (true) {
 			try {
@@ -123,8 +195,8 @@ public class PeerHandler implements Runnable {
 			// }
 			chokedPeersIDs.forEach(id -> {
 				try {
-					Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
-					chokeMessage.write(peerMap.get(id).getSocketWriter());
+					
+					sendChoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);
 				}
@@ -132,8 +204,7 @@ public class PeerHandler implements Runnable {
 
 			preferredNeighborsIDs.forEach(id -> {
 				try {
-					Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.UNCHOKE);
-					unchokeMessage.write(peerMap.get(id).getSocketWriter());
+					sendUnchoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);
 				}

@@ -29,7 +29,7 @@ public class ActualMsg extends Message {
 			readPacketPayload(in);
 			logger.info("reading payload: "+ this.getPayload());
 	}*/
-
+	
 /*	private void readPacketPayload(ObjectInputStream in) throws IOException {
 		byte[] payload = new byte[this.length];//-1 or not?
 		in.readFully(payload, 0, this.length);

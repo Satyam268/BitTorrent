@@ -51,7 +51,7 @@ public class NewConnectionHandler implements Runnable {
 			// send BitSet
 			sendBitFieldMessage(out);
 			logger.info("should send bitset message here.");
-
+			//MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId, fileHandler);
 			while (true) {
 				try {
 					// System.out.println("got response ");
@@ -60,6 +60,7 @@ public class NewConnectionHandler implements Runnable {
 						MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId, fileHandler);
 						Thread t = new Thread(messageHandler);
 						t.start();
+						//messageHandler.handleMessage();
 					}
 
 				} catch (Exception e) {
@@ -76,6 +77,7 @@ public class NewConnectionHandler implements Runnable {
 		try {
 			logger.info("trying to send bitfield");
 			ActualMsg bitFieldMessage = new BitField();
+			bitFieldMessage.setLength(myInfo.getBitfield().length()+1);
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
 			bitFieldMessage.setLength(myInfo.getBitfield().length()+1);
 			bitFieldMessage.write(out2);
