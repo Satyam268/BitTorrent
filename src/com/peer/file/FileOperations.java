@@ -19,12 +19,13 @@ public class FileOperations {
 	private final File file;
 	private final File pieceDir;
 	private int peerId;
-	private static final String piecesLocation = "files/pieces/";
+	private static final String piecesLocation = Paths.get("files","pieces").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
 
 	public FileOperations(int peerId, String fileName) {
 		this.peerId = peerId;
-		pieceDir = new File("./peer_" + peerId + "/" + piecesLocation + fileName);
+		Path path = Paths.get(("peer_" + peerId) , piecesLocation , fileName);
+		pieceDir = new File(path.toString());
 		pieceDir.mkdirs();
 		file = new File(pieceDir.getParent() + "/../" + fileName);
 	}
