@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
@@ -20,7 +21,7 @@ import com.peer.utilities.PeerProperties;
 
 public class PeerProcess {
 
-	PeerInfo myInfo;
+	PeerInfo myInfo;//why inside peer process??
 	Map<Integer, PeerInfo> neighborMap;
 	List<Integer> activePeerIds;
 	int numberOfPreferredNeighbors;
@@ -29,15 +30,15 @@ public class PeerProcess {
 	String fileName;
 	int fileSize;
 	int pieceSize;
+	Peer peer = null;//why this ?
 
 	List<Peer> interestedNeighbors = new ArrayList<>();
-
 	final static Logger logger = Logger.getLogger(PeerProcess.class);
-	Peer peer = null;
+
 
 	public PeerProcess(int peerId) {
 		peer = new Peer(peerId);
-		neighborMap = new HashMap<>();
+		neighborMap = new ConcurrentHashMap<>();
 		activePeerIds = new ArrayList<>();
 	}
 
@@ -101,7 +102,7 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerID = 1002;
+		int peerID = 1001;
 		String log4jConfPath = "log4j.properties";
 		System.setProperty("file.name", "log_peer_" + peerID + ".log");
 		PropertyConfigurator.configure(log4jConfPath);

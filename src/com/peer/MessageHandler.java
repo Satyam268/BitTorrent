@@ -1,7 +1,5 @@
 package com.peer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -20,7 +18,7 @@ import com.peer.messages.types.Request;
 import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
 
-public class MessageHandler implements Runnable {
+public class MessageHandler {
 	final static Logger logger = Logger.getLogger(MessageHandler.class);
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
@@ -40,13 +38,15 @@ public class MessageHandler implements Runnable {
 		this.fileHandler = fileHandler;
 	}
 
-	// public void handleMessage(){
-	public void run() {
+	 public void handleMessage(){
+	//public void run() {
 		ActualMsg message = null;
 		try {
 			message = (ActualMsg) in.readObject();
+			logger.info("read the message ");
+			logger.info("Length:" + message.getLength() + "   Type: " + message.getType() +" Payload: "+ message.getPayload());
 			MessageType msgType = message.getType();
-			logger.debug("\nMsg-Type " + msgType + " received from " + clientPeerID);
+			logger.debug("Msg-Type " + msgType + " received from " + clientPeerID);
 			switch (msgType) {
 			case BITFIELD:
 				handleBitfield(message);
@@ -177,7 +177,6 @@ public class MessageHandler implements Runnable {
 	private void handleChoke(ActualMsg message) {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		peerInfo.setRequestedPieceIndex(-1);
-
 	}
 
 	private void handleInterested(ActualMsg message) throws ClassNotFoundException, IOException {

@@ -9,7 +9,11 @@ import org.apache.log4j.Logger;
 
 import com.peer.utilities.MessageType;
 
-public class ActualMsg extends Message {
+public class ActualMsg extends Message{
+	/**
+	 *
+	 */
+	//private static final long serialVersionUID = 1L;
 	protected int length;//length includes type + payload
 	protected MessageType type;//1 byte
 	protected byte[] payload;
@@ -29,7 +33,7 @@ public class ActualMsg extends Message {
 			readPacketPayload(in);
 			logger.info("reading payload: "+ this.getPayload());
 	}*/
-	
+
 /*	private void readPacketPayload(ObjectInputStream in) throws IOException {
 		byte[] payload = new byte[this.length];//-1 or not?
 		in.readFully(payload, 0, this.length);

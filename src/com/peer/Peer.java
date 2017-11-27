@@ -23,6 +23,7 @@ public class Peer {
 	private BitSet bitfield;
 
 	PeerProperties properties;
+
 	// Connection Variables
 	private ServerSocket serverSocket;
 	private Map<Integer, PeerInfo> peerMap = new HashMap<>();
@@ -36,16 +37,18 @@ public class Peer {
 
 	public Peer(PeerInfo peerInfo) {
 		setMyInfo(peerInfo);
-
 	}
 
+	// listening on port for new connections
 	public void startServer() {
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
 		try {
+			System.out.println("MY peer id:" + peerID);
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
 			Socket clientSocket;
 			logger.info(" Starting listening to my port\n");
+
 			while (true) {
 				logger.info(" Waiting for socket");
 				clientSocket = serverSocket.accept();
@@ -54,17 +57,17 @@ public class Peer {
 
 				// handshake message
 				int neighborId = handleHandshakeMessage(in, out);
-				logger.info(" Accepted conection from " + neighborId);
-
-				setSocketDetails(neighborId, clientSocket, in, out);
-				Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
-				t.start();
+				if (neighborId != -1) {
+					logger.info(" Accepted conection from " + neighborId);
+					setSocketDetailsToPeerMap(neighborId, clientSocket, in, out);
+					Thread t = new Thread(new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
+					t.start();
+				}
 				// client peerId to Socket hashMap -- so that one can delete the
 				// thread once done
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -75,13 +78,12 @@ public class Peer {
 			handshakeMessage.read(in2);
 			int neighbourID = handshakeMessage.getPeerID();
 			peerMap.put(neighbourID, new PeerInfo(neighbourID));
-
 			handshakeMessage.write(out2);
 			return neighbourID;
 		} catch (Exception e) {
 			logger.debug("Unable to perform handshake.\n" + e);
 		}
-		return 0;
+		return -1;
 	}
 
 	public void connectToPeers(List<Integer> activePeerIds) {
@@ -112,7 +114,7 @@ public class Peer {
 
 			logger.info(" Received handshake msg from:" + neighborId);
 
-			setSocketDetails(neighborId, neighborSocket, in, out);
+			setSocketDetailsToPeerMap(neighborId, neighborSocket, in, out);
 
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
@@ -122,7 +124,8 @@ public class Peer {
 
 	}
 
-	private void setSocketDetails(int neighborId, Socket neighborSocket, ObjectInputStream in, ObjectOutputStream out) {
+	private void setSocketDetailsToPeerMap(int neighborId, Socket neighborSocket, ObjectInputStream in, ObjectOutputStream out) {
+		logger.info("Object being set in the peerMap with: neighbourID = " + neighborId);
 		peerMap.get(neighborId).setClientSocket(neighborSocket);
 		peerMap.get(neighborId).setSocketReader(in);
 		peerMap.get(neighborId).setSocketWriter(out);
@@ -157,7 +160,7 @@ public class Peer {
 	}
 
 	public void startPeerHandler() {
-		PeerHandler peerHandler = new PeerHandler(peerID,peerMap, properties);
+		PeerHandler peerHandler = new PeerHandler(peerID, peerMap, properties);
 		Thread peerHandlerThread = new Thread(peerHandler);
 		peerHandlerThread.start();
 	}

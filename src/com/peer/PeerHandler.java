@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
@@ -74,7 +73,7 @@ public class PeerHandler implements Runnable {
 //                for (PeerManagerListener listener : _listeners) {
 //                    listener.unchockedPeers(RemotePeerInfo.toIdSet(optmisticallyUnchokedPeers));
 //                }
-                
+
                 optimisticallyUnchokedPeers.forEach(peerInfo -> {
                 	peerInfo.unChoke();
                 	try {
@@ -84,11 +83,11 @@ public class PeerHandler implements Runnable {
                 		logger.warn("Unable to choke peer: "+ peerInfo.getPeerId()+ " "+ e);
                 	}
                 });
-                
+
             }
         }
     }
-	
+
 	private final OptimisticUnchoker optUnchoker;*/
 
 	public PeerHandler(int peerID, Map<Integer, PeerInfo> peerMap2, PeerProperties peerProperties) {
@@ -102,7 +101,7 @@ public class PeerHandler implements Runnable {
 		Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.CHOKE);
 		unchokeMessage.write(socketWriter);
 	}
-	
+
 	public void sendChoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
 		Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
 		chokeMessage.write(socketWriter);
@@ -195,7 +194,7 @@ public class PeerHandler implements Runnable {
 			// }
 			chokedPeersIDs.forEach(id -> {
 				try {
-					
+
 					sendChoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);
