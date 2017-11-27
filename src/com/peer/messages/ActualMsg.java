@@ -86,4 +86,7 @@ public class ActualMsg extends Message {
 		return BitSet.valueOf(this.payload);
 	}
 
+	public String toString() {
+		return "len "+length+" type: "+ type+ " payload: "+ new String(payload);
+	}
 }

@@ -44,8 +44,8 @@ public class NewConnectionHandler implements Runnable {
 		// listen to the port and write to the port continuously
 		// message handler will be called here
 		try {
-			in = new ObjectInputStream(socket.getInputStream());
-			out = new ObjectOutputStream(socket.getOutputStream());
+			//in = new ObjectInputStream(socket.getInputStream());
+			//out = new ObjectOutputStream(socket.getOutputStream());
 
 			// send BitSet
 			//hoping for bitset being send successfully
@@ -74,7 +74,6 @@ public class NewConnectionHandler implements Runnable {
 			ActualMsg bitFieldMessage = new BitField();
 			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
-			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);
 			bitFieldMessage.write(out2);
 			logger.info("Sent bitField Message to Peer " + neighborId);
 		} catch (IOException e) {

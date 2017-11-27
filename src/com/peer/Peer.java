@@ -77,6 +77,7 @@ public class Peer {
 		try {
 			handshakeMessage.read(in2);
 			int neighbourID = handshakeMessage.getPeerID();
+			System.out.println(peerMap.entrySet());
 			peerMap.put(neighbourID, new PeerInfo(neighbourID));
 			handshakeMessage.write(out2);
 			return neighbourID;
