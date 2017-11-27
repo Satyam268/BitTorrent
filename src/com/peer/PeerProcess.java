@@ -21,7 +21,6 @@ import com.peer.utilities.PeerProperties;
 
 public class PeerProcess {
 
-	PeerInfo myInfo;//why inside peer process??
 	Map<Integer, PeerInfo> neighborMap;
 	List<Integer> activePeerIds;
 	int numberOfPreferredNeighbors;
@@ -30,7 +29,7 @@ public class PeerProcess {
 	String fileName;
 	int fileSize;
 	int pieceSize;
-	Peer peer = null;//why this ?
+	Peer peer = null;
 
 	List<Peer> interestedNeighbors = new ArrayList<>();
 	final static Logger logger = Logger.getLogger(PeerProcess.class);
@@ -53,6 +52,7 @@ public class PeerProcess {
 
 	void readPeerInfoFile() {
 		String fileName = "src/com/peer/configFiles/PeerInfo.cfg";
+		PeerInfo myInfo;
 		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
 			Iterator<String> it = stream.iterator();
 			boolean selfPeerIdNotRead = true;

@@ -16,8 +16,6 @@ public class HandshakeMsg extends Message {
 	private final byte[] zeroBits = new byte[10];
 	byte[] peerId = new byte[4];
 
-	// byte[] myPeerID;
-
 	public HandshakeMsg(int peerID) {
 		peerId = CommonUtils.intToByteArray(peerID);
 	}

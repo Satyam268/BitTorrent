@@ -9,46 +9,38 @@ import org.apache.log4j.Logger;
 
 import com.peer.utilities.MessageType;
 
-public class ActualMsg extends Message{
-	/**
-	 *
-	 */
-	//private static final long serialVersionUID = 1L;
-	protected int length;//length includes type + payload
-	protected MessageType type;//1 byte
+public class ActualMsg extends Message {
+
+	protected int length;// length includes type + payload
+	protected MessageType type;// 1 byte
 	protected byte[] payload;
 	final static Logger logger = Logger.getLogger(ActualMsg.class);
 
-
-	public ActualMsg() {}
+	public ActualMsg() {
+	}
 
 	public ActualMsg(DataOutputStream in) {
-			logger.info("actual message constructor");
+		logger.info("actual message constructor");
 	}
 
-	/*public void read(DataOutputStream in) throws ProtocolException, IOException {
-			logger.info("reading length: "+ this.getLength());
-			readPacketType(in);
-			logger.info("reading packet type: "+ this.getType().getValue());
-			readPacketPayload(in);
-			logger.info("reading payload: "+ this.getPayload());
-	}*/
+	/*
+	 * public void read(DataOutputStream in) throws ProtocolException, IOException {
+	 * logger.info("reading length: "+ this.getLength()); readPacketType(in);
+	 * logger.info("reading packet type: "+ this.getType().getValue());
+	 * readPacketPayload(in); logger.info("reading payload: "+ this.getPayload()); }
+	 */
 
-/*	private void readPacketPayload(ObjectInputStream in) throws IOException {
-		byte[] payload = new byte[this.length];//-1 or not?
-		in.readFully(payload, 0, this.length);
-		setPayload(payload);
-	}
-
-	private void readPacketType(ObjectInputStream in) throws IOException {
-		byte type = in.readByte();
-		setType((MessageType.getMessageType(type)));
-	}
-
-	private void readPacketLength(ObjectInputStream in) throws IOException {
-		setLength(in.readInt());
-	}*/
-
+	/*
+	 * private void readPacketPayload(ObjectInputStream in) throws IOException {
+	 * byte[] payload = new byte[this.length];//-1 or not? in.readFully(payload, 0,
+	 * this.length); setPayload(payload); }
+	 * 
+	 * private void readPacketType(ObjectInputStream in) throws IOException { byte
+	 * type = in.readByte(); setType((MessageType.getMessageType(type))); }
+	 * 
+	 * private void readPacketLength(ObjectInputStream in) throws IOException {
+	 * setLength(in.readInt()); }
+	 */
 
 	public void write(ObjectOutputStream out) throws IOException {
 		out.writeObject(this);

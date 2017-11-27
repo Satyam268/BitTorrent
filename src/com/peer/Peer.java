@@ -103,7 +103,7 @@ public class Peer {
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
 			HandshakeMsg handshakeMessage = new HandshakeMsg(myInfo.getPeerId());
-
+			
 			logger.info(" Sent handshake msg to neighbourID:" + neighborId);
 
 			ObjectOutputStream out = new ObjectOutputStream(neighborSocket.getOutputStream());
