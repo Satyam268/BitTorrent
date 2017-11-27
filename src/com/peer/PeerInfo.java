@@ -26,7 +26,7 @@ public class PeerInfo {
     // records the pieces i have/don't have
 	private BitSet bitfield = null;
 
-	public PeerInfo(String line){
+	public PeerInfo(String line, int numberOfPieces){
         String[] metaInfo = line.split(" ");
         if(metaInfo.length!=4) {
         }
@@ -37,14 +37,12 @@ public class PeerInfo {
         hasFile = Integer.parseInt(metaInfo[3]);
 
         //handle this AFTER PIECES
-        setBitfield(new BitSet());
-
-
+        BitSet b = new BitSet();
+        b.set(0, numberOfPieces, false);
+        System.out.println(b.cardinality());
+        setBitfield(b);
         if(hasFile==1) {
         	bitfield.set(0, bitfield.size(), true);
-        }
-        else {
-        	bitfield.set(0, bitfield.size(), false);
         }
     }
 

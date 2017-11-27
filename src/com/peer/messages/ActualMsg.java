@@ -43,6 +43,7 @@ public class ActualMsg extends Message {
 	 */
 
 	public void write(ObjectOutputStream out) throws IOException {
+		System.out.println(this);
 		out.writeObject(this);
 	}
 

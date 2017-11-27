@@ -58,7 +58,8 @@ public class PeerProcess {
 			boolean selfPeerIdNotRead = true;
 
 			while (it.hasNext()) {
-				PeerInfo peerInfo = new PeerInfo(it.next());
+				System.out.println("NUmnber of peices "+this.peer.properties.getNumberOfPieces());
+				PeerInfo peerInfo = new PeerInfo(it.next(), this.peer.properties.getNumberOfPieces());
 				neighborMap.put(peerInfo.getPeerId(), peerInfo);
 				if (selfPeerIdNotRead && peerInfo.getPeerId() != peer.getPeerID()) {
 					activePeerIds.add(peerInfo.getPeerId());
@@ -107,10 +108,10 @@ public class PeerProcess {
 		System.setProperty("file.name", "log_peer_" + peerID + ".log");
 		PropertyConfigurator.configure(log4jConfPath);
 		PeerProcess me = new PeerProcess(peerID);
-		me.readPeerInfoFile();
 		me.readCommonCFGFile();
 		me.setPeerProperties();
-
+		me.readPeerInfoFile();
+		
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");

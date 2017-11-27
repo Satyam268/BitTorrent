@@ -73,6 +73,7 @@ public class NewConnectionHandler implements Runnable {
 			logger.info("trying to send bitfield");
 			ActualMsg bitFieldMessage = new BitField();
 			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);
+			System.out.println("bitField Payload: "+myInfo.getBitfield().length()+" "+myInfo.getBitfield().toString());
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
 			bitFieldMessage.write(out2);
 			logger.info("Sent bitField Message to Peer " + neighborId);

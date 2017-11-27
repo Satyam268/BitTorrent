@@ -92,6 +92,7 @@ public class Peer {
 			doHandShake(neighborId);
 			logger.info("\nHandshake completed with " + neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
+			
 			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(),
 					neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId, fileHandler));
 			t.start();
@@ -168,6 +169,7 @@ public class Peer {
 
 	public void setProperties(PeerProperties peerProperties) {
 		this.properties = peerProperties;
+		//this.myInfo.setBitfield(new BitSet(peerProperties.getNumberOfPieces()));
 	}
 
 }
