@@ -45,7 +45,6 @@ public class Peer {
 	public void startServer() {
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
-		splitFileIfNeeded();
 		try {
 			System.out.println("MY peer id:" + peerID);
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
@@ -75,7 +74,7 @@ public class Peer {
 		}
 	}
 
-	private void splitFileIfNeeded() {
+	public void splitFileIfNeeded() {
 		if(myInfo.hasFile==1) {
 			File file=new File(properties.getFileName());
 			FileOperations.processFileIntoPieceFiles(file, properties.getPieceSize());

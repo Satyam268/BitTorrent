@@ -125,6 +125,8 @@ public class PeerProcess {
 		PeerInfo myInfo = neighborMap.remove(peer.getPeerID());
 		peer.setPeerMap(neighborMap);
 		peer.setMyInfo(myInfo);
+		peer.splitFileIfNeeded();
+		
 	}
 
 	public int getNumberOfPieces() {
