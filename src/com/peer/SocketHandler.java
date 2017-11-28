@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import com.peer.messages.ActualMsg;
 import com.peer.messages.types.BitField;
 
-public class NewConnectionHandler implements Runnable {
+public class SocketHandler implements Runnable {
 
 	Socket socket;
 	PeerInfo peerClient;
@@ -22,14 +22,14 @@ public class NewConnectionHandler implements Runnable {
 	private int neighborId;
 	private PeerInfo myInfo;
 	private FileHandler fileHandler;
-	final static Logger logger = Logger.getLogger(NewConnectionHandler.class);
+	final static Logger logger = Logger.getLogger(SocketHandler.class);
 
-	public NewConnectionHandler(Socket clientSocket, PeerInfo peerInfo) {
+	public SocketHandler(Socket clientSocket, PeerInfo peerInfo) {
 		socket = clientSocket;
 		peerClient = peerInfo;
 	}
 
-	public NewConnectionHandler(Socket clientSocket, ObjectInputStream in2, ObjectOutputStream out2, PeerInfo myInfo,
+	public SocketHandler(Socket clientSocket, ObjectInputStream in2, ObjectOutputStream out2, PeerInfo myInfo,
 			Map<Integer, PeerInfo> peerMap, int neighborId, FileHandler fileHandler) {
 		socket = clientSocket;
 		this.in = in2;

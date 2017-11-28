@@ -27,12 +27,11 @@ public class FileOperations {
 	private static final String outputFileLocation = Paths.get("com","output","ThData.dat").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
 	private Map<Integer, Path> pieceLocationMap = new TreeMap<>();
-	
+
 	public FileOperations(int peerId, String fileName) {
 		this.peerId = peerId;
 		Path path = Paths.get(piecesLocation);
-		logger.info("PIECE file location "+ path.toString());
-		pieceDir = path.toFile();
+		pieceDir = new File(path.toString());
 		pieceDir.mkdirs();
 		outputFile = new File(outputFileLocation);
 	}

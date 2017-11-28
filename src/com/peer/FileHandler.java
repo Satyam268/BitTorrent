@@ -16,7 +16,7 @@ import com.peer.utilities.PeerProperties;
 //peer has a file handler
 //manages the 2 BitSets, depicting requestedParts and receivedParts
 public class FileHandler {
-	final static Logger logger = Logger.getLogger(NewConnectionHandler.class);
+	final static Logger logger = Logger.getLogger(FileHandler.class);
 	private FileOperations fileOps;
 
 	private BitSet receivedPieces;// piece I have
@@ -152,7 +152,7 @@ public class FileHandler {
 				return false;
 			}
 		}
-		logger.debug("Peer ["+peerID+"]has downloaded the complete file");
+		logger.debug("Peer ["+peerID+"] has downloaded the complete file");
 		return true;
 	}
 

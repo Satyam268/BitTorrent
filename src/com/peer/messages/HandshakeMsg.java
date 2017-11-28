@@ -43,28 +43,6 @@ public class HandshakeMsg extends Message {
 			throw new ProtocolException("peer id bytes read are less than " + peerId.length);
 		}
 
-		// if (in.read(protocolId, 0, handshakeHeader.length()) <
-		// handshakeHeader.length()) {
-		// throw new ProtocolException(
-		// "protocol id is " + Arrays.toString(protocolId) + " instead of " +
-		// handshakeHeader);
-		// }
-		//
-		// if (!handshakeHeader.equals(new String(protocolId, "US-ASCII"))) {
-		// throw new ProtocolException(
-		// "protocol id is " + Arrays.toString(protocolId) + " instead of " +
-		// handshakeHeader);
-		// }
-		//
-		// if (in.read(zeroBits, 0, zeroBits.length) < zeroBits.length) {
-		// throw new ProtocolException("zero bit bytes read are less than " +
-		// zeroBits.length);
-		// }
-		//
-		// if (in.read(peerId, 0, peerId.length) < peerId.length) {
-		// throw new ProtocolException("peer id bytes read are less than " +
-		// peerId.length);
-		// }
 	}
 
 	public String getHandshakeHeader() {
@@ -72,25 +50,13 @@ public class HandshakeMsg extends Message {
 	}
 
 	public void write(ObjectOutputStream out) throws IOException {
-
 		if (peerId.length > handshakeHeader.length()) {
 			throw new IOException("protocol id length is " + peerId.length + " instead of " + handshakeHeader.length());
 		}
 		out.writeObject(this);
-		/*
-		 * out.write(handshakeHeader.getBytes(), 0, handshakeHeader.length());
-		 * out.write(zeroBits, 0, zeroBits.length); out.write(myPeerID, 0,
-		 * myPeerID.length);
-		 */
-	}
-
-	public static boolean validateHeader(byte[] handShakeData) {
-		// TODO Auto-generated method stub
-		return true;
 	}
 
 	public int getPeerID() {
-		// TODO Auto-generated method stub
 		return ByteBuffer.wrap(peerId).order(ByteOrder.BIG_ENDIAN).getInt();
 	}
 

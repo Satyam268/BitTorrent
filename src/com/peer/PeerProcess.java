@@ -17,20 +17,25 @@ import org.apache.log4j.PropertyConfigurator;
 import com.peer.file.FileOperations;
 import com.peer.utilities.PeerProperties;
 
+/**
 public class PeerProcess {
-
-	Map<Integer, PeerInfo> neighborMap;
-	List<Integer> activePeerIds;
+	// variables read from file
 	int numberOfPreferredNeighbors;
 	int unchokingInterval;
 	int optimisticUnchokingInterval;
 	String fileName;
 	int fileSize;
 	int pieceSize;
-	int peerID;
-	Peer peer = null;
+
+	//ds
+	Map<Integer, PeerInfo> neighborMap;
+	List<Integer> activePeerIds;
 	List<ConfigFileParams> peerInfoFileParams;
 	List<Peer> interestedNeighbors = new ArrayList<>();
+
+
+	int peerID;
+	Peer peer = null;
 	final static Logger logger = Logger.getLogger(PeerProcess.class);
 
 	public PeerProcess() {
@@ -47,9 +52,12 @@ public class PeerProcess {
 		peer.startServer();
 	}
 
+	/**
+	 * Reads the PeerInfo file
+	 */
+/*
 	void readPeerInfoFile() {
 		String fileName = "src/com/peer/configFiles/PeerInfo.cfg";
-		PeerInfo myInfo;
 		peerInfoFileParams = new ArrayList<>();
 		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
 			Iterator<String> it = stream.iterator();
@@ -69,23 +77,22 @@ public class PeerProcess {
 			fileName = it.next().split(" ")[1];
 			fileSize = Integer.parseInt(it.next().split(" ")[1]);
 			pieceSize = Integer.parseInt(it.next().split(" ")[1]);
-		} catch (IOException e) {
 
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
 	public static void main(String[] args) {
-		// configures log4j
 		int peerid = 1001;
 		String log4jConfPath = "log4j.properties";
-		System.setProperty("file.name", "log_peer_" +  peerid+ ".log");
+		System.setProperty("file.name", "log_peer_" + peerid + ".log");
 		PropertyConfigurator.configure(log4jConfPath);
 
 		PeerProcess me = new PeerProcess();
 		me.readCommonCFGFile();
 		me.readPeerInfoFile();
 		me.setupPeerInformation(peerid);
+
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");
@@ -107,7 +114,6 @@ public class PeerProcess {
 
 	private void setupOtherPeerInfo() {
 		boolean selfPeerIdNotRead = true;
-
 		for (ConfigFileParams it : peerInfoFileParams) {
 			PeerInfo peerInfo = new PeerInfo(it, this.peer.properties.getNumberOfPieces());
 			neighborMap.put(peerInfo.getPeerId(), peerInfo);
@@ -132,7 +138,7 @@ public class PeerProcess {
 	}
 
 	private void setPeerProperties(int peerId) {
-		this.peer=new Peer(peerId, new PeerProperties(this.fileName, fileSize, optimisticUnchokingInterval,
+		this.peer = new Peer(peerId, new PeerProperties(this.fileName, fileSize, optimisticUnchokingInterval,
 				numberOfPreferredNeighbors, pieceSize, unchokingInterval));
 	}
 

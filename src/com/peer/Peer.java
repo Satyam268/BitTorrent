@@ -25,12 +25,14 @@ public class Peer {
 	private PeerInfo myInfo;
 	private BitSet bitfield;
 
+	// has a
 	PeerProperties properties;
+	private FileHandler fileHandler;
 
 	// Connection Variables
 	private ServerSocket serverSocket;
 	private Map<Integer, PeerInfo> peerMap = new ConcurrentHashMap<>();
-	private FileHandler fileHandler;
+
 	final static Logger logger = Logger.getLogger(Peer.class);
 
 	public Peer(int peerId) {
@@ -68,11 +70,10 @@ public class Peer {
 					logger.info(" -------  Accepted conection from " + neighborId + " ----------------");
 					setSocketDetailsToPeerMap(neighborId, clientSocket, in, out);
 					Thread t = new Thread(
-							new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
+							new SocketHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
 					t.start();
 				}
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -103,7 +104,7 @@ public class Peer {
 		for (int neighborId : activePeerIds) {
 			doHandShake(neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
-			Thread t = new Thread(new NewConnectionHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(),
+			Thread t = new Thread(new SocketHandler(neighborInfo.clientSocket, neighborInfo.getSocketReader(),
 					neighborInfo.getSocketWriter(), myInfo, peerMap, neighborId, fileHandler));
 			t.start();
 		}
