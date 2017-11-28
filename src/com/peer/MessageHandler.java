@@ -29,7 +29,6 @@ public class MessageHandler {
 
 	public MessageHandler(ObjectInputStream in, ObjectOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> peerMap,
 			int clientPeerID, FileHandler fileHandler) {
-		logger.info("creating new object of message handler");
 		this.in = in;
 		this.out = out;
 		this.myInfo = myInfo;
@@ -38,15 +37,14 @@ public class MessageHandler {
 		this.fileHandler = fileHandler;
 	}
 
-	 public void handleMessage(){
-	//public void run() {
+	public void handleMessage() {
+		logger.info("handle message called");
 		ActualMsg message = null;
 		try {
 			message = (ActualMsg) in.readObject();
-			logger.info("read the message ");
-			logger.info("Length:" + message.getLength() + "   Type: " + message.getType() +" Payload: "+ message.getPayload());
+			logger.info(" ------ incoming message " + message + " received from " + clientPeerID
+					+ " -----------------------");
 			MessageType msgType = message.getType();
-			logger.debug("Msg-Type " + msgType + " received from " + clientPeerID);
 			switch (msgType) {
 			case BITFIELD:
 				handleBitfield(message);
@@ -86,7 +84,7 @@ public class MessageHandler {
 			logger.info("Invalid packet - " + e1);
 		} catch (IOException e1) {
 			logger.info("can't read from socket" + e1);
-			
+
 		} catch (Exception e) {
 			logger.warn("Message type not found exception " + e);
 		}

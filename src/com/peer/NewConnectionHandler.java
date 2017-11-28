@@ -38,6 +38,8 @@ public class NewConnectionHandler implements Runnable {
 		this.peerMap = peerMap;
 		this.neighborId = neighborId;
 		this.fileHandler = fileHandler;
+		logger.info("-----------new connection handler object of new connection hadler created with id: " + neighborId
+				+ "--------");
 	}
 
 	@Override
@@ -45,20 +47,12 @@ public class NewConnectionHandler implements Runnable {
 		// listen to the port and write to the port continuously
 		// message handler will be called here
 		try {
-			//in = new ObjectInputStream(socket.getInputStream());
-			//out = new ObjectOutputStream(socket.getOutputStream());
-
-			// send BitSet
-			//hoping for bitset being send successfully
-			sendBitFieldMessage(out);
-			logger.info("sent bitset message here.");
 			MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId, fileHandler);
+			sendBitFieldMessage(out);
+
 			while (true) {
 				try {
-					//if (in.available() > 0) {
-						//logger.info("------ Incoming packet from already connected peer----");
-						messageHandler.handleMessage();
-					//}
+					messageHandler.handleMessage();
 				} catch (Exception e) {
 					logger.warn("Invalid Message sent from peer: " + neighborId + " " + e);
 				}
@@ -70,13 +64,12 @@ public class NewConnectionHandler implements Runnable {
 
 	private void sendBitFieldMessage(ObjectOutputStream out2) {
 		try {
-			logger.info("trying to send bitfield");
 			ActualMsg bitFieldMessage = new BitField();
 			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
-			System.out.println("bitField Payload: "+myInfo.getBitfield().length()+" "+myInfo.getBitfield().toString());
 			bitFieldMessage.write(out2);
-			logger.info("Sent bitField Message to Peer " + neighborId);
+			logger.info("------ Sent bitField Message with details: " + bitFieldMessage + "to peerID" + neighborId
+					+ "-------");
 		} catch (IOException e) {
 			logger.warn("Unable to write bitField Message to Peer: " + neighborId + " " + e);
 		}

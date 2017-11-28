@@ -1,12 +1,10 @@
 package com.peer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +32,6 @@ public class PeerProcess {
 	List<Peer> interestedNeighbors = new ArrayList<>();
 	final static Logger logger = Logger.getLogger(PeerProcess.class);
 
-
 	public PeerProcess(int peerId) {
 		peer = new Peer(peerId);
 		neighborMap = new ConcurrentHashMap<>();
@@ -49,7 +46,7 @@ public class PeerProcess {
 		peer.startPeerHandler();
 		peer.startServer();
 	}
-	
+
 	void readPeerInfoFile() {
 		String fileName = "src/com/peer/configFiles/PeerInfo.cfg";
 		PeerInfo myInfo;
@@ -72,17 +69,6 @@ public class PeerProcess {
 			fileName = it.next().split(" ")[1];
 			fileSize = Integer.parseInt(it.next().split(" ")[1]);
 			pieceSize = Integer.parseInt(it.next().split(" ")[1]);
-			System.out.println("PeerProcess Config: " + numberOfPreferredNeighbors + " " + unchokingInterval + " "
-					+ optimisticUnchokingInterval);
-
-			/*if (myInfo.hasFile == 1) {
-				try {
-					File file = new File(fileName);
-					splitFileIntoPieceFiles(file, pieceSize);
-				} catch (Exception e) {
-					logger.warn("Cannot split file: "+e);
-				}
-			}*/
 		} catch (IOException e) {
 
 			e.printStackTrace();
@@ -90,10 +76,12 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerID = 1002;
+		int peerID = 1001;
+		// configures log4j
 		String log4jConfPath = "log4j.properties";
 		System.setProperty("file.name", "log_peer_" + peerID + ".log");
 		PropertyConfigurator.configure(log4jConfPath);
+
 		PeerProcess me = new PeerProcess(peerID);
 		me.readCommonCFGFile();
 		me.readPeerInfoFile();
@@ -101,7 +89,6 @@ public class PeerProcess {
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");
-		System.out.println(me.peer.properties.getUnchokingInterval());
 		me.startServer();
 	}
 
@@ -112,8 +99,8 @@ public class PeerProcess {
 
 	private void setupOtherPeerInfo() {
 		boolean selfPeerIdNotRead = true;
-		
-		for(ConfigFileParams it:peerInfoFileParams) {
+
+		for (ConfigFileParams it : peerInfoFileParams) {
 			PeerInfo peerInfo = new PeerInfo(it, this.peer.properties.getNumberOfPieces());
 			neighborMap.put(peerInfo.getPeerId(), peerInfo);
 			if (selfPeerIdNotRead && peerInfo.getPeerId() != peer.getPeerID()) {
@@ -126,7 +113,6 @@ public class PeerProcess {
 		peer.setPeerMap(neighborMap);
 		peer.setMyInfo(myInfo);
 		peer.splitFileIfNeeded();
-		
 	}
 
 	public int getNumberOfPieces() {

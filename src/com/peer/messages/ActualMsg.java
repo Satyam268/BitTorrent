@@ -20,34 +20,33 @@ public class ActualMsg extends Message {
 	}
 
 	public ActualMsg(DataOutputStream in) {
-		logger.info("actual message constructor");
 	}
 
 	/*
-	 * public void read(DataOutputStream in) throws ProtocolException, IOException {
-	 * logger.info("reading length: "+ this.getLength()); readPacketType(in);
-	 * logger.info("reading packet type: "+ this.getType().getValue());
-	 * readPacketPayload(in); logger.info("reading payload: "+ this.getPayload()); }
+	 * public void read(DataOutputStream in) throws ProtocolException,
+	 * IOException { logger.info("reading length: "+ this.getLength());
+	 * readPacketType(in); logger.info("reading packet type: "+
+	 * this.getType().getValue()); readPacketPayload(in);
+	 * logger.info("reading payload: "+ this.getPayload()); }
 	 */
 
 	/*
 	 * private void readPacketPayload(ObjectInputStream in) throws IOException {
-	 * byte[] payload = new byte[this.length];//-1 or not? in.readFully(payload, 0,
-	 * this.length); setPayload(payload); }
-	 * 
-	 * private void readPacketType(ObjectInputStream in) throws IOException { byte
-	 * type = in.readByte(); setType((MessageType.getMessageType(type))); }
-	 * 
+	 * byte[] payload = new byte[this.length];//-1 or not? in.readFully(payload,
+	 * 0, this.length); setPayload(payload); }
+	 *
+	 * private void readPacketType(ObjectInputStream in) throws IOException {
+	 * byte type = in.readByte(); setType((MessageType.getMessageType(type))); }
+	 *
 	 * private void readPacketLength(ObjectInputStream in) throws IOException {
 	 * setLength(in.readInt()); }
 	 */
 
 	public void write(ObjectOutputStream out) throws IOException {
-		System.out.println(this);
 		out.writeObject(this);
 	}
 
-	private void writePacketPayload(ObjectOutputStream out) throws IOException {
+/*	private void writePacketPayload(ObjectOutputStream out) throws IOException {
 		out.write(this.getPayload(), 0, this.getPayload().length);
 	}
 
@@ -58,7 +57,7 @@ public class ActualMsg extends Message {
 	private void writePacketLength(ObjectOutputStream out) throws IOException {
 		out.writeInt(this.getLength());
 	}
-
+*/
 	public int getLength() {
 		return length;
 	}
@@ -88,6 +87,6 @@ public class ActualMsg extends Message {
 	}
 
 	public String toString() {
-		return "len "+length+" type: "+ type+ " payload: "+ new String(payload);
+		return "Message Details -- length: " + length + " type: " + type + " payload: " + new String(payload);
 	}
 }
