@@ -37,6 +37,7 @@ public class MessageHandler {
 	}
 
 	public void handleMessage() throws ClassNotFoundException, IOException {
+		System.out.println("}}}}}}}"+ Thread.activeCount()+"{{{{{{{{{{{{");
 		ActualMsg message = null;
 		message = (ActualMsg) in.readObject();
 		logger.info(
@@ -74,7 +75,7 @@ public class MessageHandler {
 			break;
 		case PIECE:
 			handlePiece(message);
-			break;
+		 	break;
 		}
 	}
 
@@ -103,6 +104,7 @@ public class MessageHandler {
 	private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
+		//fileHandler.broadcastHaveMessageToAllPeers(peerInfo.getRequestedPieceIndex());
 		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
 				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]");
 		peerInfo.setRequestedPieceIndex(-1);

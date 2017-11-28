@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import org.omg.CORBA.portable.ValueBase;
 
 public class FileOperations {
 
@@ -23,7 +22,7 @@ public class FileOperations {
 	private final File pieceDir;
 	private int peerId;
 	private static final String piecesLocation = Paths.get("com", "peer", "pieces").toString();
-	private static final String receivedPiecesLocation = Paths.get("com", "peer", "pieces","project","peer_").toString();
+	private static final String receivedPiecesLocation = Paths.get("project","peer_").toString();
 	private static final String outputFileLocation = Paths.get("com","output","ThData.dat").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
 	private Map<Integer, Path> pieceLocationMap = new TreeMap<>();
@@ -34,6 +33,7 @@ public class FileOperations {
 		pieceDir = new File(path.toString());
 		pieceDir.mkdirs();
 		outputFile = new File(outputFileLocation);
+		outputFile.getParentFile().mkdirs();
 	}
 
 	public byte[][] getAllpiecesAsByteArrays() {
@@ -61,7 +61,7 @@ public class FileOperations {
 		Path path = Paths.get(receivedPiecesLocation+clientPeerId,""+pieceId);
 		pieceLocationMap.put(pieceId,path);
 		File ofile = path.toFile();
-		ofile.mkdirs();
+		ofile.getParentFile().mkdirs();
 		try {
 			fos = new FileOutputStream(ofile);
 			fos.write(piece);

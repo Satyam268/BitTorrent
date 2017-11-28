@@ -9,8 +9,8 @@ public class PeerProperties {
 	 int fileSize;
 	 int pieceSize;
 	 int hasFile;
-
-	 public int getHasFile() {
+	
+	public int getHasFile() {
 		return hasFile;
 	}
 	public void setHasFile(int hasFile) {

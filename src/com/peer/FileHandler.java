@@ -32,11 +32,16 @@ public class FileHandler {
 		this.peerMap = peerMap;
 		this.hasFile = hasFile;
 		this.pieceSize = properties.getPieceSize();
-		bitsetSize = properties.getNumberOfPieces();
+		this.bitsetSize = properties.getNumberOfPieces();
 		this.peerID = peerId;
-		receivedPieces = new BitSet(bitsetSize);
-		piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
-		fileOps = new FileOperations(peerId, properties.getFileName());
+		this.hasFile = hasFile;
+		this.receivedPieces = new BitSet(bitsetSize);
+		if(hasFile==1) {
+			receivedPieces.set(0, bitsetSize);
+		}
+		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
+		this.fileOps = new FileOperations(peerId, properties.getFileName());
+		
 	}
 
 	public FileHandler(int peerId) {
@@ -67,12 +72,16 @@ public class FileHandler {
 		}
 	}
 
-	private synchronized void broadcastHaveMessageToAllPeers(int pieceId) {
-		peerMap.values().forEach(peerInfo -> {
+	 public synchronized void broadcastHaveMessageToAllPeers(int pieceId) {
+		 logger.info("______broadcasting Have message_____________");
+		 System.out.println(" peerMap : "+peerMap.size()+" ");
+		 peerMap.values().forEach(peerInfo -> {
 			try {
 				Have haveMessage = (Have) Message.getInstance(MessageType.HAVE);
 				haveMessage.setPayload(CommonUtils.intToByteArray(pieceId));
+				System.out.println("Have Message:"+haveMessage);
 				haveMessage.write(peerInfo.getSocketWriter());
+				
 			} catch (Exception e) {
 				logger.warn("Could not broadcast \'Have\' to peer_" + peerInfo.getPeerId() + " " + e);
 			}

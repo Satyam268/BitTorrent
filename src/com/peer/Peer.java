@@ -27,12 +27,10 @@ public class Peer {
 
 	// has a
 	PeerProperties properties;
-	private FileHandler fileHandler;
 
 	// Connection Variables
-	private ServerSocket serverSocket;
-	private Map<Integer, PeerInfo> peerMap = new ConcurrentHashMap<>();
-
+	private Map<Integer, PeerInfo> peerMap;
+	private FileHandler fileHandler;
 	final static Logger logger = Logger.getLogger(Peer.class);
 
 	public Peer(int peerId) {
