@@ -135,14 +135,13 @@ public class MessageHandler {
 	}
 
 	private void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
-		Have haveMessage = (Have) Message.getInstance(MessageType.HAVE);
-		haveMessage.setPayload(message.getPayload());
-		int pieceIndex = CommonUtils.byteArrayToInt(haveMessage.getPayload());
+		int pieceIndex = CommonUtils.byteArrayToInt(message.getPayload());
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
 		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
 		if (fileHandler.isEverythingComplete()) {
-			System.exit(0);
+			//System.exit(0);
+			logger.info("-----------System.exit()-----------");
 		}
 	}
 

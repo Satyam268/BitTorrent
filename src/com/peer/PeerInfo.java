@@ -14,10 +14,20 @@ public class PeerInfo {
 	int peerId;
 	int listeningPort;
     int hasFile;
-    Socket clientSocket;
+    public int getHasFile() {
+		return hasFile;
+	}
+
+	public void setHasFile(int hasFile) {
+		this.hasFile = hasFile;
+	}
+
+	Socket clientSocket;
     String hostName;
+
     boolean handShaked=false;
     boolean interested=false;
+
     AtomicInteger bytesDownloaded = new AtomicInteger(0);
     ObjectInputStream socketReader;
     ObjectOutputStream socketWriter;

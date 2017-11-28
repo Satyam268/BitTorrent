@@ -42,10 +42,12 @@ public class Peer {
 		setMyInfo(peerInfo);
 	}
 
-	public Peer(int peerId, PeerProperties peerProperties) {
+	public Peer(int peerId, PeerProperties peerProperties, Map<Integer, PeerInfo> neighborMap, PeerInfo info) {
 		peerID = peerId;
 		properties = peerProperties;
-		fileHandler = new FileHandler(peerId, properties, peerMap);
+		peerMap = neighborMap;
+		myInfo = info;
+		fileHandler = new FileHandler(peerId, properties, peerMap, myInfo.getHasFile());
 	}
 
 	// listening on port for new connections
@@ -61,11 +63,9 @@ public class Peer {
 				in = new ObjectInputStream(clientSocket.getInputStream());
 				out = new ObjectOutputStream(clientSocket.getOutputStream());
 
-				// handshake message
 				int neighborId = handleHandshakeMessage(in, out);
 				if (neighborId != -1) {
 					logger.info(" -------  Accepted conection from " + neighborId + " ----------------");
-
 					setSocketDetailsToPeerMap(neighborId, clientSocket, in, out);
 					Thread t = new Thread(
 							new NewConnectionHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));

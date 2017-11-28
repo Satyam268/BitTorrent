@@ -25,10 +25,12 @@ public class FileHandler {
 	int pieceSize;
 	int bitsetSize;
 	int peerID;
-	
+	int hasFile;
+
 	public FileHandler(int peerId, PeerProperties properties,
-			Map<Integer, PeerInfo> peerMap) {
+			Map<Integer, PeerInfo> peerMap, int hasFile) {
 		this.peerMap = peerMap;
+		this.hasFile = hasFile;
 		this.pieceSize = properties.getPieceSize();
 		bitsetSize = properties.getNumberOfPieces();
 		this.peerID = peerId;
@@ -60,7 +62,7 @@ public class FileHandler {
 			fileOps.mergeFile(receivedPieces.cardinality());
 			if (isEverythingComplete()) {
 				logger.info("No.of active threads were: " + Thread.activeCount());
-				System.exit(0);
+				//System.exit(0);
 			}
 		}
 	}
