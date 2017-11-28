@@ -6,7 +6,6 @@ import com.peer.messages.ActualMsg;
 import com.peer.utilities.MessageType;
 
 public class Unchoke extends ActualMsg  {
-
 	public Unchoke() {
 		setLength(1);
 		setType(MessageType.UNCHOKE);

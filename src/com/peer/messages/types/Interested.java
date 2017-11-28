@@ -7,12 +7,10 @@ import com.peer.utilities.MessageType;
 
 public class Interested extends ActualMsg  {
 
-
 	public Interested() {
 		setLength(1);
 		setType(MessageType.INTERESTED);
 		setPayload(new byte[0]); 
-	}
-	
-	
+	}	
+
 }

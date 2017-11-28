@@ -25,7 +25,7 @@ public class FileHandler {
 	int pieceSize;
 	int bitsetSize;
 	int peerID;
-
+	
 	public FileHandler(int peerId, PeerProperties properties,
 			Map<Integer, PeerInfo> peerMap) {
 		this.peerMap = peerMap;
@@ -47,13 +47,13 @@ public class FileHandler {
 	 * @param pieceIndex
 	 * @param piece
 	 */
-	public synchronized void addPiece(int pieceID, byte[] piece) {
+	public synchronized void addPiece(int pieceID, byte[] piece, int clientPeerId) {
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
 
 		receivedPieces.set(pieceID);
 
 		if (isNewPiece) {
-			fileOps.writePieceToFile(piece, pieceID);
+			fileOps.writePieceToFile(piece, pieceID, clientPeerId);
 			broadcastHaveMessageToAllPeers(pieceID);
 		}
 		if (isFileCompleted()) {

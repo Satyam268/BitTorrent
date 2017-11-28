@@ -10,7 +10,7 @@ public class Choke extends ActualMsg {
 	public Choke() {
 		setLength(1);
 		setType(MessageType.CHOKE);
-		setPayload(new byte[0]); //make sure null is ok
+		setPayload(new byte[0]); 
 	}
 	
 }

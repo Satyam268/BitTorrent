@@ -11,24 +11,30 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+import org.omg.CORBA.portable.ValueBase;
 
 public class FileOperations {
 
-	private final File file;
+	private final File outputFile;
 	private final File pieceDir;
 	private int peerId;
 	private static final String piecesLocation = Paths.get("com", "peer", "pieces").toString();
+	private static final String receivedPiecesLocation = Paths.get("com", "peer", "pieces","project","peer_").toString();
+	private static final String outputFileLocation = Paths.get("com","output","ThData.dat").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
-
+	private Map<Integer, Path> pieceLocationMap = new TreeMap<>();
+	
 	public FileOperations(int peerId, String fileName) {
 		this.peerId = peerId;
 		Path path = Paths.get(piecesLocation);
 		logger.info("PIECE file location "+ path.toString());
-		pieceDir = new File(path.toString());
+		pieceDir = path.toFile();
 		pieceDir.mkdirs();
-		file = new File(pieceDir.getParent() + "/../" + fileName);
+		outputFile = new File(outputFileLocation);
 	}
 
 	public byte[][] getAllpiecesAsByteArrays() {
@@ -47,13 +53,16 @@ public class FileOperations {
 
 	public byte[] getPieceFromFile(int pieceId) {
 
-		File file = new File(pieceDir.getAbsolutePath() + "/" + pieceId);
+		File file = Paths.get(piecesLocation,""+pieceId).toFile();
 		return getByteArrayFromFile(file);
 	}
 
-	public void writePieceToFile(byte[] piece, int pieceId) {
+	public void writePieceToFile(byte[] piece, int pieceId, int clientPeerId) {
 		FileOutputStream fos;
-		File ofile = new File(pieceDir.getAbsolutePath() + "/" + pieceId);
+		Path path = Paths.get(receivedPiecesLocation+clientPeerId,""+pieceId);
+		pieceLocationMap.put(pieceId,path);
+		File ofile = path.toFile();
+		ofile.mkdirs();
 		try {
 			fos = new FileOutputStream(ofile);
 			fos.write(piece);
@@ -92,12 +101,10 @@ public class FileOperations {
 	// Common Methods for Splitting and merging file
 	public static void processFileIntoPieceFiles(File inputFile, int pieceSize) {
 		FileInputStream inputStream;
-		String newFileName;
 		FileOutputStream filePart;
 		int fileSize = (int) inputFile.length();
 		int nChunks = 0, read = 0, readLength = pieceSize;
 		byte[] byteChunkPart;
-		// if(inputFile)
 		try {
 			inputStream = new FileInputStream(inputFile);
 			while (fileSize > 0) {
@@ -125,16 +132,20 @@ public class FileOperations {
 	}
 
 	public void mergeFile(int numpieces) {
-		File ofile = file;
+		File ofile = outputFile;
 		FileOutputStream fos;
 		FileInputStream fis;
 		byte[] fileBytes;
 		int bytesRead = 0;
 		List<File> list = new ArrayList<>();
-		for (int i = 0; i < numpieces; i++) {
-			Path path = Paths.get(pieceDir.getPath(), Integer.toString(i));
-			list.add(new File(path.toString()));
+		if(pieceLocationMap.size()!=numpieces) {
+			logger.warn("Cannot merge improper file:");
+			return;
 		}
+		 pieceLocationMap.forEach((key, value)->{
+			 list.add(value.toFile());
+		 });
+		System.out.println("Merging these files:"+ list);
 		try {
 			fos = new FileOutputStream(ofile);
 			for (File file : list) {

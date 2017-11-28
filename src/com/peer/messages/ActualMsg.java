@@ -20,6 +20,7 @@ public class ActualMsg extends Message {
 	}
 
 	public ActualMsg(DataOutputStream in) {
+		
 	}
 
 	/*

@@ -23,7 +23,6 @@ public class HandshakeMsg extends Message {
 	public void read(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		HandshakeMsg message = (HandshakeMsg) in.readObject();
 		this.peerId = message.peerId;
-
 		byte[] protocolId = new byte[handshakeHeader.length()];
 
 		if (message.getHandshakeHeader().length() < this.handshakeHeader.length()) {

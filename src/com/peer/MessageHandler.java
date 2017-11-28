@@ -102,7 +102,7 @@ public class MessageHandler {
 
 	private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
-		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload());
+		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
 		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
 				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]");
 		peerInfo.setRequestedPieceIndex(-1);
