@@ -19,12 +19,13 @@ public class FileOperations {
 	private final File file;
 	private final File pieceDir;
 	private int peerId;
-	private static final String piecesLocation = Paths.get("com","peer", "pieces").toString();
+	private static final String piecesLocation = Paths.get("com", "peer", "pieces").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
 
 	public FileOperations(int peerId, String fileName) {
 		this.peerId = peerId;
 		Path path = Paths.get(piecesLocation);
+		logger.info("PIECE file location "+ path.toString());
 		pieceDir = new File(path.toString());
 		pieceDir.mkdirs();
 		file = new File(pieceDir.getParent() + "/../" + fileName);
@@ -45,6 +46,7 @@ public class FileOperations {
 	}
 
 	public byte[] getPieceFromFile(int pieceId) {
+
 		File file = new File(pieceDir.getAbsolutePath() + "/" + pieceId);
 		return getByteArrayFromFile(file);
 	}
@@ -88,40 +90,39 @@ public class FileOperations {
 	}
 
 	// Common Methods for Splitting and merging file
-	public static void processFileIntoPieceFiles(File inputFile, int pieceSize){
-        FileInputStream inputStream;
-        String newFileName;
-        FileOutputStream filePart;
-        int fileSize = (int) inputFile.length();
-        int nChunks = 0, read = 0, readLength = pieceSize;
-        byte[] byteChunkPart;
-      //  if(inputFile)
-        try {
-            inputStream = new FileInputStream(inputFile);
-            while (fileSize > 0) {
-                if (fileSize <= 5) {
-                    readLength = fileSize;
-                }
-                byteChunkPart = new byte[readLength];
-                read = inputStream.read(byteChunkPart, 0, readLength);
-                fileSize -= read;
-                assert (read == byteChunkPart.length);
-                nChunks++;
-                Path path = Paths.get(piecesLocation ,Integer.toString(nChunks - 1));
-                Files.createDirectories(path.getParent());
-                filePart = new FileOutputStream(new File(path.toString()));
-                filePart.write(byteChunkPart);
-                filePart.flush();
-                filePart.close();
-                byteChunkPart = null;
-                filePart = null;
-            }
-            inputStream.close();
-        } catch (IOException e) {
-            logger.warn("Fail to process file into pieces "+ e);
-        }
-    }
-	
+	public static void processFileIntoPieceFiles(File inputFile, int pieceSize) {
+		FileInputStream inputStream;
+		String newFileName;
+		FileOutputStream filePart;
+		int fileSize = (int) inputFile.length();
+		int nChunks = 0, read = 0, readLength = pieceSize;
+		byte[] byteChunkPart;
+		// if(inputFile)
+		try {
+			inputStream = new FileInputStream(inputFile);
+			while (fileSize > 0) {
+				if (fileSize <= 5) {
+					readLength = fileSize;
+				}
+				byteChunkPart = new byte[readLength];
+				read = inputStream.read(byteChunkPart, 0, readLength);
+				fileSize -= read;
+				assert (read == byteChunkPart.length);
+				nChunks++;
+				Path path = Paths.get(piecesLocation, Integer.toString(nChunks - 1));
+				Files.createDirectories(path.getParent());
+				filePart = new FileOutputStream(new File(path.toString()));
+				filePart.write(byteChunkPart);
+				filePart.flush();
+				filePart.close();
+				byteChunkPart = null;
+				filePart = null;
+			}
+			inputStream.close();
+		} catch (IOException e) {
+			logger.warn("Fail to process file into pieces " + e);
+		}
+	}
 
 	public void mergeFile(int numpieces) {
 		File ofile = file;
@@ -154,6 +155,5 @@ public class FileOperations {
 			exception.printStackTrace();
 		}
 	}
-
 
 }

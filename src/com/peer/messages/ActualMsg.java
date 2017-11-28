@@ -43,22 +43,21 @@ public class ActualMsg extends Message {
 	 */
 
 	public void write(ObjectOutputStream out) throws IOException {
-		logger.info(">>>>>>>>>>>>> Sending message:----"+ this);
+		logger.info(">>>>>>>>>>>>>>>>>>>>> Sent MEssage details" + this);
 		out.writeObject(this);
 	}
 
-/*	private void writePacketPayload(ObjectOutputStream out) throws IOException {
-		out.write(this.getPayload(), 0, this.getPayload().length);
-	}
-
-	private void writePacketType(ObjectOutputStream out) throws IOException {
-		out.writeByte(this.getType().getValue());
-	}
-
-	private void writePacketLength(ObjectOutputStream out) throws IOException {
-		out.writeInt(this.getLength());
-	}
-*/
+	/*
+	 * private void writePacketPayload(ObjectOutputStream out) throws
+	 * IOException { out.write(this.getPayload(), 0, this.getPayload().length);
+	 * }
+	 *
+	 * private void writePacketType(ObjectOutputStream out) throws IOException {
+	 * out.writeByte(this.getType().getValue()); }
+	 *
+	 * private void writePacketLength(ObjectOutputStream out) throws IOException
+	 * { out.writeInt(this.getLength()); }
+	 */
 	public int getLength() {
 		return length;
 	}

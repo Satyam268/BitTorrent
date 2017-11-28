@@ -54,7 +54,8 @@ public class NewConnectionHandler implements Runnable {
 				try {
 					messageHandler.handleMessage();
 				} catch (Exception e) {
-					logger.warn("Invalid Message sent from peer: " + neighborId + " " + e);
+					logger.warn("problem with mesage/connection  with peerID:" + neighborId + " " + e);
+					break;
 				}
 			}
 		} catch (Exception e1) {

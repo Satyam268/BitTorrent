@@ -27,14 +27,12 @@ public class PeerInfo {
 	private BitSet bitfield = null;
 
 	public PeerInfo(ConfigFileParams fileParams, int numberOfPieces){
-        
         peerId = fileParams.getPeerId();
         hostName = fileParams.getHostName();
         listeningPort = fileParams.getListeningPort();
         hasFile = fileParams.getHasFile();
         BitSet b = new BitSet();
         b.set(0, numberOfPieces, false);
-        System.out.println(b.cardinality());
         setBitfield(b);
         if(hasFile==1) {
         	bitfield.set(0, numberOfPieces, true);
@@ -48,7 +46,6 @@ public class PeerInfo {
     public int getListeningPort() {
 		return listeningPort;
 	}
-
 
     //overridden for log generation purpose
     @Override

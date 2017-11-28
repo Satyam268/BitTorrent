@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 
 import com.peer.messages.ActualMsg;
@@ -37,63 +36,52 @@ public class MessageHandler {
 		this.fileHandler = fileHandler;
 	}
 
-	public void handleMessage() {
-		logger.info("handle message called");
+	public void handleMessage() throws ClassNotFoundException, IOException {
 		ActualMsg message = null;
-		try {
-			message = (ActualMsg) in.readObject();
-			logger.info(" ------ incoming message " + message + " received from " + clientPeerID
-					+ " -----------------------");
-			MessageType msgType = message.getType();
-			switch (msgType) {
-			case BITFIELD:
-				handleBitfield(message);
-				break;
-			case CHOKE:
-				handleChoke(message);
-				logger.debug("Peer [peer_ID" + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
-				break;
-			case UNCHOKE:
-				handleUnchoke(message);
-				logger.debug("Peer [peer_ID " + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
-				break;
-			case INTERESTED:
-				handleInterested(message);
-				logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘interested’ message from [peer_ID "
-						+ clientPeerID + "]");
-				break;
-			case NOTINTERESTED:
-				handleNotInterested(message);
-				logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘not interested’ message from [peer_ID "
-						+ clientPeerID + "]");
-				break;
-			case HAVE:
-				handleHave(message);
-				logger.debug(
-						"Peer [peer_ID " + myInfo.peerId + "] received the ‘have’ message from [peer_ID " + clientPeerID
-								+ "] for the piece [" + (CommonUtils.byteArrayToInt(message.getPayload())) + "]");
-				break;
-			case REQUEST:
-				handleRequest(message);
-				break;
-			case PIECE:
-				handlePiece(message);
-				break;
-			}
-		} catch (ClassNotFoundException e1) {
-			logger.info("Invalid packet - " + e1);
-		} catch (IOException e1) {
-			logger.info("can't read from socket" + e1);
-		} catch (Exception e) {
-			logger.warn("Message type not found exception " + e);
+		message = (ActualMsg) in.readObject();
+		logger.info(
+				" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
+		MessageType msgType = message.getType();
+		switch (msgType) {
+		case BITFIELD:
+			handleBitfield(message);
+			break;
+		case CHOKE:
+			handleChoke(message);
+			logger.debug("Peer [peer_ID" + myInfo.peerId + "] is choked by [peer_ID " + clientPeerID + "]");
+			break;
+		case UNCHOKE:
+			handleUnchoke(message);
+			logger.debug("Peer [peer_ID " + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
+			break;
+		case INTERESTED:
+			handleInterested(message);
+			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘interested’ message from [peer_ID "
+					+ clientPeerID + "]");
+			break;
+		case NOTINTERESTED:
+			handleNotInterested(message);
+			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘not interested’ message from [peer_ID "
+					+ clientPeerID + "]");
+			break;
+		case HAVE:
+			handleHave(message);
+			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘have’ message from [peer_ID "
+					+ clientPeerID + "] for the piece [" + (CommonUtils.byteArrayToInt(message.getPayload())) + "]");
+			break;
+		case REQUEST:
+			handleRequest(message);
+			break;
+		case PIECE:
+			handlePiece(message);
+			break;
 		}
-
 	}
 
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
 		BitField bitFieldMessage = (BitField) message;
 		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
-		System.out.println("bitFiled payload:- "+bitFieldMessage.getPayloadInBitSet());
+		System.out.println("bitFiled payload:- " + bitFieldMessage.getPayloadInBitSet());
 		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
 			sendInterestedMessage(out);
 		} else {
@@ -126,11 +114,11 @@ public class MessageHandler {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
-		System.out.println("Intereted piece ID:- "+interestedPieceId);
-		
+		System.out.println("Intereted piece ID:- " + interestedPieceId);
+
 		if (interestedPieceId != -1) {
 			clientPeerInfo.setRequestedPieceIndex(interestedPieceId);
-			System.out.println("Common utils method check"+ CommonUtils.intToByteArray(interestedPieceId));
+			System.out.println("Common utils method check" + CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.write(out);
 		}
