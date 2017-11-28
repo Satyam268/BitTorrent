@@ -23,10 +23,7 @@ public enum MessageType {
 	}
 
 	public static MessageType getMessageType(byte val) {
-		final Logger logger = Logger.getLogger(MessageType.class);
-		logger.info("- inside message type -");
-
-		for(MessageType type:MessageType.values()) {
+		for(MessageType type: MessageType.values()) {
 			if(type.getValue()==val) {
 				return type;
 			}

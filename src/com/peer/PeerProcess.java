@@ -27,13 +27,13 @@ public class PeerProcess {
 	String fileName;
 	int fileSize;
 	int pieceSize;
+	int peerID;
 	Peer peer = null;
 	List<ConfigFileParams> peerInfoFileParams;
 	List<Peer> interestedNeighbors = new ArrayList<>();
 	final static Logger logger = Logger.getLogger(PeerProcess.class);
 
-	public PeerProcess(int peerId) {
-		peer = new Peer(peerId);
+	public PeerProcess() {
 		neighborMap = new ConcurrentHashMap<>();
 		activePeerIds = new ArrayList<>();
 	}
@@ -76,24 +76,32 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerID = 1001;
 		// configures log4j
+		int peerid = 1002;
 		String log4jConfPath = "log4j.properties";
-		System.setProperty("file.name", "log_peer_" + peerID + ".log");
+		System.setProperty("file.name", "log_peer_" +  peerid+ ".log");
 		PropertyConfigurator.configure(log4jConfPath);
 
-		PeerProcess me = new PeerProcess(peerID);
+		PeerProcess me = new PeerProcess();
 		me.readCommonCFGFile();
 		me.readPeerInfoFile();
-		me.setupPeerInformation();
+		me.setupPeerInformation(peerid);
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");
 		me.startServer();
 	}
 
-	private void setupPeerInformation() {
-		setPeerProperties();
+	public int getPeerID() {
+		return peerID;
+	}
+
+	public void setPeerID(int peerID) {
+		this.peerID = peerID;
+	}
+
+	private void setupPeerInformation(int peerId) {
+		setPeerProperties(peerId);
 		setupOtherPeerInfo();
 	}
 
@@ -123,8 +131,8 @@ public class PeerProcess {
 		FileOperations.processFileIntoPieceFiles(file, pieceSize);
 	}
 
-	private void setPeerProperties() {
-		this.peer.setProperties(new PeerProperties(this.fileName, fileSize, optimisticUnchokingInterval,
+	private void setPeerProperties(int peerId) {
+		this.peer=new Peer(peerId, new PeerProperties(this.fileName, fileSize, optimisticUnchokingInterval,
 				numberOfPreferredNeighbors, pieceSize, unchokingInterval));
 	}
 

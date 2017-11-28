@@ -11,6 +11,7 @@ import com.peer.messages.Message;
 import com.peer.messages.types.Have;
 import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
+import com.peer.utilities.PeerProperties;
 
 //peer has a file handler
 //manages the 2 BitSets, depicting requestedParts and receivedParts
@@ -25,18 +26,15 @@ public class FileHandler {
 	int bitsetSize;
 	int peerID;
 
-	public FileHandler(int peerId, String fileName, int fileSize, int pieceSize, int unchokingInterval,
+	public FileHandler(int peerId, PeerProperties properties,
 			Map<Integer, PeerInfo> peerMap) {
 		this.peerMap = peerMap;
-		this.pieceSize = pieceSize;
-		bitsetSize = (int) Math.ceil(fileSize / pieceSize);
+		this.pieceSize = properties.getPieceSize();
+		bitsetSize = properties.getNumberOfPieces();
 		this.peerID = peerId;
-
-		logger.debug("File size set to " + fileSize + "\tPart size set to " + pieceSize + "\tBitset size set to "
-				+ bitsetSize);
 		receivedPieces = new BitSet(bitsetSize);
-		piecesBeingRequested = new RequestedPieces(bitsetSize, unchokingInterval);
-		fileOps = new FileOperations(peerId, fileName);
+		piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
+		fileOps = new FileOperations(peerId, properties.getFileName());
 	}
 
 	public FileHandler(int peerId) {

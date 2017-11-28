@@ -20,15 +20,13 @@ public class CommonUtils {
 	}
 
 	public static BitSet getRequiredPieces(BitSet pieceField, BitSet bitSet) {
-		BitSet ans = pieceField;
-		ans.flip(0, ans.length());
-		ans.and(bitSet);
-		return ans;
+		pieceField.andNot(bitSet);
+		return pieceField;
 	}
 
 	public static boolean hasAnyThingInteresting(BitSet pieceField, BitSet bitSet) {
+		System.out.println("In Has Anything Interesting: piece "+pieceField+ "  bitSet"+ bitSet);
 		BitSet requiredPieces = getRequiredPieces(pieceField, bitSet);
-
 		for (int i = 0; i < requiredPieces.length(); i++) {
 			if (requiredPieces.get(i))
 				return true;

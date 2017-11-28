@@ -43,6 +43,7 @@ public class ActualMsg extends Message {
 	 */
 
 	public void write(ObjectOutputStream out) throws IOException {
+		logger.info(">>>>>>>>>>>>> Sending message:----"+ this);
 		out.writeObject(this);
 	}
 
@@ -83,6 +84,7 @@ public class ActualMsg extends Message {
 	}
 
 	public BitSet getPayloadInBitSet() {
+		System.out.println(this);
 		return BitSet.valueOf(this.payload);
 	}
 

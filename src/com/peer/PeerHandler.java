@@ -98,7 +98,7 @@ public class PeerHandler implements Runnable {
 	}
 
 	public void sendUnchoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
-		Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.CHOKE);
+		Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.UNCHOKE);
 		unchokeMessage.write(socketWriter);
 	}
 

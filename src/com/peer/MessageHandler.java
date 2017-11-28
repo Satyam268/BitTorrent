@@ -84,7 +84,6 @@ public class MessageHandler {
 			logger.info("Invalid packet - " + e1);
 		} catch (IOException e1) {
 			logger.info("can't read from socket" + e1);
-
 		} catch (Exception e) {
 			logger.warn("Message type not found exception " + e);
 		}
@@ -94,6 +93,7 @@ public class MessageHandler {
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
 		BitField bitFieldMessage = (BitField) message;
 		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
+		System.out.println("bitFiled payload:- "+bitFieldMessage.getPayloadInBitSet());
 		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
 			sendInterestedMessage(out);
 		} else {
@@ -126,13 +126,11 @@ public class MessageHandler {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
+		System.out.println("Intereted piece ID:- "+interestedPieceId);
+		
 		if (interestedPieceId != -1) {
-			clientPeerInfo.setRequestedPieceIndex(interestedPieceId); // set the
-																		// requested
-																		// piece
-																		// in
-																		// Neighbor's
-																		// PeerInfo
+			clientPeerInfo.setRequestedPieceIndex(interestedPieceId);
+			System.out.println("Common utils method check"+ CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.write(out);
 		}
@@ -166,6 +164,7 @@ public class MessageHandler {
 	}
 
 	private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
+		logger.info("In unchoke messasge handler :-- ");
 		sendRequestMessage(out);
 	}
 

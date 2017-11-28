@@ -53,7 +53,7 @@ public class PeerInfo {
     //overridden for log generation purpose
     @Override
     public String toString() {
-        return peerId+"";//+ " "+hostName+" "+listeningPort+" "+hasFile;
+        return "PerInfo: "+ "peerId: "+peerId+""+" hasFile: "+hasFile+" bitField: "+bitfield;//+ " "+hostName+" "+listeningPort+" "+hasFile;
     }
 	public boolean isChoked() {
 		return choked;

@@ -42,6 +42,12 @@ public class Peer {
 		setMyInfo(peerInfo);
 	}
 
+	public Peer(int peerId, PeerProperties peerProperties) {
+		peerID = peerId;
+		properties = peerProperties;
+		fileHandler = new FileHandler(peerId, properties, peerMap);
+	}
+
 	// listening on port for new connections
 	public void startServer() {
 		ObjectOutputStream out = null;
