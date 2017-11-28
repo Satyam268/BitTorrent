@@ -19,12 +19,12 @@ public class FileOperations {
 	private final File file;
 	private final File pieceDir;
 	private int peerId;
-	private static final String piecesLocation = Paths.get("files","pieces").toString();
+	private static final String piecesLocation = Paths.get("com","peer", "pieces").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
 
 	public FileOperations(int peerId, String fileName) {
 		this.peerId = peerId;
-		Path path = Paths.get(("peer_" + peerId) , piecesLocation , fileName);
+		Path path = Paths.get(piecesLocation);
 		pieceDir = new File(path.toString());
 		pieceDir.mkdirs();
 		file = new File(pieceDir.getParent() + "/../" + fileName);
@@ -107,7 +107,7 @@ public class FileOperations {
                 fileSize -= read;
                 assert (read == byteChunkPart.length);
                 nChunks++;
-                Path path = Paths.get(inputFile.getParent(), "pieces",Integer.toString(nChunks - 1));
+                Path path = Paths.get(piecesLocation ,Integer.toString(nChunks - 1));
                 Files.createDirectories(path.getParent());
                 filePart = new FileOutputStream(new File(path.toString()));
                 filePart.write(byteChunkPart);
