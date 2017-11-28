@@ -26,23 +26,18 @@ public class PeerInfo {
     // records the pieces i have/don't have
 	private BitSet bitfield = null;
 
-	public PeerInfo(String line, int numberOfPieces){
-        String[] metaInfo = line.split(" ");
-        if(metaInfo.length!=4) {
-        }
-
-        peerId = Integer.parseInt(metaInfo[0]);
-        hostName = metaInfo[1];
-        listeningPort = Integer.parseInt(metaInfo[2]);
-        hasFile = Integer.parseInt(metaInfo[3]);
-
-        //handle this AFTER PIECES
+	public PeerInfo(ConfigFileParams fileParams, int numberOfPieces){
+        
+        peerId = fileParams.getPeerId();
+        hostName = fileParams.getHostName();
+        listeningPort = fileParams.getListeningPort();
+        hasFile = fileParams.getHasFile();
         BitSet b = new BitSet();
         b.set(0, numberOfPieces, false);
         System.out.println(b.cardinality());
         setBitfield(b);
         if(hasFile==1) {
-        	bitfield.set(0, bitfield.size(), true);
+        	bitfield.set(0, numberOfPieces, true);
         }
     }
 

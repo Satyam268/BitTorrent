@@ -1,5 +1,6 @@
 package com.peer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.peer.file.FileOperations;
 import com.peer.messages.HandshakeMsg;
 import com.peer.utilities.PeerProperties;
 
@@ -43,6 +45,7 @@ public class Peer {
 	public void startServer() {
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
+		splitFileIfNeeded();
 		try {
 			System.out.println("MY peer id:" + peerID);
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
@@ -69,6 +72,13 @@ public class Peer {
 
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void splitFileIfNeeded() {
+		if(myInfo.hasFile==1) {
+			File file=new File(properties.getFileName());
+			FileOperations.processFileIntoPieceFiles(file, properties.getPieceSize());
 		}
 	}
 

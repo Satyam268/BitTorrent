@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.BitSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -51,14 +52,13 @@ public class NewConnectionHandler implements Runnable {
 			//hoping for bitset being send successfully
 			sendBitFieldMessage(out);
 			logger.info("sent bitset message here.");
-
 			MessageHandler messageHandler = new MessageHandler(in, out, myInfo, peerMap, neighborId, fileHandler);
 			while (true) {
 				try {
-					if (in.available() > 0) {
-						logger.info("------ Incoming packet from already connected peer----");
+					//if (in.available() > 0) {
+						//logger.info("------ Incoming packet from already connected peer----");
 						messageHandler.handleMessage();
-					}
+					//}
 				} catch (Exception e) {
 					logger.warn("Invalid Message sent from peer: " + neighborId + " " + e);
 				}
@@ -73,8 +73,8 @@ public class NewConnectionHandler implements Runnable {
 			logger.info("trying to send bitfield");
 			ActualMsg bitFieldMessage = new BitField();
 			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);
-			System.out.println("bitField Payload: "+myInfo.getBitfield().length()+" "+myInfo.getBitfield().toString());
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
+			System.out.println("bitField Payload: "+myInfo.getBitfield().length()+" "+myInfo.getBitfield().toString());
 			bitFieldMessage.write(out2);
 			logger.info("Sent bitField Message to Peer " + neighborId);
 		} catch (IOException e) {

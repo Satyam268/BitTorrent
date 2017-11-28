@@ -30,7 +30,7 @@ public class PeerProcess {
 	int fileSize;
 	int pieceSize;
 	Peer peer = null;
-
+	List<ConfigFileParams> peerInfoFileParams;
 	List<Peer> interestedNeighbors = new ArrayList<>();
 	final static Logger logger = Logger.getLogger(PeerProcess.class);
 
@@ -46,30 +46,17 @@ public class PeerProcess {
 	}
 
 	private void startServer() {
-		//peer.startPeerHandler();
+		peer.startPeerHandler();
 		peer.startServer();
 	}
-
+	
 	void readPeerInfoFile() {
 		String fileName = "src/com/peer/configFiles/PeerInfo.cfg";
 		PeerInfo myInfo;
+		peerInfoFileParams = new ArrayList<>();
 		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
 			Iterator<String> it = stream.iterator();
-			boolean selfPeerIdNotRead = true;
-
-			while (it.hasNext()) {
-				System.out.println("NUmnber of peices "+this.peer.properties.getNumberOfPieces());
-				PeerInfo peerInfo = new PeerInfo(it.next(), this.peer.properties.getNumberOfPieces());
-				neighborMap.put(peerInfo.getPeerId(), peerInfo);
-				if (selfPeerIdNotRead && peerInfo.getPeerId() != peer.getPeerID()) {
-					activePeerIds.add(peerInfo.getPeerId());
-				} else {
-					selfPeerIdNotRead = false;
-				}
-			}
-			myInfo = neighborMap.remove(peer.getPeerID());
-			peer.setPeerMap(neighborMap);
-			peer.setMyInfo(myInfo);
+			it.forEachRemaining(line -> peerInfoFileParams.add(new ConfigFileParams(line)));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -109,14 +96,35 @@ public class PeerProcess {
 		PropertyConfigurator.configure(log4jConfPath);
 		PeerProcess me = new PeerProcess(peerID);
 		me.readCommonCFGFile();
-		me.setPeerProperties();
 		me.readPeerInfoFile();
-		
+		me.setupPeerInformation();
 		logger.info("Initial config files read\n");
 		me.establishTCPConnection();
 		logger.info("TCP connections to already connected peeers completed.\n");
 		System.out.println(me.peer.properties.getUnchokingInterval());
 		me.startServer();
+	}
+
+	private void setupPeerInformation() {
+		setPeerProperties();
+		setupOtherPeerInfo();
+	}
+
+	private void setupOtherPeerInfo() {
+		boolean selfPeerIdNotRead = true;
+		
+		for(ConfigFileParams it:peerInfoFileParams) {
+			PeerInfo peerInfo = new PeerInfo(it, this.peer.properties.getNumberOfPieces());
+			neighborMap.put(peerInfo.getPeerId(), peerInfo);
+			if (selfPeerIdNotRead && peerInfo.getPeerId() != peer.getPeerID()) {
+				activePeerIds.add(peerInfo.getPeerId());
+			} else {
+				selfPeerIdNotRead = false;
+			}
+		}
+		PeerInfo myInfo = neighborMap.remove(peer.getPeerID());
+		peer.setPeerMap(neighborMap);
+		peer.setMyInfo(myInfo);
 	}
 
 	public int getNumberOfPieces() {

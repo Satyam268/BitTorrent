@@ -86,6 +86,7 @@ public class MessageHandler {
 			logger.info("Invalid packet - " + e1);
 		} catch (IOException e1) {
 			logger.info("can't read from socket" + e1);
+			
 		} catch (Exception e) {
 			logger.warn("Message type not found exception " + e);
 		}
