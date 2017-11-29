@@ -21,7 +21,6 @@ public class FileOperations {
 	private final File outputFile;
 	private final File pieceDir;
 	private int peerId;
-	private static final String piecesLocation = Paths.get("com", "peer", "pieces").toString();
 	private static String receivedPiecesLocation;
 	private static final String outputFileLocation = Paths.get("com", "output", "ThData.dat").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
@@ -29,12 +28,12 @@ public class FileOperations {
 
 	public FileOperations(int peerId, String fileName) {
 		this.peerId = peerId;
-		Path path = Paths.get(piecesLocation);
+		receivedPiecesLocation = Paths.get("pieceStore", "peer_" + peerId).toString();
+		Path path = Paths.get(receivedPiecesLocation);
 		pieceDir = new File(path.toString());
 		pieceDir.mkdirs();
 		outputFile = new File(outputFileLocation);
 		outputFile.getParentFile().mkdirs();
-		receivedPiecesLocation = Paths.get("receivedPeices", "peer_" + peerId).toString();
 	}
 
 	public byte[][] getAllpiecesAsByteArrays() {
@@ -52,14 +51,13 @@ public class FileOperations {
 	}
 
 	public byte[] getPieceFromFile(int pieceId) {
-
-		File file = Paths.get(piecesLocation, "" + pieceId).toFile();
+		File file = Paths.get(receivedPiecesLocation, "" + pieceId).toFile();
 		return getByteArrayFromFile(file);
 	}
 
 	public void writePieceToFile(byte[] piece, int pieceId, int clientPeerId) {
 		FileOutputStream fos;
-		Path path = Paths.get(receivedPiecesLocation + clientPeerId, "" + pieceId);
+		Path path = Paths.get(receivedPiecesLocation, "" + pieceId);
 		pieceLocationMap.put(pieceId, path);
 		File ofile = path.toFile();
 		ofile.getParentFile().mkdirs();
@@ -99,7 +97,7 @@ public class FileOperations {
 	}
 
 	// Common Methods for Splitting and merging file
-	public static void processFileIntoPieceFiles(File inputFile, int pieceSize) {
+	public void processFileIntoPieceFiles(File inputFile, int pieceSize) {
 		FileInputStream inputStream;
 		FileOutputStream filePart;
 		int fileSize = (int) inputFile.length();
@@ -116,7 +114,7 @@ public class FileOperations {
 				fileSize -= read;
 				assert (read == byteChunkPart.length);
 				nChunks++;
-				Path path = Paths.get(piecesLocation, Integer.toString(nChunks - 1));
+				Path path = Paths.get(receivedPiecesLocation, Integer.toString(nChunks - 1));
 				Files.createDirectories(path.getParent());
 				filePart = new FileOutputStream(new File(path.toString()));
 				filePart.write(byteChunkPart);

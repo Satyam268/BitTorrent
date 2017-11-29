@@ -40,7 +40,8 @@ public class MessageHandler {
 	public void handleMessage() throws ClassNotFoundException, IOException {
 		ActualMsg message = null;
 		message = (ActualMsg) in.readObject();
-		logger.info(" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
+		// logger.info(" ------ incoming message " + message + " received from " +
+		// clientPeerID + " -----------------------");
 		MessageType msgType = message.getType();
 		switch (msgType) {
 		case BITFIELD:

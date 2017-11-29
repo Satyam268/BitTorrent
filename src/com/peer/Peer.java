@@ -65,7 +65,6 @@ public class Peer {
 
 				int neighborId = handleHandshakeMessage(in, out);
 				if (neighborId != -1) {
-					logger.info(" -------  Accepted conection from " + neighborId + " ----------------");
 					setSocketDetailsToPeerMap(neighborId, clientSocket, in, out);
 					Thread t = new Thread(
 							new SocketHandler(clientSocket, in, out, myInfo, peerMap, neighborId, fileHandler));
@@ -74,13 +73,6 @@ public class Peer {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-	}
-
-	public void splitFileIfNeeded() {
-		if (myInfo.hasFile == 1) {
-			File file = new File(properties.getFileName());
-			FileOperations.processFileIntoPieceFiles(file, properties.getPieceSize());
 		}
 	}
 
@@ -114,12 +106,10 @@ public class Peer {
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
 			HandshakeMsg handshakeMessage = new HandshakeMsg(myInfo.getPeerId());
-			logger.info(" Sent handshake msg to neighbourID:" + neighborId);
 			ObjectOutputStream out = new ObjectOutputStream(neighborSocket.getOutputStream());
 			ObjectInputStream in = new ObjectInputStream(neighborSocket.getInputStream());
 			handshakeMessage.write(out);
 			handshakeMessage.read(in);
-			logger.info(" Received handshake msg from:" + neighborId);
 			setSocketDetailsToPeerMap(neighborId, neighborSocket, in, out);
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
@@ -131,7 +121,6 @@ public class Peer {
 
 	private void setSocketDetailsToPeerMap(int neighborId, Socket neighborSocket, ObjectInputStream in,
 			ObjectOutputStream out) {
-		logger.info("Object being set in the peerMap with: neighbourID = " + neighborId);
 		peerMap.get(neighborId).setClientSocket(neighborSocket);
 		peerMap.get(neighborId).setSocketReader(in);
 		peerMap.get(neighborId).setSocketWriter(out);

@@ -76,7 +76,6 @@ public class PeerProcess {
 	private void setupPeer(int peerId) {
 		PeerInfo myInfo = neighborMap.remove(peerId);
 		this.peer = new Peer(peerId, peerProperties, neighborMap, myInfo);
-		peer.splitFileIfNeeded();
 		peer.connectToPeers(activePeerIds);
 		peer.startPeerHandler();
 		peer.startServer();

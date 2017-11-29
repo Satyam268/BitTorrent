@@ -1,5 +1,6 @@
 package com.peer.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.Map;
@@ -28,8 +29,7 @@ public class FileHandler {
 	int peerID;
 	int hasFile;
 
-	public FileHandler(int peerId, PeerProperties properties,
-			Map<Integer, PeerInfo> peerMap, int hasFile) {
+	public FileHandler(int peerId, PeerProperties properties, Map<Integer, PeerInfo> peerMap, int hasFile) {
 		this.peerMap = peerMap;
 		this.hasFile = hasFile;
 		this.pieceSize = properties.getPieceSize();
@@ -37,11 +37,13 @@ public class FileHandler {
 		this.peerID = peerId;
 		this.hasFile = hasFile;
 		this.receivedPieces = new BitSet(bitsetSize);
-		if(hasFile==1) {
+		this.fileOps = new FileOperations(peerId, properties.getFileName());
+		if (hasFile == 1) {
+			//split file
+			fileOps.processFileIntoPieceFiles(new File(properties.getFileName()), properties.getNumberOfPieces());
 			receivedPieces.set(0, bitsetSize);
 		}
 		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
-		this.fileOps = new FileOperations(peerId, properties.getFileName());
 
 	}
 
@@ -73,14 +75,14 @@ public class FileHandler {
 		}
 	}
 
-	 public synchronized void broadcastHaveMessageToAllPeers(int pieceId) {
-		 logger.info("______broadcasting Have message_____________");
-		 System.out.println(" peerMap : "+peerMap.size()+" ");
-		 peerMap.values().forEach(peerInfo -> {
+	public synchronized void broadcastHaveMessageToAllPeers(int pieceId) {
+		logger.info("______broadcasting Have message_____________");
+		System.out.println(" peerMap : " + peerMap.size() + " ");
+		peerMap.values().forEach(peerInfo -> {
 			try {
 				Have haveMessage = (Have) Message.getInstance(MessageType.HAVE);
 				haveMessage.setPayload(CommonUtils.intToByteArray(pieceId));
-				System.out.println("Have Message:"+haveMessage);
+				System.out.println("Have Message:" + haveMessage);
 				haveMessage.write(peerInfo.getSocketWriter());
 
 			} catch (Exception e) {
@@ -104,7 +106,7 @@ public class FileHandler {
 			try {
 				peerInfo.getClientSocket().close();
 			} catch (IOException e) {
-				logger.warn("Problem closing Socket: "+ e);
+				logger.warn("Problem closing Socket: " + e);
 			}
 		});
 	}
@@ -118,7 +120,7 @@ public class FileHandler {
 	 */
 	public synchronized int getPartToRequest(BitSet availableParts) {
 		availableParts.andNot(getReceivedParts());
-		
+
 		return piecesBeingRequested.getPartToRequest(availableParts);
 	}
 
@@ -163,7 +165,7 @@ public class FileHandler {
 				return false;
 			}
 		}
-		logger.debug("Peer ["+peerID+"] has downloaded the complete file");
+		logger.debug("Peer [" + peerID + "] has downloaded the complete file");
 		return true;
 	}
 
