@@ -74,12 +74,14 @@ public class PeerHandler implements Runnable {
 
 	  private final OptimisticUnchoker optUnchoker;
 	 */
-
+	
+	
 	public PeerHandler(int peerID, Map<Integer, PeerInfo> peerMap2, PeerProperties peerProperties) {
 		this.peerMap = peerMap2;
 		this.peerProperties = peerProperties;
 		this.peerID = peerID;
 		// this.optUnchoker = new OptimisticUnchoker(peerProperties);
+
 	}
 
 	public void sendUnchoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {

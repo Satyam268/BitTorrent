@@ -110,7 +110,7 @@ public class MessageHandler {
 		sendRequestMessage(out);
 	}
 
-	private void sendRequestMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
+	synchronized private void sendRequestMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
@@ -140,8 +140,8 @@ public class MessageHandler {
 		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
 		if (fileHandler.isEverythingComplete()) {
-			// System.exit(0);
 			logger.info("-----------System.exit()-----------");
+			System.exit(0);
 		}
 	}
 

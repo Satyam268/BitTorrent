@@ -67,7 +67,7 @@ public class FileHandler {
 			fileOps.mergeFile(receivedPieces.cardinality());
 			if (isEverythingComplete()) {
 				logger.info("No.of active threads were: " + Thread.activeCount());
-				//System.exit(0);
+				System.exit(0);
 			}
 		}
 	}
@@ -117,6 +117,7 @@ public class FileHandler {
 	 */
 	synchronized int getPartToRequest(BitSet availableParts) {
 		availableParts.andNot(getReceivedParts());
+		
 		return piecesBeingRequested.getPartToRequest(availableParts);
 	}
 
