@@ -17,7 +17,7 @@ public class RequestedPieces {
 			_timeoutInMillis = unchokingInterval * 2;//why?
 		}
 
-		synchronized int getPartToRequest(BitSet requestabableParts) {
+		public synchronized int getPartToRequest(BitSet requestabableParts) {
 			requestabableParts.andNot(_requestedParts);
 
 			if (!requestabableParts.isEmpty()) {

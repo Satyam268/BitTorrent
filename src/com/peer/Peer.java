@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.peer.file.FileHandler;
 import com.peer.file.FileOperations;
 import com.peer.messages.HandshakeMsg;
-import com.peer.utilities.PeerProperties;
 
 public class Peer {
 

@@ -13,8 +13,9 @@ public class PeerInfo {
 	boolean choked;
 	int peerId;
 	int listeningPort;
-    int hasFile;
-    public int getHasFile() {
+	int hasFile;
+
+	public int getHasFile() {
 		return hasFile;
 	}
 
@@ -23,79 +24,94 @@ public class PeerInfo {
 	}
 
 	Socket clientSocket;
-    String hostName;
+	String hostName;
 
-    boolean handShaked=false;
-    boolean interested=false;
+	boolean handShaked = false;
+	boolean interested = false;
 
-    AtomicInteger bytesDownloaded = new AtomicInteger(0);
-    ObjectInputStream socketReader;
-    ObjectOutputStream socketWriter;
-    AtomicInteger requestedPieceIndex= new AtomicInteger(-1); // after every p time && whenever making a request and whenever piece
+	AtomicInteger bytesDownloaded = new AtomicInteger(0);
+	ObjectInputStream socketReader;
+	ObjectOutputStream socketWriter;
+	AtomicInteger requestedPieceIndex = new AtomicInteger(-1); // after every p time && whenever making a request and
+																// whenever piece
 
-    // records the pieces i have/don't have
+	// records the pieces i have/don't have
 	private BitSet bitfield = null;
 
-	public PeerInfo(ConfigFileParams fileParams, int numberOfPieces){
-        peerId = fileParams.getPeerId();
-        hostName = fileParams.getHostName();
-        listeningPort = fileParams.getListeningPort();
-        hasFile = fileParams.getHasFile();
-        BitSet b = new BitSet();
-        b.set(0, numberOfPieces, false);
-        setBitfield(b);
-        if(hasFile==1) {
-        	bitfield.set(0, numberOfPieces, true);
-        }
-    }
+	public PeerInfo(ConfigFileParams fileParams, int numberOfPieces) {
+		peerId = fileParams.getPeerId();
+		hostName = fileParams.getHostName();
+		listeningPort = fileParams.getListeningPort();
+		hasFile = fileParams.getHasFile();
+		BitSet b = new BitSet();
+		b.set(0, numberOfPieces, false);
+		setBitfield(b);
+		if (hasFile == 1) {
+			bitfield.set(0, numberOfPieces, true);
+		}
+	}
 
 	public PeerInfo(int peerId) {
-        this.peerId = peerId;
-    }
+		this.peerId = peerId;
+	}
 
-    public int getListeningPort() {
+	public int getListeningPort() {
 		return listeningPort;
 	}
 
-    //overridden for log generation purpose
-    @Override
-    public String toString() {
-        return "PerInfo: "+ "peerId: "+peerId+""+" hasFile: "+hasFile+" bitField: "+bitfield;//+ " "+hostName+" "+listeningPort+" "+hasFile;
-    }
+	// overridden for log generation purpose
+	@Override
+	public String toString() {
+		return "PerInfo: " + "peerId: " + peerId + "" + " hasFile: " + hasFile + " bitField: " + bitfield;// + "
+																											// "+hostName+"
+																											// "+listeningPort+"
+																											// "+hasFile;
+	}
+
 	public boolean isChoked() {
 		return choked;
 	}
+
 	public void choke() {
 		this.choked = true;
 	}
+
 	public void unChoke() {
 		this.choked = false;
 	}
+
 	public BitSet getBitfield() {
-		return bitfield;
+		return (BitSet) bitfield.clone();
 	}
+
 	public void setBitfield(BitSet bitfield) {
 		this.bitfield = bitfield;
 	}
+
 	public void setBitfieldAtIndex(int index) {
 		this.bitfield.set(index);
 	}
+
 	public int getPeerId() {
 		return peerId;
 	}
+
 	public String getHostName() {
 		return hostName;
 	}
 
-    public Socket getClientSocket() {
+	public Socket getClientSocket() {
 		return clientSocket;
 	}
+
 	public void setClientSocket(Socket clientSocket) {
 		this.clientSocket = clientSocket;
 	}
+
 	public boolean isHandShaked() {
 		return handShaked;
 	}
+
 	public void setHandShaked(boolean handShaked) {
 		this.handShaked = handShaked;
 	}
@@ -131,6 +147,5 @@ public class PeerInfo {
 	public void setRequestedPieceIndex(int requestedPieceIndex) {
 		this.requestedPieceIndex.set(requestedPieceIndex);
 	}
-
 
 }

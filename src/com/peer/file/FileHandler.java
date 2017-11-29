@@ -1,4 +1,4 @@
-package com.peer;
+package com.peer.file;
 
 import java.io.IOException;
 import java.util.BitSet;
@@ -6,12 +6,13 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.peer.file.FileOperations;
+import com.peer.PeerInfo;
+import com.peer.PeerProperties;
+import com.peer.RequestedPieces;
 import com.peer.messages.Message;
 import com.peer.messages.types.Have;
 import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
-import com.peer.utilities.PeerProperties;
 
 //peer has a file handler
 //manages the 2 BitSets, depicting requestedParts and receivedParts
@@ -115,7 +116,7 @@ public class FileHandler {
 	 *         all the missing parts are already being requested or the file is
 	 *         complete.
 	 */
-	synchronized int getPartToRequest(BitSet availableParts) {
+	public synchronized int getPartToRequest(BitSet availableParts) {
 		availableParts.andNot(getReceivedParts());
 		
 		return piecesBeingRequested.getPartToRequest(availableParts);
@@ -143,7 +144,7 @@ public class FileHandler {
 		return receivedPieces.cardinality();
 	}
 
-	byte[] getPiece(int pieceId) {
+	public byte[] getPiece(int pieceId) {
 		byte[] piece = fileOps.getPieceFromFile(pieceId);
 		return piece;
 	}

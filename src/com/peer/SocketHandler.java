@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.peer.file.FileHandler;
 import com.peer.messages.ActualMsg;
 import com.peer.messages.types.BitField;
 
@@ -38,8 +39,6 @@ public class SocketHandler implements Runnable {
 		this.peerMap = peerMap;
 		this.neighborId = neighborId;
 		this.fileHandler = fileHandler;
-		logger.info("-----------new connection handler object of new connection hadler created with id: " + neighborId
-				+ "--------");
 	}
 
 	@Override

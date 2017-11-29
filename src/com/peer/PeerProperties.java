@@ -1,4 +1,4 @@
-package com.peer.utilities;
+package com.peer;
 
 public class PeerProperties {
 

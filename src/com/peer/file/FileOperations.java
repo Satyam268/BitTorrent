@@ -22,8 +22,8 @@ public class FileOperations {
 	private final File pieceDir;
 	private int peerId;
 	private static final String piecesLocation = Paths.get("com", "peer", "pieces").toString();
-	private static final String receivedPiecesLocation = Paths.get("project","peer_").toString();
-	private static final String outputFileLocation = Paths.get("com","output","ThData.dat").toString();
+	private static String receivedPiecesLocation;
+	private static final String outputFileLocation = Paths.get("com", "output", "ThData.dat").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
 	private Map<Integer, Path> pieceLocationMap = new TreeMap<>();
 
@@ -34,6 +34,7 @@ public class FileOperations {
 		pieceDir.mkdirs();
 		outputFile = new File(outputFileLocation);
 		outputFile.getParentFile().mkdirs();
+		receivedPiecesLocation = Paths.get("receivedPeices", "peer_" + peerId).toString();
 	}
 
 	public byte[][] getAllpiecesAsByteArrays() {
@@ -52,14 +53,14 @@ public class FileOperations {
 
 	public byte[] getPieceFromFile(int pieceId) {
 
-		File file = Paths.get(piecesLocation,""+pieceId).toFile();
+		File file = Paths.get(piecesLocation, "" + pieceId).toFile();
 		return getByteArrayFromFile(file);
 	}
 
 	public void writePieceToFile(byte[] piece, int pieceId, int clientPeerId) {
 		FileOutputStream fos;
-		Path path = Paths.get(receivedPiecesLocation+clientPeerId,""+pieceId);
-		pieceLocationMap.put(pieceId,path);
+		Path path = Paths.get(receivedPiecesLocation + clientPeerId, "" + pieceId);
+		pieceLocationMap.put(pieceId, path);
 		File ofile = path.toFile();
 		ofile.getParentFile().mkdirs();
 		try {
@@ -137,14 +138,14 @@ public class FileOperations {
 		byte[] fileBytes;
 		int bytesRead = 0;
 		List<File> list = new ArrayList<>();
-		if(pieceLocationMap.size()!=numpieces) {
+		if (pieceLocationMap.size() != numpieces) {
 			logger.warn("Cannot merge improper file:");
 			return;
 		}
-		 pieceLocationMap.forEach((key, value)->{
-			 list.add(value.toFile());
-		 });
-		System.out.println("Merging these files:"+ list);
+		pieceLocationMap.forEach((key, value) -> {
+			list.add(value.toFile());
+		});
+		System.out.println("Merging these files:" + list);
 		try {
 			fos = new FileOutputStream(ofile);
 			for (File file : list) {

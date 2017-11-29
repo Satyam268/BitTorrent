@@ -21,7 +21,6 @@ import com.peer.messages.Message;
 import com.peer.messages.types.Choke;
 import com.peer.messages.types.Unchoke;
 import com.peer.utilities.MessageType;
-import com.peer.utilities.PeerProperties;
 
 public class PeerHandler implements Runnable {
 

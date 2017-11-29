@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.util.Map;
 import org.apache.log4j.Logger;
 
+import com.peer.file.FileHandler;
 import com.peer.messages.ActualMsg;
 import com.peer.messages.Message;
 import com.peer.messages.types.BitField;
