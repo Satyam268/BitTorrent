@@ -20,11 +20,11 @@ public class ActualMsg extends Message {
 	}
 
 	public ActualMsg(DataOutputStream in) {
-		
+
 	}
 
 	public void write(ObjectOutputStream out) throws IOException {
-		logger.info(">>>>>>>>>>>>>>>>>>>>> Sent Message details " + this+">>>>>>>>>>>>>>>>>>>>>");
+		//logger.info(">>>>>>>>>>>>>>>>>>>>> Sent Message details " + this+">>>>>>>>>>>>>>>>>>>>>");
 		out.writeObject(this);
 	}
 
@@ -58,6 +58,7 @@ public class ActualMsg extends Message {
 	}
 
 	public String toString() {
-		return "Message Details -- length: " + length + " type: " + type + " payload: " + new String(payload);
+
+		return "Message Details -- length: " + length + " type: " + type + " payload: " + ((this.getType()==MessageType.PIECE)?"":(new String(payload)));
 	}
 }

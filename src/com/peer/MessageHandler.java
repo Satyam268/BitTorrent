@@ -37,11 +37,9 @@ public class MessageHandler {
 	}
 
 	public void handleMessage() throws ClassNotFoundException, IOException {
-		System.out.println("}}}}}}}"+ Thread.activeCount()+"{{{{{{{{{{{{");
 		ActualMsg message = null;
 		message = (ActualMsg) in.readObject();
-		logger.info(
-				" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
+		logger.info(" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
 		MessageType msgType = message.getType();
 		switch (msgType) {
 		case BITFIELD:
@@ -75,7 +73,7 @@ public class MessageHandler {
 			break;
 		case PIECE:
 			handlePiece(message);
-		 	break;
+			break;
 		}
 	}
 
@@ -104,7 +102,7 @@ public class MessageHandler {
 	private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
-		//fileHandler.broadcastHaveMessageToAllPeers(peerInfo.getRequestedPieceIndex());
+		// fileHandler.broadcastHaveMessageToAllPeers(peerInfo.getRequestedPieceIndex());
 		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
 				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]");
 		peerInfo.setRequestedPieceIndex(-1);
@@ -142,7 +140,7 @@ public class MessageHandler {
 		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
 		if (fileHandler.isEverythingComplete()) {
-			//System.exit(0);
+			// System.exit(0);
 			logger.info("-----------System.exit()-----------");
 		}
 	}

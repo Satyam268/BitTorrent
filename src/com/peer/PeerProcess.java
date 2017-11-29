@@ -1,9 +1,11 @@
 package com.peer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +42,8 @@ public class PeerProcess {
 	void readPeerInfoFile(int peerId) {
 		neighborMap = new ConcurrentHashMap<Integer, PeerInfo>();
 		activePeerIds = new ArrayList<>();
+		ArrayList peerInfoFileParams = new ArrayList<>();
+
 		try (Stream<String> stream = Files.lines(Paths.get(Constants.peerInfoFile))) {
 			Iterator<String> it = stream.iterator();
 			boolean myInfoProcessed = false;
@@ -60,22 +64,23 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1002;
+		int peerId = 1001;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		PeerProcess process = new PeerProcess();
 		process.readCommonCFGFile();
 		process.readPeerInfoFile(peerId);
 		process.setupPeer(peerId);
+
 	}
 
 	private void setupPeer(int peerId) {
 		PeerInfo myInfo = neighborMap.remove(peerId);
 		this.peer = new Peer(peerId, peerProperties, neighborMap, myInfo);
+		peer.splitFileIfNeeded();
 		peer.connectToPeers(activePeerIds);
 		peer.startPeerHandler();
 		peer.startServer();
-		
 	}
 
 }

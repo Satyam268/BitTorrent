@@ -99,6 +99,7 @@ public class Peer {
 	}
 
 	public void connectToPeers(List<Integer> activePeerIds) {
+		
 		for (int neighborId : activePeerIds) {
 			doHandShake(neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);

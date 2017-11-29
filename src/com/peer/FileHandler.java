@@ -41,7 +41,7 @@ public class FileHandler {
 		}
 		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
 		this.fileOps = new FileOperations(peerId, properties.getFileName());
-		
+
 	}
 
 	public FileHandler(int peerId) {
@@ -81,7 +81,7 @@ public class FileHandler {
 				haveMessage.setPayload(CommonUtils.intToByteArray(pieceId));
 				System.out.println("Have Message:"+haveMessage);
 				haveMessage.write(peerInfo.getSocketWriter());
-				
+
 			} catch (Exception e) {
 				logger.warn("Could not broadcast \'Have\' to peer_" + peerInfo.getPeerId() + " " + e);
 			}

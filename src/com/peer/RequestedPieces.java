@@ -17,12 +17,6 @@ public class RequestedPieces {
 			_timeoutInMillis = unchokingInterval * 2;//why?
 		}
 
-		/**
-		 * @param requestabableParts
-		 * @return the ID of the part to request, if any, or a negative number in
-		 *         case all the missing parts are already being requested or the
-		 *         file is complete.
-		 */
 		synchronized int getPartToRequest(BitSet requestabableParts) {
 			requestabableParts.andNot(_requestedParts);
 
