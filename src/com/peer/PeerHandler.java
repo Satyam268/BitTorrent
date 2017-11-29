@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import com.peer.messages.Message;
 import com.peer.messages.types.Choke;
 import com.peer.messages.types.Unchoke;
+import com.peer.utilities.Constants;
 import com.peer.utilities.MessageType;
 
 public class PeerHandler implements Runnable {
@@ -31,56 +32,71 @@ public class PeerHandler implements Runnable {
 	PeerProperties peerProperties;
 	int peerID;
 
-	/*
-	 class OptimisticUnchoker extends Thread { private final int
-	  numberOfOptimisticallyUnchokedNeighbors; private final int
-	  optimisticUnchokingInterval; private final List<PeerInfo> chokedNeighbors
-	  = new ArrayList<>(); final Collection<PeerInfo>
-	  optimisticallyUnchokedPeers = Collections .newSetFromMap(new
-	  ConcurrentHashMap<PeerInfo, Boolean>());
+	class OptimisticUnchoker extends Thread {
+		private final int numberOfOptimisticallyUnchokedNeighbors;
+		private final int optimisticUnchokingInterval;
 
-	 OptimisticUnchoker(PeerProperties conf) { super("OptimisticUnchoker");
-	  numberOfOptimisticallyUnchokedNeighbors = 1; optimisticUnchokingInterval = conf.getOptimisticUnchokingInterval(); }
+		private final List<PeerInfo> chokedNeighbors = new ArrayList<>();
 
-	  synchronized void setChokedNeighbors(Collection<PeerInfo>
-	  chokedNeighbors) { chokedNeighbors.clear();
-	  chokedNeighbors.addAll(chokedNeighbors); }
+		final Collection<PeerInfo> optimisticallyUnchokedPeers = Collections
+				.newSetFromMap(new ConcurrentHashMap<PeerInfo, Boolean>());
 
-	  @Override
-	  public void run() { while (true) { try {
-	  Thread.sleep(optimisticUnchokingInterval); } catch (InterruptedException ex) { }
+		OptimisticUnchoker(PeerProperties properties) {
+			super("OptimisticUnchoker");
+			numberOfOptimisticallyUnchokedNeighbors = Constants.oun_count;
+			optimisticUnchokingInterval = properties.getOptimisticUnchokingInterval();
+		}
 
-	  synchronized (this) { // Randomly shuffle the remaining neighbors, and select some // to optimistically unchoke if (!chokedNeighbors.isEmpty())
-	  { Collections.shuffle(chokedNeighbors);
-	  optimisticallyUnchokedPeers.clear();
-	  optimisticallyUnchokedPeers.addAll(chokedNeighbors.subList(0,
-	  Math.min(numberOfOptimisticallyUnchokedNeighbors,
-	  chokedNeighbors.size()))); } }
+		synchronized void setChokedNeighbors(Collection<PeerInfo> chokedNeighbors) {
+			chokedNeighbors.clear();
+			chokedNeighbors.addAll(chokedNeighbors);
+		}
 
-	  if (chokedNeighbors.size() > 0) { logger.debug("STATE: OPT UNCHOKED(" +
-	  numberOfOptimisticallyUnchokedNeighbors + "): " +
-	  optimisticallyUnchokedPeers); } // for (PeerManagerListener listener :
-	  _listeners) { //
-	  listener.unchockedPeers(RemotePeerInfo.toIdSet(optmisticallyUnchokedPeers
-	  )); // }
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(optimisticUnchokingInterval);
+				} catch (InterruptedException ex) {
+				}
 
-	 optimisticallyUnchokedPeers.forEach(peerInfo -> { peerInfo.unChoke(); try
-	  { sendUnchoke(peerInfo.getSocketWriter()); } catch (Exception e) {
-	  logger.warn("Unable to choke peer: " + peerInfo.getPeerId() + " " + e); }
-	  });
+				synchronized (this) { // Randomly shuffle the remaining
+										// neighbors, and select some // to
+										// optimistically unchoke if
+										// (!chokedNeighbors.isEmpty())
+					{
+						Collections.shuffle(chokedNeighbors);
+						optimisticallyUnchokedPeers.clear();
+						optimisticallyUnchokedPeers.addAll(chokedNeighbors.subList(0,
+								Math.min(numberOfOptimisticallyUnchokedNeighbors, chokedNeighbors.size())));
+					}
+				}
 
-	  } } }
+				if (chokedNeighbors.size() > 0) {
+					logger.debug("STATE: OPT UNCHOKED(" + numberOfOptimisticallyUnchokedNeighbors + "): "
+							+ optimisticallyUnchokedPeers);
+				}
 
-	  private final OptimisticUnchoker optUnchoker;
-	 */
-	
-	
+				optimisticallyUnchokedPeers.forEach(peerInfo -> {
+					peerInfo.unChoke();
+					try {
+						sendUnchoke(peerInfo.getSocketWriter());
+					} catch (Exception e) {
+						logger.warn("Unable to choke peer: " + peerInfo.getPeerId() + " " + e);
+					}
+				});
+
+			}
+		}
+	}
+
+	private final OptimisticUnchoker optUnchoker;
+
 	public PeerHandler(int peerID, Map<Integer, PeerInfo> peerMap2, PeerProperties peerProperties) {
 		this.peerMap = peerMap2;
 		this.peerProperties = peerProperties;
 		this.peerID = peerID;
-		// this.optUnchoker = new OptimisticUnchoker(peerProperties);
-
+		this.optUnchoker = new OptimisticUnchoker(peerProperties);
 	}
 
 	public void sendUnchoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
@@ -95,19 +111,15 @@ public class PeerHandler implements Runnable {
 
 	@Override
 	public void run() {
-		// optUnchoker.start();
+		optUnchoker.start();
+
 		while (true) {
 			try {
-				System.out.println("Time unchoking " + peerProperties.getUnchokingInterval());
-				Thread.sleep(peerProperties.getUnchokingInterval()); // Sleep
-																		// for k
-																		// time
-																		// !!!
+				Thread.sleep(peerProperties.getUnchokingInterval());
 			} catch (InterruptedException ex) {
 			}
 
 			// 1) GET INTERESTED PEERS AND SORT THEM BY PREFERENCE
-
 			List<PeerInfo> interestedPeers = getInterestedPeers();
 			if (randomlySelectPreferredNeighbors.get()) {
 				logger.debug("Selecting preferred peers randomly");
@@ -134,7 +146,8 @@ public class PeerHandler implements Runnable {
 					peerInfo.bytesDownloaded.set(0);
 				}
 
-				// 2) SELECT THE PREFERRED PEERS BY SELECTING THE HIGHEST RANKED
+				// 2) SELECT THE PREFERRED PEERS BY SELECTING THE HIGHEST
+				// RANKED
 
 				kPreferredNeighbors.clear();
 				kPreferredNeighbors.addAll(interestedPeers.subList(0,
@@ -144,7 +157,8 @@ public class PeerHandler implements Runnable {
 					logger.debug("Peer [" + peerID + "] has the preferred neighbours " + kPreferredNeighbors);
 				}
 
-				// 3) SELECT ALLE THE INTERESTED AND UNINTERESTED PEERS, REMOVE
+				// 3) SELECT ALLE THE INTERESTED AND UNINTERESTED PEERS,
+				// REMOVE
 				// THE PREFERRED.
 				// THE RESULTS ARE THE CHOKED PEERS
 
@@ -152,7 +166,8 @@ public class PeerHandler implements Runnable {
 				chokedPeers.removeAll(kPreferredNeighbors);
 				chokedPeersIDs.addAll(getPeerIds(chokedPeers));
 
-				// 4) SELECT ALLE THE INTERESTED PEERS, REMOVE THE PREFERRED.
+				// 4) SELECT ALLE THE INTERESTED PEERS, REMOVE THE
+				// PREFERRED.
 				// THE RESULTS ARE
 				// THE CHOKED PEERS THAT ARE "OPTIMISTICALLY-UNCHOKABLE"
 				if (peerProperties.getNumberOfPreferredNeighbors() >= interestedPeers.size()) {
@@ -179,7 +194,8 @@ public class PeerHandler implements Runnable {
 						+ " (INTERESTED PEERS: " + interestedPeers.size() + ": " + interestedPeers + ")\t" + PREFERRED);
 			}
 
-			// 5) NOTIFY PROCESS, IT WILL TAKE CARE OF SENDING CHOKE AND UNCHOKE
+			// 5) NOTIFY PROCESS, IT WILL TAKE CARE OF SENDING CHOKE AND
+			// UNCHOKE
 			// MESSAGES
 
 			// for (PeerManagerListener listener : _listeners) {
@@ -188,7 +204,7 @@ public class PeerHandler implements Runnable {
 			// }
 			chokedPeersIDs.forEach(id -> {
 				try {
-					if(peerMap.get(id).getSocketWriter()!=null)
+					if (peerMap.get(id).getSocketWriter() != null)
 						sendChoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);
@@ -197,22 +213,20 @@ public class PeerHandler implements Runnable {
 
 			preferredNeighborsIDs.forEach(id -> {
 				try {
-				  if(peerMap.get(id).getSocketWriter()!=null)
-					sendUnchoke(peerMap.get(id).getSocketWriter());
+					if (peerMap.get(id).getSocketWriter() != null)
+						sendUnchoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);
 				}
 			});
 
+			// 6) NOTIFY THE OPTIMISTICALLY UNCHOKER THREAD WITH THE NEW SET OF
+			// UNCHOKABLE PEERS
+			if (optUnchokablePeers != null) {
+				optUnchoker.setChokedNeighbors(optUnchokablePeers);
+			}
 		}
 
-		// 6) NOTIFY THE OPTIMISTICALLY UNCHOKER THREAD WITH THE NEW SET OF
-		// UNCHOKABLE
-		// PEERS
-
-		// if (optUnchokablePeers != null) {
-		// _optUnchoker.setChokedNeighbors(optUnchokablePeers);
-		// }
 	}
 
 	private List<PeerInfo> getAllConnectedNeighbours() {

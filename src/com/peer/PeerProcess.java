@@ -1,11 +1,9 @@
 package com.peer;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,7 +61,7 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1003;
+		int peerId = 1001;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		PeerProcess process = new PeerProcess();
