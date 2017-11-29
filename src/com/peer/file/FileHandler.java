@@ -40,7 +40,7 @@ public class FileHandler {
 		this.fileOps = new FileOperations(peerId, properties.getFileName());
 		if (hasFile == 1) {
 			//split file
-			fileOps.processFileIntoPieceFiles(new File(properties.getFileName()), properties.getNumberOfPieces());
+			fileOps.processFileIntoPieceFiles(new File(properties.getFileName()), properties.getPieceSize());
 			receivedPieces.set(0, bitsetSize);
 		}
 		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
