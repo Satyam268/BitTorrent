@@ -40,7 +40,7 @@ public class FileHandler {
 		this.receivedPieces = new BitSet(bitsetSize);
 		this.fileOps = new FileOperations(peerId, properties.getFileName());
 		if (hasFile == 1) {
-			//split file
+			// split file
 			fileOps.processFileIntoPieceFiles(new File(properties.getFileName()), properties.getPieceSize());
 			receivedPieces.set(0, bitsetSize);
 		}
@@ -59,7 +59,7 @@ public class FileHandler {
 	 * @param piece
 	 */
 	public synchronized void addPiece(int pieceID, byte[] piece, int clientPeerId) {
-		if(pieceID==-1) //Redundant
+		if (pieceID == -1) // Redundant
 			return;
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
 
@@ -71,10 +71,11 @@ public class FileHandler {
 		}
 		if (isFileCompleted()) {
 			fileOps.mergeFile(receivedPieces.cardinality());
-			/*if (isEverythingComplete()) {
-				logger.info("No.of active threads were: " + Thread.activeCount());
-				System.exit(0);
-			}*/
+			/*
+			 * if (isEverythingComplete()) {
+			 * logger.info("No.of active threads were: " +
+			 * Thread.activeCount()); System.exit(0); }
+			 */
 
 		}
 	}
@@ -84,7 +85,7 @@ public class FileHandler {
 			try {
 				Have haveMessage = (Have) Message.getInstance(MessageType.HAVE);
 				haveMessage.setPayload(CommonUtils.intToByteArray(pieceId));
-				if(peerInfo.getSocketWriter()!=null)
+				if (peerInfo.getSocketWriter() != null)
 					haveMessage.write(peerInfo.getSocketWriter());
 
 			} catch (Exception e) {
@@ -96,7 +97,7 @@ public class FileHandler {
 	public synchronized boolean isEverythingComplete() {
 		for (PeerInfo peerInfo : peerMap.values()) {
 			if (peerInfo.getBitfield().cardinality() != getBitmapSize()) {
-				logger.info("Breaking for "+" peerId"+peerInfo.getPeerId()+" "+peerInfo.getBitfield());
+				logger.info("Breaking for " + " peerId" + peerInfo.getPeerId() + " " + peerInfo.getBitfield());
 				return false;
 			}
 		}
@@ -105,11 +106,10 @@ public class FileHandler {
 	}
 
 	public void closeAllSockets() {
-		for(PeerInfo info:peerMap.values()) {
-			if(info.getClientSocket() == null)
+		for (PeerInfo info : peerMap.values()) {
+			if (info.getClientSocket() == null)
 				return;
 		}
-		
 		peerMap.values().forEach(peerInfo -> {
 			try {
 				peerInfo.getClientSocket().close();
@@ -122,9 +122,9 @@ public class FileHandler {
 	/**
 	 * @param availableParts
 	 *            parts that are available at the remote peer
-	 * @return the ID of the part to request, if any, or a negative number in case
-	 *         all the missing parts are already being requested or the file is
-	 *         complete.
+	 * @return the ID of the part to request, if any, or a negative number in
+	 *         case all the missing parts are already being requested or the
+	 *         file is complete.
 	 */
 	public synchronized int getPartToRequest(BitSet availableParts) {
 		availableParts.andNot(getReceivedParts());

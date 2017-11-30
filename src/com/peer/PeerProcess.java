@@ -55,8 +55,7 @@ public class PeerProcess {
 					else
 						myInfoProcessed = true;
 				}
-				neighborMap.put(configFileParams.getPeerId(),
-						new PeerInfo(configFileParams, peerProperties.getNumberOfPieces()));
+				neighborMap.put(configFileParams.getPeerId(), new PeerInfo(configFileParams, peerProperties.getNumberOfPieces()));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -74,7 +73,7 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1003;
+		int peerId = 1001;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		deleteFiles(Paths.get("com").toString());

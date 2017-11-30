@@ -38,45 +38,50 @@ public class MessageHandler {
 	}
 
 	public void handleMessage() throws ClassNotFoundException, IOException {
-		ActualMsg message = null;
-		message = (ActualMsg) in.readObject();
-		// logger.info(" ------ incoming message " + message + " received from "
-		// +clientPeerID + " -----------------------");
+		try {
+			ActualMsg message = null;
+			message = (ActualMsg) in.readObject();
+			 logger.info(" ------ incoming message " + message + " received from " +clientPeerID + " -----------------------");
 
-		MessageType msgType = message.getType();
-		switch (msgType) {
-		case BITFIELD:
-			handleBitfield(message);
-			break;
-		case CHOKE:
-			handleChoke(message);
-			logger.debug("Peer [peer_ID" + myInfo.peerId + "] is choked by [peer_ID " + clientPeerID + "]");
-			break;
-		case UNCHOKE:
-			handleUnchoke(message);
-			logger.debug("Peer [peer_ID " + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
-			break;
-		case INTERESTED:
-			handleInterested(message);
-			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘interested’ message from [peer_ID "
-					+ clientPeerID + "]");
-			break;
-		case NOTINTERESTED:
-			handleNotInterested(message);
-			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘not interested’ message from [peer_ID "
-					+ clientPeerID + "]");
-			break;
-		case HAVE:
-			handleHave(message);
-			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘have’ message from [peer_ID "
-					+ clientPeerID + "] for the piece [" + (CommonUtils.byteArrayToInt(message.getPayload())) + "]");
-			break;
-		case REQUEST:
-			handleRequest(message);
-			break;
-		case PIECE:
-			handlePiece(message);
-			break;
+			MessageType msgType = message.getType();
+			switch (msgType) {
+			case BITFIELD:
+				handleBitfield(message);
+				break;
+			case CHOKE:
+				handleChoke(message);
+				logger.debug("Peer [peer_ID" + myInfo.peerId + "] is choked by [peer_ID " + clientPeerID + "]");
+				break;
+			case UNCHOKE:
+				handleUnchoke(message);
+				logger.debug("Peer [peer_ID " + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
+				break;
+			case INTERESTED:
+				handleInterested(message);
+				logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘interested’ message from [peer_ID "
+						+ clientPeerID + "]");
+				break;
+			case NOTINTERESTED:
+				handleNotInterested(message);
+				logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘not interested’ message from [peer_ID "
+						+ clientPeerID + "]");
+				break;
+			case HAVE:
+				handleHave(message);
+				logger.debug(
+						"Peer [peer_ID " + myInfo.peerId + "] received the ‘have’ message from [peer_ID " + clientPeerID
+								+ "] for the piece [" + (CommonUtils.byteArrayToInt(message.getPayload())) + "]");
+				break;
+			case REQUEST:
+				handleRequest(message);
+				break;
+			case PIECE:
+				handlePiece(message);
+				break;
+			}
+		} catch (Exception e) {
+			logger.warn("---- Bloody exception " + e);
+			throw e;
 		}
 	}
 
@@ -104,6 +109,9 @@ public class MessageHandler {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		if (peerInfo.getRequestedPieceIndex() == -1)
 			return;
+
+		logger.debug("In handlePiece requested piece was- " + peerInfo.getRequestedPieceIndex());
+
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
 		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
 				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]");
@@ -126,6 +134,9 @@ public class MessageHandler {
 
 	private void handleRequest(ActualMsg message) throws ClassNotFoundException, IOException {
 		int pieceIndex = CommonUtils.byteArrayToInt(message.getPayload());
+
+		logger.debug("In handle request requested piece- " + pieceIndex);
+
 		byte[] piece = fileHandler.getPiece(pieceIndex);
 		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
 		pieceMessage.setLength(piece.length);
