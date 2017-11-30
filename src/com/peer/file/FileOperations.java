@@ -13,8 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
+
+import com.peer.utilities.Constants;
 
 public class FileOperations {
 
@@ -22,17 +25,16 @@ public class FileOperations {
 	private final File pieceDir;
 	private int peerId;
 	private static String receivedPiecesLocation;
-	private static final String outputFileLocation = Paths.get("com", "output", "ThData.dat").toString();
 	final static Logger logger = Logger.getLogger(FileOperations.class);
 	private Map<Integer, Path> pieceLocationMap = new TreeMap<>();
 
 	public FileOperations(int peerId, String fileName) {
 		this.peerId = peerId;
-		receivedPiecesLocation = Paths.get("pieceStore", "peer_" + peerId).toString();
+		receivedPiecesLocation = Paths.get(Constants.pieceStore, "peer_" + peerId).toString();
 		Path path = Paths.get(receivedPiecesLocation);
 		pieceDir = new File(path.toString());
 		pieceDir.mkdirs();
-		outputFile = new File(outputFileLocation);
+		outputFile = new File(Constants.outputFileLocation);
 		outputFile.getParentFile().mkdirs();
 	}
 

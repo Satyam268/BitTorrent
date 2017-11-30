@@ -37,6 +37,7 @@ public class PeerHandler implements Runnable {
 
 		private final List<PeerInfo> chokedNeighbors = new ArrayList<>();
 
+		// Since ConcurrentSet doesn't exist
 		final Collection<PeerInfo> optimisticallyUnchokedPeers = Collections
 				.newSetFromMap(new ConcurrentHashMap<PeerInfo, Boolean>());
 
@@ -119,7 +120,7 @@ public class PeerHandler implements Runnable {
 			} catch (InterruptedException ex) {
 			}
 
-			// 1) GET INTERESTED PEERS AND SORT THEM BY PREFERENCE
+			// Get Peers by preference or randomly
 			List<PeerInfo> interestedPeers = getInterestedPeers();
 			if (randomlySelectPreferredNeighbors.get()) {
 				Collections.shuffle(interestedPeers);
@@ -145,9 +146,8 @@ public class PeerHandler implements Runnable {
 					peerInfo.bytesDownloaded.set(0);
 				}
 
-				// 2) SELECT THE PREFERRED PEERS BY SELECTING THE HIGHEST
-				// RANKED
-
+				// select preferred by ranking ..here based on download rates and 
+				// randomly in case of conflict or if sender has complete file
 				kPreferredNeighbors.clear();
 				kPreferredNeighbors.addAll(interestedPeers.subList(0,
 						Math.min(peerProperties.getNumberOfPreferredNeighbors(), interestedPeers.size())));
@@ -156,24 +156,18 @@ public class PeerHandler implements Runnable {
 					logger.debug("Peer [" + peerID + "] has the preferred neighbours " + kPreferredNeighbors);
 				}
 
-				// 3) SELECT ALLE THE INTERESTED AND UNINTERESTED PEERS,
-				// REMOVE
-				// THE PREFERRED.
-				// THE RESULTS ARE THE CHOKED PEERS
-
+				// From all peers remove K-preferred 
 				Collection<PeerInfo> chokedPeers = new LinkedList<>(getAllConnectedNeighbours());
 				chokedPeers.removeAll(kPreferredNeighbors);
 				chokedPeersIDs.addAll(getPeerIds(chokedPeers));
 
-				// 4) SELECT ALLE THE INTERESTED PEERS, REMOVE THE
-				// PREFERRED.
-				// THE RESULTS ARE
-				// THE CHOKED PEERS THAT ARE "OPTIMISTICALLY-UNCHOKABLE"
+				
+				// List of Choked peers which are optimistically unchokable
 				if (peerProperties.getNumberOfPreferredNeighbors() >= interestedPeers.size()) {
 					optUnchokablePeers = new ArrayList<>();
 				} else {
-					// list of peers which are not going to be in the list of k
-					// preferred
+					// list of peers which are not going to be in the list of k preferred
+					// are considered for Optimistic Unchoking
 					optUnchokablePeers = interestedPeers.subList(peerProperties.getNumberOfPreferredNeighbors(),
 							interestedPeers.size());
 				}
@@ -181,30 +175,6 @@ public class PeerHandler implements Runnable {
 				preferredNeighborsIDs.addAll(getPeerIds(kPreferredNeighbors));
 			}
 
-			// debug
-			// logger.info("STATE: INTERESTED: " + interestedPeers);
-			// logger.info("STATE: UNCHOKED (" +
-			// peerProperties.getNumberOfPreferredNeighbors() + "): "
-			// + preferredNeighborsIDs);
-			// logger.info("STATE: CHOKED:" + chokedPeersIDs);
-			//
-			// for (Entry<Integer, Long> entry : downloadedBytes.entrySet()) {
-			// String PREFERRED = preferredNeighborsIDs.contains(entry.getKey())
-			// ? " *" : "";
-			// logger.debug("BYTES DOWNLOADED FROM PEER " + entry.getKey() + ":
-			// " + entry.getValue()
-			// + " (INTERESTED PEERS: " + interestedPeers.size() + ": " +
-			// interestedPeers + ")\t" + PREFERRED);
-			// }
-
-			// 5) NOTIFY PROCESS, IT WILL TAKE CARE OF SENDING CHOKE AND
-			// UNCHOKE
-			// MESSAGES
-
-			// for (PeerManagerListener listener : _listeners) {
-			// listener.chockedPeers(chokedPeersIDs);
-			// listener.unchockedPeers(preferredNeighborsIDs);
-			// }
 			chokedPeersIDs.forEach(id -> {
 				try {
 					if (peerMap.get(id).getSocketWriter() != null)
@@ -223,8 +193,7 @@ public class PeerHandler implements Runnable {
 				}
 			});
 
-			// 6) NOTIFY THE OPTIMISTICALLY UNCHOKER THREAD WITH THE NEW SET OF
-			// UNCHOKABLE PEERS
+			// Refresh the set of peers for choosing unchokable peers.
 			if (optUnchokablePeers != null) {
 				optUnchoker.setChokedNeighbors(optUnchokablePeers);
 			}

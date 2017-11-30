@@ -58,7 +58,7 @@ public class FileHandler {
 	 * @param piece
 	 */
 	public synchronized void addPiece(int pieceID, byte[] piece, int clientPeerId) {
-		if(pieceID==-1)
+		if(pieceID==-1) //Redundant
 			return;
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
 
@@ -93,7 +93,7 @@ public class FileHandler {
 
 	public synchronized boolean isEverythingComplete() {
 		for (PeerInfo peerInfo : peerMap.values()) {
-			if (peerInfo.getBitfield().cardinality() != peerInfo.getBitfield().size()) {
+			if (peerInfo.getBitfield().cardinality() != bitsetSize) {
 				return false;
 			}
 		}

@@ -1,5 +1,6 @@
 package com.peer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -61,7 +62,7 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1001;
+		int peerId = 1002;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		PeerProcess process = new PeerProcess();
