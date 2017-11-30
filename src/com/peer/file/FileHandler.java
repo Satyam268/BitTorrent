@@ -93,7 +93,7 @@ public class FileHandler {
 
 	public synchronized boolean isEverythingComplete() {
 		for (PeerInfo peerInfo : peerMap.values()) {
-			if (peerInfo.getBitfield().cardinality() != bitsetSize) {
+			if (peerInfo.getBitfield().cardinality() != getBitmapSize()) {
 				return false;
 			}
 		}
