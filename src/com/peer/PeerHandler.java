@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.peer.messages.Message;
 import com.peer.messages.types.Choke;
 import com.peer.messages.types.Unchoke;
+import com.peer.utilities.CommonUtils;
 import com.peer.utilities.Constants;
 import com.peer.utilities.MessageType;
 
@@ -72,10 +73,10 @@ public class PeerHandler implements Runnable {
 
 				// debug
 				/*
-				 if (chokedNeighbors.size() > 0) {
-				 logger.debug("STATE: OPT UNCHOKED(" +
-				 numberOfOptimisticallyUnchokedNeighbors + "): " +
-				 optimisticallyUnchokedPeers); }
+				 * if (chokedNeighbors.size() > 0) {
+				 * logger.debug("STATE: OPT UNCHOKED(" +
+				 * numberOfOptimisticallyUnchokedNeighbors + "): " +
+				 * optimisticallyUnchokedPeers); }
 				 */
 
 				optimisticallyUnchokedPeers.forEach(peerInfo -> {
@@ -120,6 +121,12 @@ public class PeerHandler implements Runnable {
 			} catch (InterruptedException ex) {
 			}
 
+			// check if need to close
+			/*
+			 * if(CommonUtils.isEverythingComplete(peerMap,
+			 * peerProperties.getNumberOfPieces())) System.exit(0);
+			 */
+
 			// Get Peers by preference or randomly
 			List<PeerInfo> interestedPeers = getInterestedPeers();
 			if (randomlySelectPreferredNeighbors.get()) {
@@ -146,7 +153,8 @@ public class PeerHandler implements Runnable {
 					peerInfo.bytesDownloaded.set(0);
 				}
 
-				// select preferred by ranking ..here based on download rates and 
+				// select preferred by ranking ..here based on download rates
+				// and
 				// randomly in case of conflict or if sender has complete file
 				kPreferredNeighbors.clear();
 				kPreferredNeighbors.addAll(interestedPeers.subList(0,
@@ -156,17 +164,17 @@ public class PeerHandler implements Runnable {
 					logger.debug("Peer [" + peerID + "] has the preferred neighbours " + kPreferredNeighbors);
 				}
 
-				// From all peers remove K-preferred 
+				// From all peers remove K-preferred
 				Collection<PeerInfo> chokedPeers = new LinkedList<>(getAllConnectedNeighbours());
 				chokedPeers.removeAll(kPreferredNeighbors);
 				chokedPeersIDs.addAll(getPeerIds(chokedPeers));
 
-				
 				// List of Choked peers which are optimistically unchokable
 				if (peerProperties.getNumberOfPreferredNeighbors() >= interestedPeers.size()) {
 					optUnchokablePeers = new ArrayList<>();
 				} else {
-					// list of peers which are not going to be in the list of k preferred
+					// list of peers which are not going to be in the list of k
+					// preferred
 					// are considered for Optimistic Unchoking
 					optUnchokablePeers = interestedPeers.subList(peerProperties.getNumberOfPreferredNeighbors(),
 							interestedPeers.size());

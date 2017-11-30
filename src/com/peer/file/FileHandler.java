@@ -97,11 +97,13 @@ public class FileHandler {
 				return false;
 			}
 		}
+		logger.info("isEverythingComplete end");
 		closeAllSockets();
 		return true;
 	}
 
 	private void closeAllSockets() {
+		logger.info("closeAll");
 		peerMap.values().forEach(peerInfo -> {
 			try {
 				peerInfo.getClientSocket().close();

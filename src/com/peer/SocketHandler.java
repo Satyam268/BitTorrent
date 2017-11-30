@@ -57,11 +57,13 @@ public class SocketHandler implements Runnable {
 					break;
 				}
 			}
-			if(fileHandler.isEverythingComplete()) {
-				logger.info("---------Socket Exception File Exit---------");
+			if (fileHandler.isEverythingComplete()) {
+				logger.info("No.of active threads were: " + Thread.activeCount());
 				System.exit(0);
 			}
-		} catch (Exception e1) {
+		} catch (
+
+		Exception e1) {
 			logger.warn("Problem Connecting to peer: " + neighborId + " " + e1);
 		}
 	}
