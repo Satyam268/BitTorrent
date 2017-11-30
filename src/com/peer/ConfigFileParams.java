@@ -6,9 +6,10 @@ public class ConfigFileParams {
     int listeningPort;
     int hasFile;
     
-    public ConfigFileParams(String line) {
+    public ConfigFileParams(String line) throws Exception{
     	String[] metaInfo = line.split(" ");
         if(metaInfo.length!=4) {
+        	throw new Exception("Config file error");
         }
     	peerId = Integer.parseInt(metaInfo[0]);
         hostName = metaInfo[1];
