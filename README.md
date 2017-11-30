@@ -22,9 +22,9 @@ Details of the protocol can be found in the project details folder of the projec
 	Example Config file looks something this:--
 	
 	```	 
-	1001 192.168.0.6 6008 1
-	1002 192.168.0.13 6008 0
-	1003 192.168.0.13 6009 0
+	1001 192.168.0.6 6008 1\n
+	1002 192.168.0.13 6008 0\n
+	1003 192.168.0.13 6009 0\n
 	```
 	
 	b. Common.cfg file where general information about the   system can be changed.
