@@ -54,7 +54,6 @@ public class SocketHandler implements Runnable {
 					messageHandler.handleMessage();
 				} catch (Exception e) {
 					if (fileHandler.isEverythingComplete()) {
-						logger.info("2 No.of active threads were: " + Thread.activeCount());
 						System.exit(0);
 					}
 					fileHandler.closeAllSockets();
@@ -62,9 +61,8 @@ public class SocketHandler implements Runnable {
 				}
 			}
 		} catch (Exception e1) {
-			logger.info("3 No.of active threads were: " + Thread.activeCount());
+			fileHandler.closeAllSockets();
 			System.exit(0);
-			logger.warn("Problem Connecting to peer: " + neighborId + " " + e1);
 		}
 	}
 
@@ -74,8 +72,6 @@ public class SocketHandler implements Runnable {
 			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
 			bitFieldMessage.write(out2);
-			logger.info("------ Sent bitField Message with details: " + bitFieldMessage + "to peerID" + neighborId
-					+ "-------");
 		} catch (IOException e) {
 			logger.warn("Unable to write bitField Message to Peer: " + neighborId + " " + e);
 		}

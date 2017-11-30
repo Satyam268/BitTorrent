@@ -1,5 +1,6 @@
 package com.peer.file;
 
+import java.beans.PersistenceDelegate;
 import java.io.File;
 import java.io.IOException;
 import java.util.BitSet;
@@ -74,6 +75,7 @@ public class FileHandler {
 				logger.info("No.of active threads were: " + Thread.activeCount());
 				System.exit(0);
 			}*/
+
 		}
 	}
 
@@ -94,6 +96,7 @@ public class FileHandler {
 	public synchronized boolean isEverythingComplete() {
 		for (PeerInfo peerInfo : peerMap.values()) {
 			if (peerInfo.getBitfield().cardinality() != getBitmapSize()) {
+				logger.info("Breaking for "+" peerId"+peerInfo.getPeerId()+" "+peerInfo.getBitfield());
 				return false;
 			}
 		}

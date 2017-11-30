@@ -42,6 +42,7 @@ public class MessageHandler {
 		message = (ActualMsg) in.readObject();
 		// logger.info(" ------ incoming message " + message + " received from "
 		// +clientPeerID + " -----------------------");
+
 		MessageType msgType = message.getType();
 		switch (msgType) {
 		case BITFIELD:
@@ -135,7 +136,6 @@ public class MessageHandler {
 	private synchronized void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
 		int pieceIndex = CommonUtils.byteArrayToInt(message.getPayload());
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
-
 		if (fileHandler.isEverythingComplete()) {
 			logger.info("-----------System.exit()-----------");
 			System.exit(0);
