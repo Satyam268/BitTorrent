@@ -40,8 +40,8 @@ public class MessageHandler {
 	public void handleMessage() throws ClassNotFoundException, IOException {
 		ActualMsg message = null;
 		message = (ActualMsg) in.readObject();
-		// logger.info(" ------ incoming message " + message + " received from " +
-		// clientPeerID + " -----------------------");
+		 logger.info(" ------ incoming message " + message + " received from " +
+		 clientPeerID + " -----------------------");
 		MessageType msgType = message.getType();
 		switch (msgType) {
 		case BITFIELD:
@@ -101,7 +101,7 @@ public class MessageHandler {
 		interestedMessage.write(out);
 	}
 
-	private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
+	synchronized private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
 		// fileHandler.broadcastHaveMessageToAllPeers(peerInfo.getRequestedPieceIndex());
@@ -116,11 +116,12 @@ public class MessageHandler {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
-		System.out.println("Intereted piece ID:- " + interestedPieceId);
+		logger.info("Intereted piece ID:- " + interestedPieceId);
+		
 
 		if (interestedPieceId != -1) {
 			clientPeerInfo.setRequestedPieceIndex(interestedPieceId);
-			System.out.println("Common utils method check" + CommonUtils.intToByteArray(interestedPieceId));
+			logger.info("Common utils method check" + CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.write(out);
 		}
@@ -152,7 +153,7 @@ public class MessageHandler {
 		peerInfo.setInterested(false);
 	}
 
-	private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
+	synchronized private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
 		logger.info("In unchoke messasge handler :-- ");
 		sendRequestMessage(out);
 	}
@@ -162,6 +163,7 @@ public class MessageHandler {
 	}
 
 	private void handleChoke(ActualMsg message) {
+		logger.info("In ><choke>< messasge handler :-- ");
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		peerInfo.setRequestedPieceIndex(-1);
 	}

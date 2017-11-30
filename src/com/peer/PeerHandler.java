@@ -183,16 +183,16 @@ public class PeerHandler implements Runnable {
 			}
 
 			// debug
-			logger.info("STATE: INTERESTED: " + interestedPeers);
-			logger.info("STATE: UNCHOKED (" + peerProperties.getNumberOfPreferredNeighbors() + "): "
-					+ preferredNeighborsIDs);
-			logger.info("STATE: CHOKED:" + chokedPeersIDs);
-
-			for (Entry<Integer, Long> entry : downloadedBytes.entrySet()) {
-				String PREFERRED = preferredNeighborsIDs.contains(entry.getKey()) ? " *" : "";
-				logger.debug("BYTES DOWNLOADED FROM  PEER " + entry.getKey() + ": " + entry.getValue()
-						+ " (INTERESTED PEERS: " + interestedPeers.size() + ": " + interestedPeers + ")\t" + PREFERRED);
-			}
+//			logger.info("STATE: INTERESTED: " + interestedPeers);
+//			logger.info("STATE: UNCHOKED (" + peerProperties.getNumberOfPreferredNeighbors() + "): "
+//					+ preferredNeighborsIDs);
+//			logger.info("STATE: CHOKED:" + chokedPeersIDs);
+//
+//			for (Entry<Integer, Long> entry : downloadedBytes.entrySet()) {
+//				String PREFERRED = preferredNeighborsIDs.contains(entry.getKey()) ? " *" : "";
+//				logger.debug("BYTES DOWNLOADED FROM  PEER " + entry.getKey() + ": " + entry.getValue()
+//						+ " (INTERESTED PEERS: " + interestedPeers.size() + ": " + interestedPeers + ")\t" + PREFERRED);
+//			}
 
 			// 5) NOTIFY PROCESS, IT WILL TAKE CARE OF SENDING CHOKE AND
 			// UNCHOKE

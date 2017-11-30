@@ -58,6 +58,8 @@ public class FileHandler {
 	 * @param piece
 	 */
 	public synchronized void addPiece(int pieceID, byte[] piece, int clientPeerId) {
+		if(pieceID==-1)
+			return;
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
 
 		receivedPieces.set(pieceID);
@@ -76,14 +78,12 @@ public class FileHandler {
 	}
 
 	public synchronized void broadcastHaveMessageToAllPeers(int pieceId) {
-		logger.info("______broadcasting Have message_____________");
-		System.out.println(" peerMap : " + peerMap.size() + " ");
 		peerMap.values().forEach(peerInfo -> {
 			try {
 				Have haveMessage = (Have) Message.getInstance(MessageType.HAVE);
 				haveMessage.setPayload(CommonUtils.intToByteArray(pieceId));
-				System.out.println("Have Message:" + haveMessage);
-				haveMessage.write(peerInfo.getSocketWriter());
+				if(peerInfo.getSocketWriter()!=null)
+					haveMessage.write(peerInfo.getSocketWriter());
 
 			} catch (Exception e) {
 				logger.warn("Could not broadcast \'Have\' to peer_" + peerInfo.getPeerId() + " " + e);
