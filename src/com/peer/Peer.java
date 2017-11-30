@@ -55,7 +55,7 @@ public class Peer {
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
 		try {
-			System.out.println("my peer id:" + peerID);
+			logger.info("Server started on port : " + myInfo.getListeningPort());
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
 			Socket clientSocket;
 			while (true) {
@@ -72,6 +72,7 @@ public class Peer {
 				}
 			}
 		} catch (IOException e) {
+			logger.warn("Listening server stopped. " + e);
 			e.printStackTrace();
 		}
 	}
@@ -85,13 +86,13 @@ public class Peer {
 			handshakeMessage.write(out2);
 			return neighbourID;
 		} catch (Exception e) {
-			logger.debug("Unable to perform handshake.\n" + e);
+			logger.warn("Unable to perform handshake.\n" + e);
 		}
 		return -1;
 	}
 
 	public void connectToPeers(List<Integer> activePeerIds) {
-		
+
 		for (int neighborId : activePeerIds) {
 			doHandShake(neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);

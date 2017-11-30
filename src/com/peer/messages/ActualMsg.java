@@ -53,12 +53,12 @@ public class ActualMsg extends Message {
 	}
 
 	public BitSet getPayloadInBitSet() {
-		System.out.println(this);
 		return BitSet.valueOf(this.payload);
 	}
 
 	public String toString() {
 
-		return "Message Details -- length: " + length + " type: " + type + " payload: " + ((this.getType()==MessageType.PIECE)?"":(new String(payload)));
+		return "Message Details -- length: " + length + " type: " + type + " payload: "
+				+ ((this.getType() == MessageType.PIECE) ? "" : (new String(payload)));
 	}
 }

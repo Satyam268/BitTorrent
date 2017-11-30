@@ -26,7 +26,6 @@ public class PeerProperties {
 		fileSize = fileSize2;
 		fileName = fileName2;
 		pieceSize = pieceSize2;
-		System.out.println("Unchoking interval: " + unchokingInterval);
 	}
 
 	public int getNumberOfPreferredNeighbors() {

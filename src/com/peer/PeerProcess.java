@@ -61,7 +61,7 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1002;
+		int peerId = 1001;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		PeerProcess process = new PeerProcess();

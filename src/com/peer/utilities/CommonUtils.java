@@ -25,7 +25,6 @@ public class CommonUtils {
 	}
 
 	public static boolean hasAnyThingInteresting(BitSet pieceField, BitSet bitSet) {
-		System.out.println("In Has Anything Interesting: piece "+pieceField+ "  bitSet"+ bitSet);
 		BitSet requiredPieces = getRequiredPieces(pieceField, bitSet);
 		for (int i = 0; i < requiredPieces.length(); i++) {
 			if (requiredPieces.get(i))
