@@ -3,8 +3,10 @@ package com.peer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,10 +63,22 @@ public class PeerProcess {
 		}
 	}
 
+	public static void deleteFiles(String dir) {
+		Path dirPath = Paths.get(dir);
+		try {
+			Files.walk(dirPath).map(Path::toFile).sorted(Comparator.comparing(File::isDirectory)).forEach(File::delete);
+			// System.out.println(x);
+		} catch (IOException e) {
+			System.out.println("exception " + e);
+		}
+	}
+
 	public static void main(String[] args) {
 		int peerId = 1003;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
+		deleteFiles(Paths.get("com").toString());
+		deleteFiles(Paths.get("pieceStore").toString());
 		PeerProcess process = new PeerProcess();
 		process.readCommonCFGFile();
 		process.readPeerInfoFile(peerId);

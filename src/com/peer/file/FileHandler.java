@@ -105,6 +105,11 @@ public class FileHandler {
 	}
 
 	public void closeAllSockets() {
+		for(PeerInfo info:peerMap.values()) {
+			if(info.getClientSocket() == null)
+				return;
+		}
+		
 		peerMap.values().forEach(peerInfo -> {
 			try {
 				peerInfo.getClientSocket().close();
