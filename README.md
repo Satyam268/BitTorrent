@@ -27,7 +27,8 @@ Details of the protocol can be found in the project details folder of the projec
 	1003 192.168.0.13 6009 0\n
 	```
 	
-	b. Common.cfg file where general information about the   system can be changed.
+	b. Common.cfg file where general information about the system can be changed.
+	
 	```
 	NumberOfPreferredNeighbors 0
 	UnchokingInterval 10
@@ -35,9 +36,7 @@ Details of the protocol can be found in the project details folder of the projec
 	FileName src\com\peer\configFiles\TheData.dat
 	FileSize 1188528
 	PieceSize 100000
-	```
-
-4.  
+	```  
 ### Owners ###
 Satyam Sinha
 Yash Jain
