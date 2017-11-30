@@ -57,6 +57,10 @@ public class SocketHandler implements Runnable {
 					break;
 				}
 			}
+			if(fileHandler.isEverythingComplete()) {
+				logger.info("---------Socket Exception File Exit---------");
+				System.exit(0);
+			}
 		} catch (Exception e1) {
 			logger.warn("Problem Connecting to peer: " + neighborId + " " + e1);
 		}

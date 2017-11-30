@@ -30,7 +30,6 @@ public class RequestedPieces {
 					public void run() {
 						synchronized (_requestedParts) {
 							_requestedParts.clear(partId);
-							logger.debug("clearing requested parts for pert " + partId);
 						}
 					}
 				}, _timeoutInMillis);
