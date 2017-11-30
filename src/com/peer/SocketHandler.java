@@ -53,17 +53,17 @@ public class SocketHandler implements Runnable {
 				try {
 					messageHandler.handleMessage();
 				} catch (Exception e) {
-					logger.warn("problem with mesage/connection  with peerID:" + neighborId + " " + e);
-					break;
+					if (fileHandler.isEverythingComplete()) {
+						logger.info("2 No.of active threads were: " + Thread.activeCount());
+						System.exit(0);
+					}
+					fileHandler.closeAllSockets();
+					System.exit(0);
 				}
 			}
-			if (fileHandler.isEverythingComplete()) {
-				logger.info("No.of active threads were: " + Thread.activeCount());
-				System.exit(0);
-			}
-		} catch (
-
-		Exception e1) {
+		} catch (Exception e1) {
+			logger.info("3 No.of active threads were: " + Thread.activeCount());
+			System.exit(0);
 			logger.warn("Problem Connecting to peer: " + neighborId + " " + e1);
 		}
 	}

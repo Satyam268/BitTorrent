@@ -40,7 +40,8 @@ public class MessageHandler {
 	public void handleMessage() throws ClassNotFoundException, IOException {
 		ActualMsg message = null;
 		message = (ActualMsg) in.readObject();
-		 //logger.info(" ------ incoming message " + message + " received from " +clientPeerID + " -----------------------");
+		// logger.info(" ------ incoming message " + message + " received from "
+		// +clientPeerID + " -----------------------");
 		MessageType msgType = message.getType();
 		switch (msgType) {
 		case BITFIELD:
@@ -100,7 +101,7 @@ public class MessageHandler {
 
 	synchronized private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
-		if(peerInfo.getRequestedPieceIndex()==-1)
+		if (peerInfo.getRequestedPieceIndex() == -1)
 			return;
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
 		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
@@ -131,10 +132,10 @@ public class MessageHandler {
 		pieceMessage.write(out);
 	}
 
-	private void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
+	private synchronized void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
 		int pieceIndex = CommonUtils.byteArrayToInt(message.getPayload());
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
-		logger.info("bitset after have looks like:" + peerMap.get(clientPeerID).getBitfield());
+
 		if (fileHandler.isEverythingComplete()) {
 			logger.info("-----------System.exit()-----------");
 			System.exit(0);
