@@ -71,12 +71,10 @@ public class FileHandler {
 		}
 		if (isFileCompleted()) {
 			fileOps.mergeFile(receivedPieces.cardinality());
-			/*
-			 * if (isEverythingComplete()) {
-			 * logger.info("No.of active threads were: " +
-			 * Thread.activeCount()); System.exit(0); }
-			 */
-
+			if (isEverythingComplete()) {
+				logger.info("No.of active threads were: " + Thread.activeCount());
+				System.exit(0);
+			}
 		}
 	}
 
@@ -106,10 +104,7 @@ public class FileHandler {
 	}
 
 	public void closeAllSockets() {
-		for (PeerInfo info : peerMap.values()) {
-			if (info.getClientSocket() == null)
-				return;
-		}
+
 		peerMap.values().forEach(peerInfo -> {
 			try {
 				peerInfo.getClientSocket().close();

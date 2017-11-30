@@ -53,16 +53,13 @@ public class SocketHandler implements Runnable {
 				try {
 					messageHandler.handleMessage();
 				} catch (Exception e) {
-					if (fileHandler.isEverythingComplete()) {
-						System.exit(0);
-					}
-					fileHandler.closeAllSockets();
-					System.exit(0);
+					e.printStackTrace();
+					logger.warn("some big issue inside of message handler"+ e.getStackTrace().toString());
 				}
 			}
 		} catch (Exception e1) {
-			fileHandler.closeAllSockets();
-			System.exit(0);
+			e1.printStackTrace();
+			logger.warn("some issue in socket");
 		}
 	}
 

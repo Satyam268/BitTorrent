@@ -74,28 +74,5 @@ public class CommonUtils {
 		String[] indexes = set.substring(1, set.length() - 1).split(",");
 		return Integer.parseInt(indexes[(int) (Math.random() * (indexes.length - 1))].trim());
 	}
-/*
-	public synchronized static boolean isEverythingComplete(Map<Integer,PeerInfo> peerMap, int pieceSize) {
-		for (PeerInfo peerInfo : peerMap.values()) {
-			if (peerInfo.getBitfield().cardinality() != pieceSize) {
-				return false;
-			}
-		}
-		logger.info("isEverythingComplete end");
-		closeAllSockets(peerMap);
-		return true;
-	}
 
-	private static void closeAllSockets(Map<Integer,PeerInfo> peerMap) {
-		logger.info("closeAll");
-		peerMap.values().forEach(peerInfo -> {
-			try {
-				peerInfo.getClientSocket().close();
-			} catch (IOException e) {
-				logger.warn("Problem closing Socket: " + e);
-			}
-		});
-	}
-
-	*/
 }

@@ -39,9 +39,12 @@ public class MessageHandler {
 
 	public void handleMessage() throws ClassNotFoundException, IOException {
 		try {
+
 			ActualMsg message = null;
+
 			message = (ActualMsg) in.readObject();
-			 logger.info(" ------ incoming message " + message + " received from " +clientPeerID + " -----------------------");
+			logger.info(" ------ incoming message " + message + " received from " + clientPeerID
+					+ " -----------------------");
 
 			MessageType msgType = message.getType();
 			switch (msgType) {
@@ -80,7 +83,8 @@ public class MessageHandler {
 				break;
 			}
 		} catch (Exception e) {
-			logger.warn("---- Bloody exception " + e);
+			e.printStackTrace();
+			logger.warn("---- Bloody exception ---" + e);
 			throw e;
 		}
 	}
@@ -147,12 +151,13 @@ public class MessageHandler {
 	private synchronized void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {
 		int pieceIndex = CommonUtils.byteArrayToInt(message.getPayload());
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
+		if (!fileHandler.hasPiece(pieceIndex))
+			sendInterestedMessage(out);
+
 		if (fileHandler.isEverythingComplete()) {
 			logger.info("-----------System.exit()-----------");
 			System.exit(0);
 		}
-		if (!fileHandler.hasPiece(pieceIndex))
-			sendInterestedMessage(out);
 	}
 
 	private void handleNotInterested(ActualMsg message) {
