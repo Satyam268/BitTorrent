@@ -119,7 +119,7 @@ public class PeerHandler implements Runnable {
 
 	@Override
 	public void run() {
-		optUnchoker.start();
+		//optUnchoker.start();
 
 		while (true) {
 			try {
@@ -183,6 +183,19 @@ public class PeerHandler implements Runnable {
 				preferredNeighborsIDs.addAll(getPeerIds(kPreferredNeighbors));
 			}
 
+//			logger.info("STATE: INTERESTED: " + interestedPeers);
+//			logger.info("STATE: UNCHOKED (" + peerProperties.getNumberOfPreferredNeighbors() + "): "
+//					+ preferredNeighborsIDs);
+//			logger.info("STATE: CHOKED:" + chokedPeersIDs);
+//
+//			for (Map.Entry<Integer, Long> entry : downloadedBytes.entrySet()) {
+//				String PREFERRED = preferredNeighborsIDs.contains(entry.getKey()) ? " *" : "";
+//				logger.debug("BYTES DOWNLOADED FROM  PEER " + entry.getKey() + ": " + entry.getValue()
+//						+ " (INTERESTED PEERS: " + interestedPeers.size() + ": " + interestedPeers + ")\t" + PREFERRED);
+//			}
+
+			
+			
 			chokedPeersIDs.forEach(id -> {
 				try {
 					sendChoke(peerMap.get(id).getSocketWriter());

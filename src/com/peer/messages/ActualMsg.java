@@ -14,9 +14,11 @@ public class ActualMsg extends Message {
 
 	protected int length;
 	protected MessageType type;
-	protected byte[] payload;
+	protected byte[] payload = new byte[0];
 	final static Logger logger = Logger.getLogger(ActualMsg.class);
 
+	public ActualMsg() {
+	}
 
 	public ByteArrayOutputStream makePacket() throws IOException{
 		ByteArrayOutputStream packetStream = new ByteArrayOutputStream();

@@ -54,6 +54,7 @@ public class SocketHandler implements Runnable {
 				} catch (Exception e) {
 					e.printStackTrace();
 					logger.warn("some issue inside of message handler" + e);
+					break;
 					// break; because we don't want to stop listening if a odd
 					// packet comes in
 				}

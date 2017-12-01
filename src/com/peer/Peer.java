@@ -78,6 +78,7 @@ public class Peer {
 			if (isValidHandshake(msg)) {
 				HandshakeMsg handshakeResponse = new HandshakeMsg(peerID);
 				handshakeResponse.write(out2);
+				return msg.getPeerID();
 			}
 		} catch (Exception e) {
 			logger.warn("Unable to perform handshake.\n" + e);
@@ -86,6 +87,7 @@ public class Peer {
 	}
 
 	public void connectToPeers(List<Integer> activePeerIds) {
+		logger.info("active peerIDs: "+ activePeerIds);
 		for (int neighborId : activePeerIds) {
 			doHandShake(neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
@@ -97,13 +99,18 @@ public class Peer {
 
 	public void doHandShake(int neighborId) {
 		PeerInfo neighborInfo = peerMap.get(neighborId);
+		logger.info("Connecting to peerIDs: "+ neighborId);
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
 			HandshakeMsg handshakeMessage = new HandshakeMsg(peerID);
 			OutputStream out = neighborSocket.getOutputStream();
 			InputStream in = neighborSocket.getInputStream();
+			logger.info("Before writing to: "+ neighborId);
 			handshakeMessage.write(out);
+			logger.info("After writing to : "+ neighborId);
 			handleHandshakeClient(in, out, neighborSocket, neighborId);
+			logger.info("Done Reading handshake from : "+ neighborId);
+			
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		} catch (Exception e) {

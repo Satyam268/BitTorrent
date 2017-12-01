@@ -63,7 +63,7 @@ public class FileHandler {
 		if (pieceID == -1) // Redundant
 			return;
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
-
+		System.out.println("piece length inside filehandler"+ piece.length);
 		receivedPieces.set(pieceID);
 
 		if (isNewPiece) {

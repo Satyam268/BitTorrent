@@ -96,24 +96,29 @@ public class MessageHandler {
 		byte[] bitFieldMsgLengthArray = new byte[4];
 		in.read(bitFieldMsgLengthArray, 0, 4);
 		msg.setLength(ByteBuffer.wrap(bitFieldMsgLengthArray, 0, 4).getInt());
-
+		logger.info("read packet len : " + msg.getLength());
+		
 		byte[] msgType = new byte[1];
 		in.read(msgType, 0, 1);
-		msg.setType(MessageType.getMessageType(msgType[0]));
-
+		msg.setType(MessageType.getMessageType(ByteBuffer.wrap(msgType,0,1).get()));
+		logger.info("read packet type : " + msg.getType());
+		
 		// messageType = ByteBuffer.wrap(msgType, 0, 1).get();
 		byte[] payload = null;
 		if (msg.getLength() > 1) {
 			payload = new byte[msg.getLength() - 1];
-			in.read(payload, 0, msg.getLength() - 1);
+			int lengread =  in.read(payload, 0, msg.getLength() - 1);
+			System.out.println("length read :"+lengread);
+			msg.setPayload(payload);
 		}
+		
+		logger.info("read packet bits : " + msg.getPayloadInBitSet());
 		return msg;
 	}
 
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
-		BitField bitFieldMessage = (BitField) message;
-		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
-		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
+		peerMap.get(clientPeerID).setBitfield(message.getPayloadInBitSet());
+		if (CommonUtils.hasAnyThingInteresting(message.getPayloadInBitSet(), myInfo.getBitfield())) {
 			sendInterestedMessage(out);
 		} else {
 			sendNotInterestedMessage(out);
@@ -162,7 +167,7 @@ public class MessageHandler {
 		logger.debug("In handle request requested piece- " + pieceIndex);
 		byte[] piece = fileHandler.getPiece(pieceIndex);
 		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
-		pieceMessage.setLength(piece.length);
+		pieceMessage.setLength(piece.length+1);
 		pieceMessage.setPayload(piece);
 		pieceMessage.write(out);
 	}

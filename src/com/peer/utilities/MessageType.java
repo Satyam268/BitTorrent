@@ -28,6 +28,7 @@ public enum MessageType {
 				return type;
 			}
 		}
+		System.out.println("byte value: "+val);
 		throw new IllegalArgumentException();
 	}
 }
