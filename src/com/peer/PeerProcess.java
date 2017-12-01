@@ -72,7 +72,7 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1005;
+		int peerId = 1001;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		deleteFiles(Paths.get("com").toString());
@@ -82,6 +82,7 @@ public class PeerProcess {
 		process.readPeerInfoFile(peerId);
 		process.setupPeer(peerId);
 	}
+
 	private void setupPeer(int peerId) {
 		PeerInfo myInfo = neighborMap.remove(peerId);
 		this.peer = new Peer(peerId, peerProperties, neighborMap, myInfo);

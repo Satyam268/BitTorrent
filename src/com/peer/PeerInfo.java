@@ -75,7 +75,7 @@ public class PeerInfo {
 		this.choked = false;
 	}
 
-	//get return clone
+	// get return clone
 	public BitSet getBitfield() {
 		return (BitSet) bitfield.clone();
 	}

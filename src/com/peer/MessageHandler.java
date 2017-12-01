@@ -105,6 +105,7 @@ public class MessageHandler {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		if (peerInfo.getRequestedPieceIndex() == -1)
 			return;
+
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
 		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
 				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]");

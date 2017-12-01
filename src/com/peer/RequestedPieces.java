@@ -12,8 +12,8 @@ public class RequestedPieces {
 	private final long timeOut;
 	final static Logger logger = Logger.getLogger(RequestedPieces.class);
 
-	public RequestedPieces(int nParts, long unchokingInterval, BitSet receivedParts) {
-		reqPieces = receivedParts;
+	public RequestedPieces(int nParts, long unchokingInterval) {
+		reqPieces = new BitSet(nParts);
 		timeOut = unchokingInterval * 2;
 	}
 

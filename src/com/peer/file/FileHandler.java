@@ -50,7 +50,7 @@ public class FileHandler {
 			receivedPieces.set(0, bitsetSize);
 			properties.randomlySelectPreferredNeighbors.set(true);
 		}
-		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval(), peerInfo.bitfield);
+		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
 		this.properties = properties;
 
 	}

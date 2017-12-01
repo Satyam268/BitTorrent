@@ -65,7 +65,7 @@ public class SocketHandler implements Runnable {
 
 	private void sendBitFieldMessage(ObjectOutputStream out2) {
 		try {
-			ActualMsg bitFieldMessage = new ActualMsg();
+			ActualMsg bitFieldMessage = new BitField();
 			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
 			bitFieldMessage.write(out2);
