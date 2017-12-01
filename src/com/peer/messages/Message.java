@@ -1,7 +1,13 @@
 package com.peer.messages;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.BitSet;
+
+import org.omg.PortableInterceptor.INACTIVE;
 
 import com.peer.Peer;
 import com.peer.messages.types.BitField;
@@ -12,10 +18,11 @@ import com.peer.messages.types.NotInterested;
 import com.peer.messages.types.Piece;
 import com.peer.messages.types.Request;
 import com.peer.messages.types.Unchoke;
+import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
 
 public class Message implements Serializable {
-	private static final long serialVersionUID = 1L;
+
 	Peer peer;
 	Message() {
 	}

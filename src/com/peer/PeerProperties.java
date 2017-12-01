@@ -1,5 +1,7 @@
 package com.peer;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class PeerProperties {
 
 	int numberOfPreferredNeighbors;
@@ -9,6 +11,7 @@ public class PeerProperties {
 	int fileSize;
 	int pieceSize;
 	int hasFile;
+	public AtomicBoolean randomlySelectPreferredNeighbors = new AtomicBoolean(false); // Whether a peer selects neighbors randomly or not!!!
 
 	public int getHasFile() {
 		return hasFile;

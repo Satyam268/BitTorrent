@@ -1,12 +1,13 @@
 package com.peer.messages;
 
-import java.io.DataOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.BitSet;
 
 import org.apache.log4j.Logger;
 
+import com.peer.utilities.CommonUtils;
 import com.peer.utilities.MessageType;
 
 public class ActualMsg extends Message {
@@ -16,17 +17,27 @@ public class ActualMsg extends Message {
 	protected byte[] payload;
 	final static Logger logger = Logger.getLogger(ActualMsg.class);
 
-	public ActualMsg() {
+
+	public ByteArrayOutputStream makePacket() throws IOException{
+		ByteArrayOutputStream packetStream = new ByteArrayOutputStream();
+		byte[] packetLength = CommonUtils.intToByteArray(this.getLength());
+		packetStream.write(packetLength);
+		packetStream.write(type.getValue());
+		if(this.getLength()>1){
+			packetStream.write(payload);
+		}
+		return packetStream;
 	}
 
-	public ActualMsg(DataOutputStream in) {
+	/*public void read(InputStream inputStream){
 
+	}*/
+
+	public void write(OutputStream outputStream) throws IOException{
+		ByteArrayOutputStream packet = makePacket();
+		outputStream.write(packet.toByteArray());
 	}
 
-	public void write(ObjectOutputStream out) throws IOException {
-		//logger.info(">>>>>>>>>>>>>>>>>>>>> Sent Message details " + this+">>>>>>>>>>>>>>>>>>>>>");
-		out.writeObject(this);
-	}
 
 	public int getLength() {
 		return length;
@@ -57,7 +68,6 @@ public class ActualMsg extends Message {
 	}
 
 	public String toString() {
-
 		return "Message Details -- length: " + length + " type: " + type + " payload: "
 				+ ((this.getType() == MessageType.PIECE) ? "" : (new String(payload)));
 	}

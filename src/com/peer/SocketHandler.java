@@ -1,10 +1,9 @@
 package com.peer;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.BitSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -17,8 +16,8 @@ public class SocketHandler implements Runnable {
 
 	Socket socket;
 	PeerInfo peerClient;
-	private ObjectInputStream in;
-	private ObjectOutputStream out;
+	private InputStream in;
+	private OutputStream out;
 	private Map<Integer, PeerInfo> peerMap;
 	private int neighborId;
 	private PeerInfo myInfo;
@@ -30,7 +29,7 @@ public class SocketHandler implements Runnable {
 		peerClient = peerInfo;
 	}
 
-	public SocketHandler(Socket clientSocket, ObjectInputStream in2, ObjectOutputStream out2, PeerInfo myInfo,
+	public SocketHandler(Socket clientSocket, InputStream in2, OutputStream out2, PeerInfo myInfo,
 			Map<Integer, PeerInfo> peerMap, int neighborId, FileHandler fileHandler) {
 		socket = clientSocket;
 		this.in = in2;
@@ -54,7 +53,9 @@ public class SocketHandler implements Runnable {
 					messageHandler.handleMessage();
 				} catch (Exception e) {
 					e.printStackTrace();
-					logger.warn("some big issue inside of message handler"+ e.getStackTrace().toString());
+					logger.warn("some issue inside of message handler" + e);
+					// break; because we don't want to stop listening if a odd
+					// packet comes in
 				}
 			}
 		} catch (Exception e1) {
@@ -63,7 +64,7 @@ public class SocketHandler implements Runnable {
 		}
 	}
 
-	private void sendBitFieldMessage(ObjectOutputStream out2) {
+	private void sendBitFieldMessage(OutputStream out2) {
 		try {
 			ActualMsg bitFieldMessage = new BitField();
 			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);

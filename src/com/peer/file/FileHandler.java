@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
@@ -29,7 +30,7 @@ public class FileHandler {
 	int bitsetSize;
 	int peerID;
 	int hasFile;
-
+	PeerProperties properties;
 	public FileHandler(int peerId, PeerProperties properties, Map<Integer, PeerInfo> peerMap, int hasFile) {
 		this.peerMap = peerMap;
 		this.hasFile = hasFile;
@@ -45,7 +46,7 @@ public class FileHandler {
 			receivedPieces.set(0, bitsetSize);
 		}
 		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
-
+		this.properties = properties;
 	}
 
 	public FileHandler(int peerId) {
@@ -68,8 +69,12 @@ public class FileHandler {
 		if (isNewPiece) {
 			fileOps.writePieceToFile(piece, pieceID, clientPeerId);
 			broadcastHaveMessageToAllPeers(pieceID);
+			int bytesDownloaded = peerMap.get(clientPeerId).bytesDownloaded.get()+piece.length;
+			peerMap.get(clientPeerId).bytesDownloaded.set(bytesDownloaded);
 		}
 		if (isFileCompleted()) {
+			//randomlySelectPreferredNeighbors
+			properties.randomlySelectPreferredNeighbors.set(true);
 			fileOps.mergeFile(receivedPieces.cardinality());
 			if (isEverythingComplete()) {
 				logger.info("No.of active threads were: " + Thread.activeCount());
@@ -94,6 +99,7 @@ public class FileHandler {
 
 	public synchronized boolean isEverythingComplete() {
 		for (PeerInfo peerInfo : peerMap.values()) {
+			logger.info("--------------------  "+ peerInfo.getBitfield().cardinality() + " "+getBitmapSize() +" ");
 			if (peerInfo.getBitfield().cardinality() != getBitmapSize()) {
 				logger.info("Breaking for " + " peerId" + peerInfo.getPeerId() + " " + peerInfo.getBitfield());
 				return false;
@@ -104,7 +110,6 @@ public class FileHandler {
 	}
 
 	public void closeAllSockets() {
-
 		peerMap.values().forEach(peerInfo -> {
 			try {
 				peerInfo.getClientSocket().close();

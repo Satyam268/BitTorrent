@@ -1,31 +1,26 @@
 package com.peer;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
 import com.peer.file.FileHandler;
-import com.peer.file.FileOperations;
 import com.peer.messages.HandshakeMsg;
-import com.peer.messages.types.Piece;
 
 public class Peer {
 
 	private int peerID;
 	private PeerInfo myInfo;
 	private BitSet bitfield;
-
 	// has a
 	PeerProperties properties;
 
@@ -53,18 +48,17 @@ public class Peer {
 
 	// listening on port for new connections
 	public void startServer() {
-		ObjectOutputStream out = null;
-		ObjectInputStream in = null;
+		OutputStream out = null;
+		InputStream in = null;
 		try {
 			logger.info("Server started on port : " + myInfo.getListeningPort());
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
 			Socket clientSocket;
 			while (true) {
 				clientSocket = serverSocket.accept();
-				in = new ObjectInputStream(clientSocket.getInputStream());
-				out = new ObjectOutputStream(clientSocket.getOutputStream());
-
-				int neighborId = handleHandshakeMessage(in, out);
+				in = clientSocket.getInputStream();
+				out = clientSocket.getOutputStream();
+				int neighborId = handleHandshakeServer(in, out);
 				if (neighborId != -1) {
 					setSocketDetailsToPeerMap(neighborId, clientSocket, in, out);
 					Thread t = new Thread(
@@ -78,14 +72,13 @@ public class Peer {
 		}
 	}
 
-	private int handleHandshakeMessage(ObjectInputStream in2, ObjectOutputStream out2) {
-		HandshakeMsg handshakeMessage = new HandshakeMsg(peerID);
+	private int handleHandshakeServer(InputStream in2, OutputStream out2) {
 		try {
-			handshakeMessage.read(in2);
-			int neighbourID = handshakeMessage.getPeerID();
-			peerMap.put(neighbourID, new PeerInfo(neighbourID));
-			handshakeMessage.write(out2);
-			return neighbourID;
+			HandshakeMsg msg = readIncomingMessage(in2);
+			if (isValidHandshake(msg)) {
+				HandshakeMsg handshakeResponse = new HandshakeMsg(peerID);
+				handshakeResponse.write(out2);
+			}
 		} catch (Exception e) {
 			logger.warn("Unable to perform handshake.\n" + e);
 		}
@@ -93,7 +86,6 @@ public class Peer {
 	}
 
 	public void connectToPeers(List<Integer> activePeerIds) {
-
 		for (int neighborId : activePeerIds) {
 			doHandShake(neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
@@ -107,12 +99,11 @@ public class Peer {
 		PeerInfo neighborInfo = peerMap.get(neighborId);
 		try {
 			Socket neighborSocket = new Socket(neighborInfo.getHostName(), neighborInfo.getListeningPort());
-			HandshakeMsg handshakeMessage = new HandshakeMsg(myInfo.getPeerId());
-			ObjectOutputStream out = new ObjectOutputStream(neighborSocket.getOutputStream());
-			ObjectInputStream in = new ObjectInputStream(neighborSocket.getInputStream());
+			HandshakeMsg handshakeMessage = new HandshakeMsg(peerID);
+			OutputStream out = neighborSocket.getOutputStream();
+			InputStream in = neighborSocket.getInputStream();
 			handshakeMessage.write(out);
-			handshakeMessage.read(in);
-			setSocketDetailsToPeerMap(neighborId, neighborSocket, in, out);
+			handleHandshakeClient(in, out, neighborSocket, neighborId);
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		} catch (Exception e) {
@@ -121,8 +112,38 @@ public class Peer {
 
 	}
 
-	private void setSocketDetailsToPeerMap(int neighborId, Socket neighborSocket, ObjectInputStream in,
-			ObjectOutputStream out) {
+	private void handleHandshakeClient(InputStream in, OutputStream out, Socket neighbourSocket, int neighbourID)
+			throws IOException {
+		HandshakeMsg incomingHandShake = readIncomingMessage(in);
+		if (isValidHandshake(incomingHandShake)) {
+			setSocketDetailsToPeerMap(neighbourID, neighbourSocket, in, out);
+		}
+	}
+
+	private boolean isValidHandshake(HandshakeMsg incomingHandShake) {
+		if (!incomingHandShake.handshakeHeader.equals("P2PFILESHARINGPROJ")) {
+			logger.info("Header mismatch in handshake");
+			return false;
+		}
+		return true;
+	}
+
+	private HandshakeMsg readIncomingMessage(InputStream in) throws IOException {
+		HandshakeMsg msg = new HandshakeMsg();
+		byte[] handshakeHead = new byte[18];
+		in.read(handshakeHead, 0, handshakeHead.length);
+		msg.handshakeHeader = new String(handshakeHead);
+		byte[] zeroBits = new byte[10];
+		in.read(zeroBits, 0, 10);
+		msg.zeroBits = zeroBits;
+
+		byte[] peerId = new byte[4];
+		in.read(peerId, 0, 4);
+		msg.peerId = peerId;
+		return msg;
+	}
+
+	private void setSocketDetailsToPeerMap(int neighborId, Socket neighborSocket, InputStream in, OutputStream out) {
 		peerMap.get(neighborId).setClientSocket(neighborSocket);
 		peerMap.get(neighborId).setSocketReader(in);
 		peerMap.get(neighborId).setSocketWriter(out);

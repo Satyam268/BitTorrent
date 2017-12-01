@@ -1,16 +1,19 @@
 package com.peer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import com.peer.file.FileHandler;
 import com.peer.messages.ActualMsg;
 import com.peer.messages.Message;
 import com.peer.messages.types.BitField;
-import com.peer.messages.types.Have;
 import com.peer.messages.types.Interested;
 import com.peer.messages.types.NotInterested;
 import com.peer.messages.types.Piece;
@@ -20,14 +23,14 @@ import com.peer.utilities.MessageType;
 
 public class MessageHandler {
 	final static Logger logger = Logger.getLogger(MessageHandler.class);
-	private ObjectInputStream in;
-	private ObjectOutputStream out;
+	private InputStream in;
+	private OutputStream out;
 	private PeerInfo myInfo;
 	private Map<Integer, PeerInfo> peerMap;
 	private int clientPeerID;
 	private FileHandler fileHandler;
 
-	public MessageHandler(ObjectInputStream in, ObjectOutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> peerMap,
+	public MessageHandler(InputStream in, OutputStream out, PeerInfo myInfo, Map<Integer, PeerInfo> peerMap,
 			int clientPeerID, FileHandler fileHandler) {
 		this.in = in;
 		this.out = out;
@@ -39,13 +42,12 @@ public class MessageHandler {
 
 	public void handleMessage() throws ClassNotFoundException, IOException {
 		try {
-
 			ActualMsg message = null;
-
-			message = (ActualMsg) in.readObject();
-			logger.info(" ------ incoming message " + message + " received from " + clientPeerID
-					+ " -----------------------");
-
+			message = readIncomingMessage(in);
+			/*
+			 * logger.info(" ------ incoming message " + message +
+			 * " received from " + clientPeerID + " -----------------------");
+			 */
 			MessageType msgType = message.getType();
 			switch (msgType) {
 			case BITFIELD:
@@ -89,6 +91,25 @@ public class MessageHandler {
 		}
 	}
 
+	private ActualMsg readIncomingMessage(InputStream in) throws IOException {
+		ActualMsg msg = new ActualMsg();
+		byte[] bitFieldMsgLengthArray = new byte[4];
+		in.read(bitFieldMsgLengthArray, 0, 4);
+		msg.setLength(ByteBuffer.wrap(bitFieldMsgLengthArray, 0, 4).getInt());
+
+		byte[] msgType = new byte[1];
+		in.read(msgType, 0, 1);
+		msg.setType(MessageType.getMessageType(msgType[0]));
+
+		// messageType = ByteBuffer.wrap(msgType, 0, 1).get();
+		byte[] payload = null;
+		if (msg.getLength() > 1) {
+			payload = new byte[msg.getLength() - 1];
+			in.read(payload, 0, msg.getLength() - 1);
+		}
+		return msg;
+	}
+
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
 		BitField bitFieldMessage = (BitField) message;
 		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
@@ -99,12 +120,12 @@ public class MessageHandler {
 		}
 	}
 
-	private void sendNotInterestedMessage(ObjectOutputStream out) throws IOException, ClassNotFoundException {
+	private void sendNotInterestedMessage(OutputStream out) throws IOException, ClassNotFoundException {
 		NotInterested notInterestedMessage = (NotInterested) Message.getInstance(MessageType.NOTINTERESTED);
 		notInterestedMessage.write(out);
 	}
 
-	private void sendInterestedMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
+	private void sendInterestedMessage(OutputStream out) throws ClassNotFoundException, IOException {
 		Interested interestedMessage = (Interested) Message.getInstance(MessageType.INTERESTED);
 		interestedMessage.write(out);
 	}
@@ -124,7 +145,7 @@ public class MessageHandler {
 		sendRequestMessage(out);
 	}
 
-	synchronized private void sendRequestMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
+	synchronized private void sendRequestMessage(OutputStream out) throws ClassNotFoundException, IOException {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
@@ -138,9 +159,7 @@ public class MessageHandler {
 
 	private void handleRequest(ActualMsg message) throws ClassNotFoundException, IOException {
 		int pieceIndex = CommonUtils.byteArrayToInt(message.getPayload());
-
 		logger.debug("In handle request requested piece- " + pieceIndex);
-
 		byte[] piece = fileHandler.getPiece(pieceIndex);
 		Piece pieceMessage = (Piece) Message.getInstance(MessageType.PIECE);
 		pieceMessage.setLength(piece.length);
@@ -153,10 +172,13 @@ public class MessageHandler {
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
 		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
-
-		if (fileHandler.isEverythingComplete()) {
-			logger.info("-----------System.exit()-----------");
-			System.exit(0);
+		logger.info("PeerId" + clientPeerID + " cardinal: " + peerMap.get(clientPeerID).getBitfield().cardinality()
+				+ " filehandler bitmap size: " + fileHandler.getBitmapSize());
+		if (peerMap.get(clientPeerID).getBitfield().cardinality() == fileHandler.getBitmapSize()) {
+			if (fileHandler.isEverythingComplete()) {
+				logger.info("-----------System.exit()-----------");
+				System.exit(0);
+			}
 		}
 	}
 

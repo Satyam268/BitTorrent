@@ -2,6 +2,7 @@ package com.peer;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +20,6 @@ import org.apache.log4j.Logger;
 import com.peer.messages.Message;
 import com.peer.messages.types.Choke;
 import com.peer.messages.types.Unchoke;
-import com.peer.utilities.CommonUtils;
 import com.peer.utilities.Constants;
 import com.peer.utilities.MessageType;
 
@@ -28,7 +28,6 @@ public class PeerHandler implements Runnable {
 	final static Logger logger = Logger.getLogger(PeerHandler.class);
 	Map<Integer, PeerInfo> peerMap;
 	Collection<PeerInfo> kPreferredNeighbors = new HashSet<PeerInfo>();
-	AtomicBoolean randomlySelectPreferredNeighbors = new AtomicBoolean(false);
 	PeerProperties peerProperties;
 	int peerID;
 
@@ -80,12 +79,9 @@ public class PeerHandler implements Runnable {
 				 */
 
 				optimisticallyUnchokedPeers.forEach(peerInfo -> {
-					peerInfo.unChoke();
-					try {
-						sendUnchoke(peerInfo.getSocketWriter());
-					} catch (Exception e) {
-						logger.warn("Unable to choke peer: " + peerInfo.getPeerId() + " " + e);
-					}
+					sendUnchoke(peerInfo.getSocketWriter());
+					logger.debug("Peer [" + peerID + "] has the optimistically unchoked neighbour [" + peerInfo.peerId
+							+ "]");
 				});
 
 			}
@@ -101,14 +97,24 @@ public class PeerHandler implements Runnable {
 		this.optUnchoker = new OptimisticUnchoker(peerProperties);
 	}
 
-	public void sendUnchoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
-		Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.UNCHOKE);
-		unchokeMessage.write(socketWriter);
+	public void sendUnchoke(OutputStream socketWriter) {
+		try {
+			// is closed thn dont send
+			Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.UNCHOKE);
+			unchokeMessage.write(socketWriter);
+		} catch (Exception e) {
+			logger.warn("Socket connection explicitly closed| can't send unchoke from oum " + e);
+			// possible hack place
+		}
 	}
 
-	public void sendChoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
-		Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
-		chokeMessage.write(socketWriter);
+	public void sendChoke(OutputStream socketWriter) {
+		try {
+			Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
+			chokeMessage.write(socketWriter);
+		} catch (Exception e) {
+			logger.warn("Socket connection explicitly closed| can't send choke from oum " + e);
+		}
 	}
 
 	@Override
@@ -119,17 +125,12 @@ public class PeerHandler implements Runnable {
 			try {
 				Thread.sleep(peerProperties.getUnchokingInterval());
 			} catch (InterruptedException ex) {
+				logger.warn(ex);
 			}
-
-			// check if need to close
-			/*
-			 * if(CommonUtils.isEverythingComplete(peerMap,
-			 * peerProperties.getNumberOfPieces())) System.exit(0);
-			 */
 
 			// Get Peers by preference or randomly
 			List<PeerInfo> interestedPeers = getInterestedPeers();
-			if (randomlySelectPreferredNeighbors.get()) {
+			if (peerProperties.randomlySelectPreferredNeighbors.get()) {
 				Collections.shuffle(interestedPeers);
 			} else {
 				Collections.sort(interestedPeers, new Comparator<PeerInfo>() {
@@ -141,7 +142,6 @@ public class PeerHandler implements Runnable {
 			}
 
 			Collection<PeerInfo> optUnchokablePeers = null;
-
 			Collection<Integer> chokedPeersIDs = new HashSet<>();
 			Collection<Integer> preferredNeighborsIDs = new HashSet<>();
 			Map<Integer, Long> downloadedBytes = new HashMap<>();
@@ -185,8 +185,7 @@ public class PeerHandler implements Runnable {
 
 			chokedPeersIDs.forEach(id -> {
 				try {
-					if (peerMap.get(id).getSocketWriter() != null)
-						sendChoke(peerMap.get(id).getSocketWriter());
+					sendChoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);
 				}
@@ -194,8 +193,7 @@ public class PeerHandler implements Runnable {
 
 			preferredNeighborsIDs.forEach(id -> {
 				try {
-					if (peerMap.get(id).getSocketWriter() != null)
-						sendUnchoke(peerMap.get(id).getSocketWriter());
+					sendUnchoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);
 				}
@@ -206,7 +204,6 @@ public class PeerHandler implements Runnable {
 				optUnchoker.setChokedNeighbors(optUnchokablePeers);
 			}
 		}
-
 	}
 
 	private List<PeerInfo> getAllConnectedNeighbours() {
@@ -234,4 +231,5 @@ public class PeerHandler implements Runnable {
 		}
 		return interestedPeers;
 	}
+
 }

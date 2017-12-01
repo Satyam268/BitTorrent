@@ -1,11 +1,10 @@
 package com.peer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.BitSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PeerInfo {
@@ -27,11 +26,11 @@ public class PeerInfo {
 	String hostName;
 
 	boolean handShaked = false;
-	boolean interested = false;
+	AtomicBoolean interested = new AtomicBoolean(false);
 
-	AtomicInteger bytesDownloaded = new AtomicInteger(0);
-	ObjectInputStream socketReader;
-	ObjectOutputStream socketWriter;
+	public AtomicInteger bytesDownloaded = new AtomicInteger(0);
+	InputStream socketReader;
+	OutputStream socketWriter;
 	AtomicInteger requestedPieceIndex = new AtomicInteger(-1); // after every p time && whenever making a request and
 																// whenever piece
 
@@ -117,26 +116,26 @@ public class PeerInfo {
 	}
 
 	public boolean isInterested() {
-		return interested;
+		return interested.get();
 	}
 
 	public void setInterested(boolean interested) {
-		this.interested = interested;
+		this.interested.set(interested);
 	}
 
-	public ObjectInputStream getSocketReader() {
+	public InputStream getSocketReader() {
 		return socketReader;
 	}
 
-	public void setSocketReader(ObjectInputStream socketReader) {
+	public void setSocketReader(InputStream socketReader) {
 		this.socketReader = socketReader;
 	}
 
-	public ObjectOutputStream getSocketWriter() {
+	public OutputStream getSocketWriter() {
 		return socketWriter;
 	}
 
-	public void setSocketWriter(ObjectOutputStream socketWriter) {
+	public void setSocketWriter(OutputStream socketWriter) {
 		this.socketWriter = socketWriter;
 	}
 
