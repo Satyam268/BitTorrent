@@ -78,9 +78,10 @@ public class PeerHandler implements Runnable {
 				}
 
 				optimisticallyUnchokedPeers.forEach(peerInfo -> {
-					peerInfo.unChoke();
 					try {
 						sendUnchoke(peerInfo.getSocketWriter());
+						logger.debug("Peer [" + peerID + "] has the optimistically unchoked neighbour [" + peerInfo.peerId
+								+ "]");
 					} catch (Exception e) {
 						logger.warn("Unable to choke peer: " + peerInfo.getPeerId() + " " + e);
 					}
@@ -100,13 +101,23 @@ public class PeerHandler implements Runnable {
 	}
 
 	public void sendUnchoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
-		Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.UNCHOKE);
-		unchokeMessage.write(socketWriter);
+		try {
+			// is closed thn dont send
+			Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.UNCHOKE);
+			unchokeMessage.write(socketWriter);
+		} catch (Exception e) {
+			logger.warn("Socket connection explicitly closed| can't send unchoke from oum " + e);
+			// possible hack place
+		}
 	}
 
 	public void sendChoke(ObjectOutputStream socketWriter) throws ClassNotFoundException, IOException {
-		Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
-		chokeMessage.write(socketWriter);
+		try {
+			Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
+			chokeMessage.write(socketWriter);
+		} catch (Exception e) {
+			logger.warn("Socket connection explicitly closed| can't send choke from oum " + e);
+		}
 	}
 
 	@Override
@@ -204,8 +215,8 @@ public class PeerHandler implements Runnable {
 			// }
 			chokedPeersIDs.forEach(id -> {
 				try {
-					if (peerMap.get(id).getSocketWriter() != null)
-						sendChoke(peerMap.get(id).getSocketWriter());
+					
+					sendChoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);
 				}
@@ -213,7 +224,6 @@ public class PeerHandler implements Runnable {
 
 			preferredNeighborsIDs.forEach(id -> {
 				try {
-					if (peerMap.get(id).getSocketWriter() != null)
 						sendUnchoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);

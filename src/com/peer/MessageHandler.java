@@ -103,6 +103,9 @@ public class MessageHandler {
 
 	synchronized private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
+		logger.debug("In handlePiece requested piece was- " + peerInfo.getRequestedPieceIndex());
+		if (peerInfo.getRequestedPieceIndex() == -1)
+			return;
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
 		// fileHandler.broadcastHaveMessageToAllPeers(peerInfo.getRequestedPieceIndex());
 		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
@@ -142,9 +145,14 @@ public class MessageHandler {
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
 		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
-		if (fileHandler.isEverythingComplete()) {
-			logger.info("-----------System.exit()-----------");
-			System.exit(0);
+		logger.info("PeerId" + clientPeerID + " cardinal: " + peerMap.get(clientPeerID).getBitfield().cardinality()
+				+ " filehandler bitmap size: " + fileHandler.getBitmapSize());
+		
+		if (peerMap.get(clientPeerID).getBitfield().cardinality() == fileHandler.getBitmapSize()) {
+			if (fileHandler.isEverythingComplete()) {
+				logger.info("-----------System.exit()-----------");
+				System.exit(0);
+			}
 		}
 	}
 

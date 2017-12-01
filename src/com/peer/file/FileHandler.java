@@ -28,6 +28,7 @@ public class FileHandler {
 	int bitsetSize;
 	int peerID;
 	int hasFile;
+	PeerProperties properties;
 
 	public FileHandler(int peerId, PeerProperties properties, Map<Integer, PeerInfo> peerMap, int hasFile) {
 		this.peerMap = peerMap;
@@ -44,7 +45,7 @@ public class FileHandler {
 			receivedPieces.set(0, bitsetSize);
 		}
 		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
-
+		this.properties = properties;
 	}
 
 	public FileHandler(int peerId) {
@@ -67,8 +68,11 @@ public class FileHandler {
 		if (isNewPiece) {
 			fileOps.writePieceToFile(piece, pieceID, clientPeerId);
 			broadcastHaveMessageToAllPeers(pieceID);
+			int bytesDownloaded = peerMap.get(clientPeerId).bytesDownloaded.get()+piece.length;
+			peerMap.get(clientPeerId).bytesDownloaded.set(bytesDownloaded);
 		}
 		if (isFileCompleted()) {
+			properties.randomlySelectPreferredNeighbors.set(true);
 			fileOps.mergeFile(receivedPieces.cardinality());
 			if (isEverythingComplete()) {
 				logger.info("No.of active threads were: " + Thread.activeCount());
@@ -120,7 +124,6 @@ public class FileHandler {
 	 */
 	public synchronized int getPartToRequest(BitSet availableParts) {
 		availableParts.andNot(getReceivedParts());
-
 		return piecesBeingRequested.getPartToRequest(availableParts);
 	}
 

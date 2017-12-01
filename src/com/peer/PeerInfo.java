@@ -1,11 +1,10 @@
 package com.peer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.BitSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PeerInfo {
@@ -27,9 +26,9 @@ public class PeerInfo {
 	String hostName;
 
 	boolean handShaked = false;
-	boolean interested = false;
+	AtomicBoolean interested = new AtomicBoolean(false);
 
-	AtomicInteger bytesDownloaded = new AtomicInteger(0);
+	public AtomicInteger bytesDownloaded = new AtomicInteger(0);
 	ObjectInputStream socketReader;
 	ObjectOutputStream socketWriter;
 	AtomicInteger requestedPieceIndex = new AtomicInteger(-1); // after every p time && whenever making a request and
@@ -117,11 +116,11 @@ public class PeerInfo {
 	}
 
 	public boolean isInterested() {
-		return interested;
+		return interested.get();
 	}
 
 	public void setInterested(boolean interested) {
-		this.interested = interested;
+		this.interested.set(interested);
 	}
 
 	public ObjectInputStream getSocketReader() {

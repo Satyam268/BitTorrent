@@ -54,7 +54,8 @@ public class SocketHandler implements Runnable {
 					messageHandler.handleMessage();
 				} catch (Exception e) {
 					logger.warn("problem with mesage/connection  with peerID:" + neighborId + " " + e);
-					break;
+					e.printStackTrace();
+					break; // have to remove this break eventually
 				}
 			}
 		} catch (Exception e1) {
