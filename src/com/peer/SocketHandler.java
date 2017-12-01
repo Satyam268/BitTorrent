@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.BitSet;
+import java.net.SocketException;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -52,10 +52,17 @@ public class SocketHandler implements Runnable {
 			while (true) {
 				try {
 					messageHandler.handleMessage();
-				} catch (Exception e) {
+				} 
+				catch(SocketException se) {
+					logger.warn("problem with socket connection  with peerID:" + neighborId + " " + se);
+					se.printStackTrace();
+					break;
+				}
+				catch (Exception e) {
 					logger.warn("problem with mesage/connection  with peerID:" + neighborId + " " + e);
 					e.printStackTrace();
-					break; // have to remove this break eventually
+					
+					//break; // have to remove this break eventually
 				}
 			}
 		} catch (Exception e1) {

@@ -116,6 +116,8 @@ public class MessageHandler {
 
 	synchronized private void sendRequestMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
+		logger.info("--------inside unchoke || the unchoker "+ clientPeerID +"has these pieces available:" + peerMap.get(clientPeerID).getBitfield());
+		logger.info("my bitset is:"+ myInfo.getBitfield());
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
 		logger.info("Intereted piece ID:- " + interestedPieceId);

@@ -68,11 +68,14 @@ public class FileHandler {
 	public synchronized void addPiece(int pieceID, byte[] piece, int clientPeerId) {
 		if (pieceID == -1)
 			return;
-
+		logger.info(" -- add new piece with id- "+pieceID);
+		
+		
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
 		receivedPieces.set(pieceID);
 
 		if (isNewPiece) {
+			logger.info(" -- inside new piece --- ");
 			fileOps.writePieceToFile(piece, pieceID, clientPeerId);
 			broadcastHaveMessageToAllPeers(pieceID);
 			int bytesDownloaded = peerMap.get(clientPeerId).bytesDownloaded.get() + piece.length;
