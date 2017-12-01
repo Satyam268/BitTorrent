@@ -31,11 +31,10 @@ public class PeerInfo {
 	public AtomicInteger bytesDownloaded = new AtomicInteger(0);
 	ObjectInputStream socketReader;
 	ObjectOutputStream socketWriter;
-	AtomicInteger requestedPieceIndex = new AtomicInteger(-1); // after every p time && whenever making a request and
-																// whenever piece
+	AtomicInteger requestedPieceIndex = new AtomicInteger(-1);
 
 	// records the pieces i have/don't have
-	private BitSet bitfield = null;
+	public BitSet bitfield = null;
 
 	public PeerInfo(ConfigFileParams fileParams, int numberOfPieces) {
 		peerId = fileParams.getPeerId();
@@ -61,10 +60,7 @@ public class PeerInfo {
 	// overridden for log generation purpose
 	@Override
 	public String toString() {
-		return "PerInfo: " + "peerId: " + peerId + "" + " hasFile: " + hasFile + " bitField: " + bitfield;// + "
-																											// "+hostName+"
-																											// "+listeningPort+"
-																											// "+hasFile;
+		return "PerInfo: " + "peerId: " + peerId + "" + " hasFile: " + hasFile + " bitField: " + bitfield; // "+hasFile;
 	}
 
 	public boolean isChoked() {
@@ -79,15 +75,16 @@ public class PeerInfo {
 		this.choked = false;
 	}
 
+	//get return clone
 	public BitSet getBitfield() {
 		return (BitSet) bitfield.clone();
 	}
 
-	public void setBitfield(BitSet bitfield) {
+	public synchronized void setBitfield(BitSet bitfield) {
 		this.bitfield = bitfield;
 	}
 
-	public void setBitfieldAtIndex(int index) {
+	public synchronized void setBitfieldAtIndex(int index) {
 		this.bitfield.set(index);
 	}
 

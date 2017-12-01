@@ -17,6 +17,10 @@ import com.peer.utilities.MessageType;
 
 //peer has a file handler
 //manages the 2 BitSets, depicting requestedParts and receivedParts
+/**
+ * @author mypc
+ * contructor for the fileHandler class responsible for
+ */
 public class FileHandler {
 	final static Logger logger = Logger.getLogger(FileHandler.class);
 	private FileOperations fileOps;
@@ -30,47 +34,48 @@ public class FileHandler {
 	int hasFile;
 	PeerProperties properties;
 
-	public FileHandler(int peerId, PeerProperties properties, Map<Integer, PeerInfo> peerMap, int hasFile) {
+
+	public FileHandler(int peerId, PeerProperties properties, Map<Integer, PeerInfo> peerMap, PeerInfo peerInfo) {
 		this.peerMap = peerMap;
-		this.hasFile = hasFile;
 		this.pieceSize = properties.getPieceSize();
 		this.bitsetSize = properties.getNumberOfPieces();
 		this.peerID = peerId;
-		this.hasFile = hasFile;
-		this.receivedPieces = new BitSet(bitsetSize);
+		this.hasFile = peerInfo.getHasFile();
+		this.receivedPieces = peerInfo.bitfield;
+
 		this.fileOps = new FileOperations(peerId, properties.getFileName());
 		if (hasFile == 1) {
-			//split file
+			// split file
 			fileOps.processFileIntoPieceFiles(new File(properties.getFileName()), properties.getPieceSize());
 			receivedPieces.set(0, bitsetSize);
-			properties.randomlySelectPreferredNeighbors.set(true); 
+			properties.randomlySelectPreferredNeighbors.set(true);
 		}
-		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
+		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval(), peerInfo.bitfield);
 		this.properties = properties;
-		
+
 	}
 
 	public FileHandler(int peerId) {
 		this.peerID = peerId;
 	}
 
+
 	/**
-	 * got a new piece message; add it to receivedParts
-	 *
-	 * @param pieceIndex
+	 * @param pieceID
 	 * @param piece
+	 * @param clientPeerId
 	 */
 	public synchronized void addPiece(int pieceID, byte[] piece, int clientPeerId) {
-		if(pieceID==-1)
+		if (pieceID == -1)
 			return;
-		final boolean isNewPiece = !receivedPieces.get(pieceID);
 
+		final boolean isNewPiece = !receivedPieces.get(pieceID);
 		receivedPieces.set(pieceID);
 
 		if (isNewPiece) {
 			fileOps.writePieceToFile(piece, pieceID, clientPeerId);
 			broadcastHaveMessageToAllPeers(pieceID);
-			int bytesDownloaded = peerMap.get(clientPeerId).bytesDownloaded.get()+piece.length;
+			int bytesDownloaded = peerMap.get(clientPeerId).bytesDownloaded.get() + piece.length;
 			peerMap.get(clientPeerId).bytesDownloaded.set(bytesDownloaded);
 		}
 		if (isFileCompleted()) {
@@ -88,7 +93,7 @@ public class FileHandler {
 			try {
 				Have haveMessage = (Have) Message.getInstance(MessageType.HAVE);
 				haveMessage.setPayload(CommonUtils.intToByteArray(pieceId));
-				if(peerInfo.getSocketWriter()!=null)
+				if (peerInfo.getSocketWriter() != null)
 					haveMessage.write(peerInfo.getSocketWriter());
 
 			} catch (Exception e) {

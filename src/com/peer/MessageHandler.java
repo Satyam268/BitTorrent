@@ -40,8 +40,8 @@ public class MessageHandler {
 	public void handleMessage() throws ClassNotFoundException, IOException {
 		ActualMsg message = null;
 		message = (ActualMsg) in.readObject();
-		 logger.info(" ------ incoming message " + message + " received from " +
-		 clientPeerID + " -----------------------");
+		logger.info(
+				" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
 		MessageType msgType = message.getType();
 		switch (msgType) {
 		case BITFIELD:
@@ -66,9 +66,9 @@ public class MessageHandler {
 					+ clientPeerID + "]");
 			break;
 		case HAVE:
-			handleHave(message);
 			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘have’ message from [peer_ID "
 					+ clientPeerID + "] for the piece [" + (CommonUtils.byteArrayToInt(message.getPayload())) + "]");
+			handleHave(message);
 			break;
 		case REQUEST:
 			handleRequest(message);
@@ -82,6 +82,7 @@ public class MessageHandler {
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
 		BitField bitFieldMessage = (BitField) message;
 		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
+
 		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
 			sendInterestedMessage(out);
 		} else {
@@ -117,7 +118,6 @@ public class MessageHandler {
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
 		logger.info("Intereted piece ID:- " + interestedPieceId);
-		
 		if (interestedPieceId != -1) {
 			clientPeerInfo.setRequestedPieceIndex(interestedPieceId);
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
@@ -140,7 +140,6 @@ public class MessageHandler {
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
 		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
-		
 		if (peerMap.get(clientPeerID).getBitfield().cardinality() == fileHandler.getBitmapSize()) {
 			if (fileHandler.isEverythingComplete()) {
 				logger.info("-----------System.exit()-----------");

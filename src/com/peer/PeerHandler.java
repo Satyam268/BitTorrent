@@ -212,7 +212,7 @@ public class PeerHandler implements Runnable {
 			// }
 			chokedPeersIDs.forEach(id -> {
 				try {
-					
+
 					sendChoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
 					logger.warn(e);

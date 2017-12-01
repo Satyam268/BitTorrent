@@ -23,7 +23,7 @@ public class Peer {
 
 	private int peerID;
 	private PeerInfo myInfo;
-	private BitSet bitfield;
+	//private BitSet bitfield;//receivedParts
 
 	// has a
 	PeerProperties properties;
@@ -47,7 +47,7 @@ public class Peer {
 		properties = peerProperties;
 		peerMap = neighborMap;
 		myInfo = info;
-		fileHandler = new FileHandler(peerId, properties, peerMap, myInfo.getHasFile());
+		fileHandler = new FileHandler(peerId, properties, peerMap, myInfo);
 	}
 
 	// listening on port for new connections
@@ -91,7 +91,7 @@ public class Peer {
 	}
 
 	public void connectToPeers(List<Integer> activePeerIds) {
-		
+
 		for (int neighborId : activePeerIds) {
 			doHandShake(neighborId);
 			PeerInfo neighborInfo = peerMap.get(neighborId);
@@ -146,14 +146,14 @@ public class Peer {
 		this.peerID = peerID;
 	}
 
-	public BitSet getBitfield() {
+	/*public BitSet getBitfield() {
 		return bitfield;
 	}
 
 	public void setBitfield(BitSet bitfield) {
 		this.bitfield = bitfield;
 	}
-
+*/
 	public void startPeerHandler() {
 		PeerHandler peerHandler = new PeerHandler(peerID, peerMap, properties);
 		Thread peerHandlerThread = new Thread(peerHandler);
