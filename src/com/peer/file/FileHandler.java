@@ -43,9 +43,11 @@ public class FileHandler {
 			//split file
 			fileOps.processFileIntoPieceFiles(new File(properties.getFileName()), properties.getPieceSize());
 			receivedPieces.set(0, bitsetSize);
+			properties.randomlySelectPreferredNeighbors.set(true); 
 		}
 		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
 		this.properties = properties;
+		
 	}
 
 	public FileHandler(int peerId) {
@@ -97,7 +99,8 @@ public class FileHandler {
 
 	public synchronized boolean isEverythingComplete() {
 		for (PeerInfo peerInfo : peerMap.values()) {
-			if (peerInfo.getBitfield().cardinality() != peerInfo.getBitfield().size()) {
+			if (peerInfo.getBitfield().cardinality() != getBitmapSize()) {
+				logger.info("Breaking for " + " peerId" + peerInfo.getPeerId() + " " + peerInfo.getBitfield());
 				return false;
 			}
 		}

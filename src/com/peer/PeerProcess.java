@@ -42,8 +42,6 @@ public class PeerProcess {
 	void readPeerInfoFile(int peerId) {
 		neighborMap = new ConcurrentHashMap<Integer, PeerInfo>();
 		activePeerIds = new ArrayList<>();
-		ArrayList peerInfoFileParams = new ArrayList<>();
-
 		try (Stream<String> stream = Files.lines(Paths.get(Constants.peerInfoFile))) {
 			Iterator<String> it = stream.iterator();
 			boolean myInfoProcessed = false;
@@ -74,7 +72,7 @@ public class PeerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1001;
+		int peerId = 1002;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		deleteFiles(Paths.get("com").toString());

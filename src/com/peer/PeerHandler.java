@@ -28,7 +28,6 @@ public class PeerHandler implements Runnable {
 	final static Logger logger = Logger.getLogger(PeerHandler.class);
 	Map<Integer, PeerInfo> peerMap;
 	Collection<PeerInfo> kPreferredNeighbors = new HashSet<PeerInfo>();
-	AtomicBoolean randomlySelectPreferredNeighbors = new AtomicBoolean(false);
 	PeerProperties peerProperties;
 	int peerID;
 
@@ -132,12 +131,12 @@ public class PeerHandler implements Runnable {
 
 			// 1) GET INTERESTED PEERS AND SORT THEM BY PREFERENCE
 			List<PeerInfo> interestedPeers = getInterestedPeers();
-			if (randomlySelectPreferredNeighbors.get()) {
+			if (peerProperties.randomlySelectPreferredNeighbors.get()) {
 				logger.debug("Selecting preferred peers randomly");
 				Collections.shuffle(interestedPeers);
 			} else {
 				Collections.sort(interestedPeers, new Comparator<PeerInfo>() {
-					@Override
+					@Override 
 					public int compare(PeerInfo p1, PeerInfo p2) {
 						return (p2.bytesDownloaded.get() - p1.bytesDownloaded.get());
 					}
