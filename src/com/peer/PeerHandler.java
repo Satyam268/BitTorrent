@@ -1,5 +1,5 @@
 package com.peer;
-
+//Reference : dalton/P2P-Project - Link - https://github.com/dalton/P2P-Project
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -57,16 +57,11 @@ public class PeerHandler implements Runnable {
 				} catch (InterruptedException ex) {
 				}
 
-				synchronized (this) { // Randomly shuffle the remaining
-										// neighbors, and select some // to
-										// optimistically unchoke if
-										// (!chokedNeighbors.isEmpty())
-					{
+				synchronized (this) { 
 						Collections.shuffle(chokedNeighbors);
 						optimisticallyUnchokedPeers.clear();
 						optimisticallyUnchokedPeers.addAll(chokedNeighbors.subList(0,
 								Math.min(numberOfOptimisticallyUnchokedNeighbors, chokedNeighbors.size())));
-					}
 				}
 
 				optimisticallyUnchokedPeers.forEach(peerInfo -> {
@@ -75,7 +70,7 @@ public class PeerHandler implements Runnable {
 						logger.info("Peer [" + peerID + "] has the optimistically unchoked neighbour [" + peerInfo.peerId
 								+ "]");
 					} catch (Exception e) {
-						logger.info("Unable to choke peer: " + peerInfo.getPeerId() + " " + e);
+						logger.debug("Unable to choke peer: " + peerInfo.getPeerId() + " " + e);
 					}
 				});
 
@@ -98,7 +93,7 @@ public class PeerHandler implements Runnable {
 			Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.UNCHOKE);
 			unchokeMessage.write(socketWriter);
 		} catch (Exception e) {
-			logger.info("Socket connection explicitly closed| can't send unchoke from oum " + e);
+			logger.debug("Socket connection explicitly closed| can't send unchoke from oum " + e);
 			// possible hack place
 		}
 	}
@@ -108,7 +103,7 @@ public class PeerHandler implements Runnable {
 			Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
 			chokeMessage.write(socketWriter);
 		} catch (Exception e) {
-			logger.info("Socket connection explicitly closed| can't send choke from oum " + e);
+			logger.debug("Socket connection explicitly closed| can't send choke from oum " + e);
 		}
 	}
 
@@ -120,14 +115,16 @@ public class PeerHandler implements Runnable {
 			try {
 				Thread.sleep(peerProperties.getUnchokingInterval());
 			} catch (InterruptedException ex) {
+				logger.debug("Thread interrupted: "+ex);
 			}
 
-			// 1) GET INTERESTED PEERS AND SORT THEM BY PREFERENCE
+			// Get Peers by preference or randomly
 			List<PeerInfo> interestedPeers = getInterestedPeers();
 			if (peerProperties.randomlySelectPreferredNeighbors.get()) {
 				logger.debug("Selecting preferred peers randomly");
 				Collections.shuffle(interestedPeers);
-			} else {
+			} 
+			else {
 				Collections.sort(interestedPeers, new Comparator<PeerInfo>() {
 					@Override
 					public int compare(PeerInfo p1, PeerInfo p2) {
@@ -149,9 +146,9 @@ public class PeerHandler implements Runnable {
 					peerInfo.bytesDownloaded.set(0);
 				}
 
-				// 2) SELECT THE PREFERRED PEERS BY SELECTING THE HIGHEST
-				// RANKED
-
+				// select preferred by ranking ..here based on download rates
+				// and
+				// randomly in case of conflict or if sender has complete file
 				kPreferredNeighbors.clear();
 				kPreferredNeighbors.addAll(interestedPeers.subList(0,
 						Math.min(peerProperties.getNumberOfPreferredNeighbors(), interestedPeers.size())));
@@ -160,24 +157,19 @@ public class PeerHandler implements Runnable {
 					logger.info("Peer [" + peerID + "] has the preferred neighbours " + kPreferredNeighbors);
 				}
 
-				// 3) SELECT ALLE THE INTERESTED AND UNINTERESTED PEERS,
-				// REMOVE
-				// THE PREFERRED.
-				// THE RESULTS ARE THE CHOKED PEERS
-
+				// From all peers remove K-preferred
+				
 				Collection<PeerInfo> chokedPeers = new LinkedList<>(getAllConnectedNeighbours());
 				chokedPeers.removeAll(kPreferredNeighbors);
 				chokedPeersIDs.addAll(getPeerIds(chokedPeers));
 
-				// 4) SELECT ALLE THE INTERESTED PEERS, REMOVE THE
-				// PREFERRED.
-				// THE RESULTS ARE
-				// THE CHOKED PEERS THAT ARE "OPTIMISTICALLY-UNCHOKABLE"
+				// List of Choked peers which are optimistically unchokable
 				if (peerProperties.getNumberOfPreferredNeighbors() >= interestedPeers.size()) {
 					optUnchokablePeers = new ArrayList<>();
 				} else {
 					// list of peers which are not going to be in the list of k
 					// preferred
+					// are considered for Optimistic Unchoking
 					optUnchokablePeers = interestedPeers.subList(peerProperties.getNumberOfPreferredNeighbors(),
 							interestedPeers.size());
 				}
@@ -186,15 +178,14 @@ public class PeerHandler implements Runnable {
 			}
 
 
-			// 5) NOTIFY PROCESS, IT WILL TAKE CARE OF SENDING CHOKE AND
-			// UNCHOKE
-			// MESSAGES
+
+			// Send choke and unchoke messages to respective peers !
 			chokedPeersIDs.forEach(id -> {
 				try {
 
 					sendChoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
-					logger.info(e);
+					logger.debug(e);
 				}
 			});
 
@@ -202,12 +193,11 @@ public class PeerHandler implements Runnable {
 				try {
 						sendUnchoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
-					logger.info(e);
+					logger.debug(e);
 				}
 			});
 
-			// 6) NOTIFY THE OPTIMISTICALLY UNCHOKER THREAD WITH THE NEW SET OF
-			// UNCHOKABLE PEERS
+			// Refresh the set of peers for choosing unchokable peers.
 			if (optUnchokablePeers != null) {
 				optUnchoker.setChokedNeighbors(optUnchokablePeers);
 			}

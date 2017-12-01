@@ -53,16 +53,16 @@ public class SocketHandler implements Runnable {
 				try {
 					messageHandler.handleMessage();
 				} catch (SocketException s) {
-					logger.info("Socket Exception with peerID:" + neighborId + " .. Aborting now ... " + s);
+					logger.debug("Socket Exception with peerID:" + neighborId + " .. Aborting now ... " + s);
 					// s.printStackTrace();
 					break;
 				} catch (Exception e) {
-					logger.info("problem with mesage/connection  with peerID:" + neighborId + " " + e);
+					logger.debug("problem with mesage/connection  with peerID:" + neighborId + " " + e);
 					//e.printStackTrace();
 				}
 			}
 		} catch (Exception e1) {
-			logger.info("Problem Connecting to peer: " + neighborId + " " + e1);
+			logger.debug("Problem Connecting to peer: " + neighborId + " " + e1);
 		}
 	}
 

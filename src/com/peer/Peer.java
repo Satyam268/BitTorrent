@@ -1,22 +1,17 @@
 package com.peer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.BitSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
 import com.peer.file.FileHandler;
-import com.peer.file.FileOperations;
 import com.peer.messages.HandshakeMsg;
 
 public class Peer {
@@ -114,9 +109,9 @@ public class Peer {
 			handshakeMessage.read(in);
 			setSocketDetailsToPeerMap(neighborId, neighborSocket, in, out);
 		} catch (UnknownHostException e) {
-			logger.info("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
+			logger.debug("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		} catch (Exception e) {
-			logger.info("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
+			logger.debug("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		}
 
 	}

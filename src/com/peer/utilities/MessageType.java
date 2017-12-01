@@ -1,9 +1,5 @@
 package com.peer.utilities;
 
-import org.apache.log4j.Logger;
-
-import com.peer.messages.ActualMsg;
-
 public enum MessageType {
 
 	CHOKE(0),

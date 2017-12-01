@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import com.peer.file.FileHandler;
 import com.peer.messages.ActualMsg;
 import com.peer.messages.Message;
 import com.peer.messages.types.BitField;
-import com.peer.messages.types.Have;
 import com.peer.messages.types.Interested;
 import com.peer.messages.types.NotInterested;
 import com.peer.messages.types.Piece;

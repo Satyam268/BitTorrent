@@ -16,7 +16,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.peer.utilities.Constants;
 
-public class PeerProcess {
+public class peerProcess {
 
 	private ArrayList<Integer> activePeerIds;
 	private Map<Integer, PeerInfo> neighborMap;
@@ -77,7 +77,7 @@ public class PeerProcess {
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		//deleteFiles(Paths.get("com").toString());
 		//deleteFiles(Paths.get("pieceStore").toString());
-		PeerProcess process = new PeerProcess();
+		peerProcess process = new peerProcess();
 		process.readCommonCFGFile();
 		process.readPeerInfoFile(peerId);
 		process.setupPeer(peerId);

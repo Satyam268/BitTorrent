@@ -67,7 +67,7 @@ public class FileOperations {
 			fos.flush();
 			fos.close();
 		} catch (Exception e) {
-			logger.info("Unable to write piece_ " + pieceId + " from peer_" + peerId + " " + e);
+			logger.debug("Unable to write piece_ " + pieceId + " from peer_" + peerId + " " + e);
 		}
 	}
 
@@ -82,9 +82,9 @@ public class FileOperations {
 			assert (bytesRead == (int) file.length());
 			return fileBytes;
 		} catch (FileNotFoundException e) {
-			logger.warn(e);
+			logger.debug(e);
 		} catch (IOException e) {
-			logger.warn(e);
+			logger.debug(e);
 		} finally {
 			if (fis != null) {
 				try {
@@ -160,7 +160,7 @@ public class FileOperations {
 			fos.close();
 			fos = null;
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			logger.debug("Problem merging file: "+exception.getStackTrace().toString());
 		}
 	}
 
