@@ -11,9 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
@@ -47,8 +45,8 @@ public class PeerHandler implements Runnable {
 		}
 
 		synchronized void setChokedNeighbors(Collection<PeerInfo> chokedNeighbors) {
-			chokedNeighbors.clear();
-			chokedNeighbors.addAll(chokedNeighbors);
+			this.chokedNeighbors.clear();
+			this.chokedNeighbors.addAll(chokedNeighbors);
 		}
 
 		@Override

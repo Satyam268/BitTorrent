@@ -19,7 +19,7 @@ public class RequestedPieces {
 
 		public synchronized int getPartToRequest(BitSet requestabableParts) {
 			requestabableParts.andNot(_requestedParts);
-
+			
 			if (!requestabableParts.isEmpty()) {
 				final int partId = CommonUtils.pickRandomSetIndexFromBitSet(requestabableParts);
 				_requestedParts.set(partId);

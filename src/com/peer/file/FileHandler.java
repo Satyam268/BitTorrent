@@ -100,7 +100,6 @@ public class FileHandler {
 	public synchronized boolean isEverythingComplete() {
 		for (PeerInfo peerInfo : peerMap.values()) {
 			if (peerInfo.getBitfield().cardinality() != getBitmapSize()) {
-				logger.info("Breaking for " + " peerId" + peerInfo.getPeerId() + " " + peerInfo.getBitfield());
 				return false;
 			}
 		}
@@ -118,14 +117,8 @@ public class FileHandler {
 		});
 	}
 
-	/**
-	 * @param availableParts
-	 *            parts that are available at the remote peer
-	 * @return the ID of the part to request, if any, or a negative number in case
-	 *         all the missing parts are already being requested or the file is
-	 *         complete.
-	 */
 	public synchronized int getPartToRequest(BitSet availableParts) {
+		logger.info("Available parts: "+availableParts+" ReceivedParts: " + getReceivedParts());
 		availableParts.andNot(getReceivedParts());
 		return piecesBeingRequested.getPartToRequest(availableParts);
 	}
@@ -138,15 +131,6 @@ public class FileHandler {
 		return receivedPieces.get(pieceIndex);
 	}
 
-	/**
-	 * Set all parts as received.
-	 */
-	public synchronized void setAllPieces() {
-		for (int i = 0; i < bitsetSize; i++) {
-			receivedPieces.set(i, true);
-		}
-		logger.debug("Received parts set to: " + receivedPieces.toString());
-	}
 
 	public synchronized int getNumberOfReceivedParts() {
 		return receivedPieces.cardinality();

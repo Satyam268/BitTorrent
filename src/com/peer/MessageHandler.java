@@ -82,7 +82,6 @@ public class MessageHandler {
 	private void handleBitfield(ActualMsg message) throws ClassNotFoundException, IOException {
 		BitField bitFieldMessage = (BitField) message;
 		peerMap.get(clientPeerID).setBitfield(bitFieldMessage.getPayloadInBitSet());
-		System.out.println("bitFiled payload:- " + bitFieldMessage.getPayloadInBitSet());
 		if (CommonUtils.hasAnyThingInteresting(bitFieldMessage.getPayloadInBitSet(), myInfo.getBitfield())) {
 			sendInterestedMessage(out);
 		} else {
@@ -103,11 +102,9 @@ public class MessageHandler {
 
 	synchronized private void handlePiece(ActualMsg message) throws ClassNotFoundException, IOException {
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
-		logger.debug("In handlePiece requested piece was- " + peerInfo.getRequestedPieceIndex());
 		if (peerInfo.getRequestedPieceIndex() == -1)
 			return;
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
-		// fileHandler.broadcastHaveMessageToAllPeers(peerInfo.getRequestedPieceIndex());
 		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
 				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]");
 		peerInfo.setRequestedPieceIndex(-1);
@@ -121,10 +118,8 @@ public class MessageHandler {
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
 		logger.info("Intereted piece ID:- " + interestedPieceId);
 		
-
 		if (interestedPieceId != -1) {
 			clientPeerInfo.setRequestedPieceIndex(interestedPieceId);
-			logger.info("Common utils method check" + CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
 			requestMessage.write(out);
 		}
@@ -145,8 +140,6 @@ public class MessageHandler {
 		peerMap.get(clientPeerID).setBitfieldAtIndex(pieceIndex);
 		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
-		logger.info("PeerId" + clientPeerID + " cardinal: " + peerMap.get(clientPeerID).getBitfield().cardinality()
-				+ " filehandler bitmap size: " + fileHandler.getBitmapSize());
 		
 		if (peerMap.get(clientPeerID).getBitfield().cardinality() == fileHandler.getBitmapSize()) {
 			if (fileHandler.isEverythingComplete()) {
@@ -162,7 +155,6 @@ public class MessageHandler {
 	}
 
 	synchronized private void handleUnchoke(ActualMsg message) throws ClassNotFoundException, IOException {
-		logger.info("In unchoke messasge handler :-- ");
 		sendRequestMessage(out);
 	}
 
@@ -171,7 +163,6 @@ public class MessageHandler {
 	}
 
 	private void handleChoke(ActualMsg message) {
-		logger.info("In ><choke>< messasge handler :-- ");
 		PeerInfo peerInfo = peerMap.get(clientPeerID);
 		peerInfo.setRequestedPieceIndex(-1);
 	}
