@@ -23,7 +23,7 @@ public class Peer {
 
 	private int peerID;
 	private PeerInfo myInfo;
-	//private BitSet bitfield;//receivedParts
+	// private BitSet bitfield;//receivedParts
 
 	// has a
 	PeerProperties properties;
@@ -55,15 +55,15 @@ public class Peer {
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
 		try {
-			System.out.println("my peer id:" + peerID);
+			logger.debug("starting the server on port : " + myInfo.listeningPort);
 			ServerSocket serverSocket = new ServerSocket(myInfo.getListeningPort());
 			Socket clientSocket;
 			while (true) {
 				clientSocket = serverSocket.accept();
 				in = new ObjectInputStream(clientSocket.getInputStream());
 				out = new ObjectOutputStream(clientSocket.getOutputStream());
-
 				int neighborId = handleHandshakeMessage(in, out);
+
 				if (neighborId != -1) {
 					setSocketDetailsToPeerMap(neighborId, clientSocket, in, out);
 					Thread t = new Thread(
@@ -83,9 +83,10 @@ public class Peer {
 			int neighbourID = handshakeMessage.getPeerID();
 			peerMap.put(neighbourID, new PeerInfo(neighbourID));
 			handshakeMessage.write(out2);
+			logger.info("Peer [peer_ID " + peerID + "] is connected from Peer [peer_ID " + neighbourID + "]");
 			return neighbourID;
 		} catch (Exception e) {
-			logger.debug("Unable to perform handshake.\n" + e);
+			logger.info("Unable to perform handshake.\n" + e);
 		}
 		return -1;
 	}
@@ -109,12 +110,13 @@ public class Peer {
 			ObjectOutputStream out = new ObjectOutputStream(neighborSocket.getOutputStream());
 			ObjectInputStream in = new ObjectInputStream(neighborSocket.getInputStream());
 			handshakeMessage.write(out);
+			logger.info("Peer [peer_ID " + peerID + "] makes a connection to Peer [peer_ID " + neighborId + "]");
 			handshakeMessage.read(in);
 			setSocketDetailsToPeerMap(neighborId, neighborSocket, in, out);
 		} catch (UnknownHostException e) {
-			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
+			logger.info("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		} catch (Exception e) {
-			logger.warn("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
+			logger.info("Unable to make TCP connection with TCP host: " + neighborInfo.getHostName() + e);
 		}
 
 	}
@@ -146,14 +148,6 @@ public class Peer {
 		this.peerID = peerID;
 	}
 
-	/*public BitSet getBitfield() {
-		return bitfield;
-	}
-
-	public void setBitfield(BitSet bitfield) {
-		this.bitfield = bitfield;
-	}
-*/
 	public void startPeerHandler() {
 		PeerHandler peerHandler = new PeerHandler(peerID, peerMap, properties);
 		Thread peerHandlerThread = new Thread(peerHandler);

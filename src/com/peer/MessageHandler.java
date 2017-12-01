@@ -40,8 +40,7 @@ public class MessageHandler {
 	public void handleMessage() throws ClassNotFoundException, IOException {
 		ActualMsg message = null;
 		message = (ActualMsg) in.readObject();
-		logger.info(
-				" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
+		logger.debug(" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
 		MessageType msgType = message.getType();
 		switch (msgType) {
 		case BITFIELD:
@@ -49,24 +48,24 @@ public class MessageHandler {
 			break;
 		case CHOKE:
 			handleChoke(message);
-			logger.debug("Peer [peer_ID" + myInfo.peerId + "] is choked by [peer_ID " + clientPeerID + "]");
+			logger.info("Peer [peer_ID" + myInfo.peerId + "] is choked by [peer_ID " + clientPeerID + "]");
 			break;
 		case UNCHOKE:
 			handleUnchoke(message);
-			logger.debug("Peer [peer_ID " + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
+			logger.info("Peer [peer_ID " + myInfo.peerId + "] is unchoked by [peer_ID " + clientPeerID + "]");
 			break;
 		case INTERESTED:
 			handleInterested(message);
-			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘interested’ message from [peer_ID "
+			logger.info("Peer [peer_ID " + myInfo.peerId + "] received the ‘interested’ message from [peer_ID "
 					+ clientPeerID + "]");
 			break;
 		case NOTINTERESTED:
 			handleNotInterested(message);
-			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘not interested’ message from [peer_ID "
+			logger.info("Peer [peer_ID " + myInfo.peerId + "] received the ‘not interested’ message from [peer_ID "
 					+ clientPeerID + "]");
 			break;
 		case HAVE:
-			logger.debug("Peer [peer_ID " + myInfo.peerId + "] received the ‘have’ message from [peer_ID "
+			logger.info("Peer [peer_ID " + myInfo.peerId + "] received the ‘have’ message from [peer_ID "
 					+ clientPeerID + "] for the piece [" + (CommonUtils.byteArrayToInt(message.getPayload())) + "]");
 			handleHave(message);
 			break;
@@ -107,8 +106,8 @@ public class MessageHandler {
 			return;
 
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
-		logger.debug("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
-				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]");
+		logger.info("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
+				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]. \n Now the number of pieces it has is ["+ myInfo.getBitfield().cardinality()+"]");
 		peerInfo.setRequestedPieceIndex(-1);
 		// after you receive a piece send another request message....
 		sendRequestMessage(out);
@@ -116,11 +115,10 @@ public class MessageHandler {
 
 	synchronized private void sendRequestMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
-		logger.info("--------inside unchoke || the unchoker "+ clientPeerID +"has these pieces available:" + peerMap.get(clientPeerID).getBitfield());
-		logger.info("my bitset is:"+ myInfo.getBitfield());
+		logger.debug("--------inside unchoke || the unchoker "+ clientPeerID +"has these pieces available:" + peerMap.get(clientPeerID).getBitfield());
 		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
 		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
-		logger.info("Intereted piece ID:- " + interestedPieceId);
+		logger.debug("Intereted piece ID:- " + interestedPieceId);
 		if (interestedPieceId != -1) {
 			clientPeerInfo.setRequestedPieceIndex(interestedPieceId);
 			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
@@ -135,7 +133,6 @@ public class MessageHandler {
 		pieceMessage.setLength(piece.length);
 		pieceMessage.setPayload(piece);
 		pieceMessage.write(out);
-
 	}
 
 	private void handleHave(ActualMsg message) throws ClassNotFoundException, IOException {

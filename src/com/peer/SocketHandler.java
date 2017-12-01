@@ -52,21 +52,17 @@ public class SocketHandler implements Runnable {
 			while (true) {
 				try {
 					messageHandler.handleMessage();
-				} 
-				catch(SocketException se) {
-					logger.warn("problem with socket connection  with peerID:" + neighborId + " " + se);
-					se.printStackTrace();
+				} catch (SocketException s) {
+					logger.info("Socket Exception with peerID:" + neighborId + " .. Aborting now ... " + s);
+					// s.printStackTrace();
 					break;
-				}
-				catch (Exception e) {
-					logger.warn("problem with mesage/connection  with peerID:" + neighborId + " " + e);
-					e.printStackTrace();
-					
-					//break; // have to remove this break eventually
+				} catch (Exception e) {
+					logger.info("problem with mesage/connection  with peerID:" + neighborId + " " + e);
+					//e.printStackTrace();
 				}
 			}
 		} catch (Exception e1) {
-			logger.warn("Problem Connecting to peer: " + neighborId + " " + e1);
+			logger.info("Problem Connecting to peer: " + neighborId + " " + e1);
 		}
 	}
 
@@ -76,10 +72,9 @@ public class SocketHandler implements Runnable {
 			bitFieldMessage.setLength(myInfo.getBitfield().length() + 1);
 			bitFieldMessage.setPayload(myInfo.getBitfield().toByteArray());
 			bitFieldMessage.write(out2);
-			logger.info("------ Sent bitField Message with details: " + bitFieldMessage + "to peerID" + neighborId
-					+ "-------");
+			logger.debug("------ Sent bitField Message with details: " + bitFieldMessage + "to peerID" + neighborId+ "-------");
 		} catch (IOException e) {
-			logger.warn("Unable to write bitField Message to Peer: " + neighborId + " " + e);
+			logger.debug("Unable to write bitField Message to Peer: " + neighborId + " " + e);
 		}
 	}
 

@@ -69,18 +69,13 @@ public class PeerHandler implements Runnable {
 					}
 				}
 
-				if (chokedNeighbors.size() > 0) {
-					logger.debug("STATE: OPT UNCHOKED(" + numberOfOptimisticallyUnchokedNeighbors + "): "
-							+ optimisticallyUnchokedPeers);
-				}
-
 				optimisticallyUnchokedPeers.forEach(peerInfo -> {
 					try {
 						sendUnchoke(peerInfo.getSocketWriter());
-						logger.debug("Peer [" + peerID + "] has the optimistically unchoked neighbour [" + peerInfo.peerId
+						logger.info("Peer [" + peerID + "] has the optimistically unchoked neighbour [" + peerInfo.peerId
 								+ "]");
 					} catch (Exception e) {
-						logger.warn("Unable to choke peer: " + peerInfo.getPeerId() + " " + e);
+						logger.info("Unable to choke peer: " + peerInfo.getPeerId() + " " + e);
 					}
 				});
 
@@ -103,7 +98,7 @@ public class PeerHandler implements Runnable {
 			Unchoke unchokeMessage = (Unchoke) Message.getInstance(MessageType.UNCHOKE);
 			unchokeMessage.write(socketWriter);
 		} catch (Exception e) {
-			logger.warn("Socket connection explicitly closed| can't send unchoke from oum " + e);
+			logger.info("Socket connection explicitly closed| can't send unchoke from oum " + e);
 			// possible hack place
 		}
 	}
@@ -113,7 +108,7 @@ public class PeerHandler implements Runnable {
 			Choke chokeMessage = (Choke) Message.getInstance(MessageType.CHOKE);
 			chokeMessage.write(socketWriter);
 		} catch (Exception e) {
-			logger.warn("Socket connection explicitly closed| can't send choke from oum " + e);
+			logger.info("Socket connection explicitly closed| can't send choke from oum " + e);
 		}
 	}
 
@@ -134,7 +129,7 @@ public class PeerHandler implements Runnable {
 				Collections.shuffle(interestedPeers);
 			} else {
 				Collections.sort(interestedPeers, new Comparator<PeerInfo>() {
-					@Override 
+					@Override
 					public int compare(PeerInfo p1, PeerInfo p2) {
 						return (p2.bytesDownloaded.get() - p1.bytesDownloaded.get());
 					}
@@ -162,7 +157,7 @@ public class PeerHandler implements Runnable {
 						Math.min(peerProperties.getNumberOfPreferredNeighbors(), interestedPeers.size())));
 
 				if (kPreferredNeighbors.size() > 0) {
-					logger.debug("Peer [" + peerID + "] has the preferred neighbours " + kPreferredNeighbors);
+					logger.info("Peer [" + peerID + "] has the preferred neighbours " + kPreferredNeighbors);
 				}
 
 				// 3) SELECT ALLE THE INTERESTED AND UNINTERESTED PEERS,
@@ -190,32 +185,16 @@ public class PeerHandler implements Runnable {
 				preferredNeighborsIDs.addAll(getPeerIds(kPreferredNeighbors));
 			}
 
-			// debug
-//			logger.info("STATE: INTERESTED: " + interestedPeers);
-//			logger.info("STATE: UNCHOKED (" + peerProperties.getNumberOfPreferredNeighbors() + "): "
-//					+ preferredNeighborsIDs);
-//			logger.info("STATE: CHOKED:" + chokedPeersIDs);
-//
-//			for (Entry<Integer, Long> entry : downloadedBytes.entrySet()) {
-//				String PREFERRED = preferredNeighborsIDs.contains(entry.getKey()) ? " *" : "";
-//				logger.debug("BYTES DOWNLOADED FROM  PEER " + entry.getKey() + ": " + entry.getValue()
-//						+ " (INTERESTED PEERS: " + interestedPeers.size() + ": " + interestedPeers + ")\t" + PREFERRED);
-//			}
 
 			// 5) NOTIFY PROCESS, IT WILL TAKE CARE OF SENDING CHOKE AND
 			// UNCHOKE
 			// MESSAGES
-
-			// for (PeerManagerListener listener : _listeners) {
-			// listener.chockedPeers(chokedPeersIDs);
-			// listener.unchockedPeers(preferredNeighborsIDs);
-			// }
 			chokedPeersIDs.forEach(id -> {
 				try {
 
 					sendChoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
-					logger.warn(e);
+					logger.info(e);
 				}
 			});
 
@@ -223,7 +202,7 @@ public class PeerHandler implements Runnable {
 				try {
 						sendUnchoke(peerMap.get(id).getSocketWriter());
 				} catch (Exception e) {
-					logger.warn(e);
+					logger.info(e);
 				}
 			});
 

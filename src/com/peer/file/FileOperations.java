@@ -67,7 +67,7 @@ public class FileOperations {
 			fos.flush();
 			fos.close();
 		} catch (Exception e) {
-			logger.warn("Unable to write piece_ " + pieceId + " from peer_" + peerId + " " + e);
+			logger.info("Unable to write piece_ " + pieceId + " from peer_" + peerId + " " + e);
 		}
 	}
 
@@ -125,7 +125,7 @@ public class FileOperations {
 			}
 			inputStream.close();
 		} catch (IOException e) {
-			logger.warn("Fail to process file into pieces " + e);
+			logger.debug("Fail to process file into pieces " + e);
 		}
 	}
 
@@ -137,13 +137,12 @@ public class FileOperations {
 		int bytesRead = 0;
 		List<File> list = new ArrayList<>();
 		if (pieceLocationMap.size() != numpieces) {
-			logger.warn("Cannot merge improper file:");
+			logger.debug("Cannot merge improper file:");
 			return;
 		}
 		pieceLocationMap.forEach((key, value) -> {
 			list.add(value.toFile());
 		});
-		System.out.println("Merging these files:" + list);
 		try {
 			fos = new FileOutputStream(ofile);
 			for (File file : list) {

@@ -51,7 +51,7 @@ public class Message implements Serializable {
 			return new Piece();
 
 		default:
-			throw new ClassNotFoundException("message type not handled: " + type.toString());
+			throw new ClassNotFoundException("Message Type not handled: " + type.toString());
 		}
 	}
 

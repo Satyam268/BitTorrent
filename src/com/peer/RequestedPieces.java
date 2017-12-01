@@ -1,5 +1,8 @@
 package com.peer;
 
+//Reference : dalton/P2P-Project - Link - https://github.com/dalton/P2P-Project
+
+
 import java.util.BitSet;
 
 import org.apache.log4j.Logger;
@@ -11,11 +14,6 @@ public class RequestedPieces {
 	private final BitSet reqPieces;
 	private final long timeOut;
 	final static Logger logger = Logger.getLogger(RequestedPieces.class);
-
-	public RequestedPieces(int nParts, long unchokingInterval) {
-		reqPieces = new BitSet(nParts);
-		timeOut = unchokingInterval * 2;
-	}
 
 	public synchronized int getPartToRequest(BitSet requestabableParts) {
 		requestabableParts.andNot(reqPieces);
@@ -36,5 +34,10 @@ public class RequestedPieces {
 			return partId;
 		}
 		return -1;
+	}
+
+	public RequestedPieces(int nParts, long unchokingInterval) {
+		reqPieces = new BitSet(nParts);
+		timeOut = unchokingInterval * 2;
 	}
 }

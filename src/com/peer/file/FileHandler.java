@@ -68,14 +68,12 @@ public class FileHandler {
 	public synchronized void addPiece(int pieceID, byte[] piece, int clientPeerId) {
 		if (pieceID == -1)
 			return;
-		logger.info(" -- add new piece with id- "+pieceID);
-		
-		
+
+
 		final boolean isNewPiece = !receivedPieces.get(pieceID);
 		receivedPieces.set(pieceID);
 
 		if (isNewPiece) {
-			logger.info(" -- inside new piece --- ");
 			fileOps.writePieceToFile(piece, pieceID, clientPeerId);
 			broadcastHaveMessageToAllPeers(pieceID);
 			int bytesDownloaded = peerMap.get(clientPeerId).bytesDownloaded.get() + piece.length;
@@ -85,7 +83,7 @@ public class FileHandler {
 			properties.randomlySelectPreferredNeighbors.set(true);
 			fileOps.mergeFile(receivedPieces.cardinality());
 			if (isEverythingComplete()) {
-				logger.info("No.of active threads were: " + Thread.activeCount());
+				logger.debug("No.of active threads were: " + Thread.activeCount());
 				System.exit(0);
 			}
 		}
@@ -98,9 +96,8 @@ public class FileHandler {
 				haveMessage.setPayload(CommonUtils.intToByteArray(pieceId));
 				if (peerInfo.getSocketWriter() != null)
 					haveMessage.write(peerInfo.getSocketWriter());
-
 			} catch (Exception e) {
-				logger.warn("Could not broadcast \'Have\' to peer_" + peerInfo.getPeerId() + " " + e);
+				logger.debug("Could not broadcast \'Have\' to peer_" + peerInfo.getPeerId() + " " + e);
 			}
 		});
 	}
@@ -120,13 +117,13 @@ public class FileHandler {
 			try {
 				peerInfo.getClientSocket().close();
 			} catch (IOException e) {
-				logger.warn("Problem closing Socket: " + e);
+				logger.debug("Problem closing Socket: " + e);
 			}
 		});
 	}
 
 	public synchronized int getPartToRequest(BitSet availableParts) {
-		logger.info("Available parts: "+availableParts+" ReceivedParts: " + getReceivedParts());
+		logger.debug("Available parts: "+availableParts+" ReceivedParts: " + getReceivedParts());
 		availableParts.andNot(getReceivedParts());
 		return piecesBeingRequested.getPartToRequest(availableParts);
 	}
@@ -163,7 +160,7 @@ public class FileHandler {
 				return false;
 			}
 		}
-		logger.debug("Peer [" + peerID + "] has downloaded the complete file");
+		logger.info("Peer [" + peerID + "] has downloaded the complete file");
 		return true;
 	}
 
