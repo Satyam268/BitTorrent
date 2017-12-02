@@ -72,7 +72,7 @@ public class peerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1005;
+		int peerId = Integer.parseInt(args[0]);
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
 		deleteFiles(Paths.get("com").toString());

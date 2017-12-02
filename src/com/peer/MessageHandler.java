@@ -1,4 +1,4 @@
-
+package com.peer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -140,7 +140,7 @@ public class MessageHandler {
 		if (!fileHandler.hasPiece(pieceIndex))
 			sendInterestedMessage(out);
 		if (peerMap.get(clientPeerID).getBitfield().cardinality() == fileHandler.getBitmapSize()) {
-			if (fileHandler.isEverythingComplete()) {
+			if (fileHandler.isFileCompleted() && fileHandler.isEverythingComplete()) {
 				logger.info("-----------System.exit()-----------");
 				System.exit(0);
 			}

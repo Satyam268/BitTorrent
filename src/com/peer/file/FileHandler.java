@@ -154,7 +154,7 @@ public class FileHandler {
 		return bitsetSize;
 	}
 
-	private boolean isFileCompleted() {
+	public boolean isFileCompleted() {
 		for (int i = 0; i < bitsetSize; i++) {
 			if (!receivedPieces.get(i)) {
 				return false;
