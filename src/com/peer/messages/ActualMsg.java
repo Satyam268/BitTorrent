@@ -53,7 +53,6 @@ public class ActualMsg extends Message {
 	}
 
 	public BitSet getPayloadInBitSet() {
-		System.out.println(this);
 		return BitSet.valueOf(this.payload);
 	}
 

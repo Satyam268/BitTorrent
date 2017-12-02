@@ -72,11 +72,11 @@ public class peerProcess {
 	}
 
 	public static void main(String[] args) {
-		int peerId = 1001;
+		int peerId = 1005;
 		System.setProperty("file.name", "log_peer_" + peerId + ".log");
 		PropertyConfigurator.configure(Constants.log4jConfPath);
-		//deleteFiles(Paths.get("com").toString());
-		//deleteFiles(Paths.get("pieceStore").toString());
+		deleteFiles(Paths.get("com").toString());
+		deleteFiles(Paths.get("pieceStore").toString());
 		peerProcess process = new peerProcess();
 		process.readCommonCFGFile();
 		process.readPeerInfoFile(peerId);
