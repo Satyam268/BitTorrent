@@ -50,12 +50,12 @@ public class FileOperations {
 		return ba;
 	}
 
-	public byte[] getPieceFromFile(int pieceId) {
+	public synchronized byte[] getPieceFromFile(int pieceId) {
 		File file = Paths.get(receivedPiecesLocation, "" + pieceId).toFile();
 		return getByteArrayFromFile(file);
 	}
 
-	public void writePieceToFile(byte[] piece, int pieceId, int clientPeerId) {
+	public synchronized void writePieceToFile(byte[] piece, int pieceId, int clientPeerId) {
 		FileOutputStream fos;
 		Path path = Paths.get(receivedPiecesLocation, "" + pieceId);
 		pieceLocationMap.put(pieceId, path);
@@ -71,7 +71,7 @@ public class FileOperations {
 		}
 	}
 
-	private byte[] getByteArrayFromFile(File file) {
+	private synchronized byte[] getByteArrayFromFile(File file) {
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(file);

@@ -39,7 +39,7 @@ public class MessageHandler {
 	public void handleMessage() throws ClassNotFoundException, IOException {
 		ActualMsg message = null;
 		message = (ActualMsg) in.readObject();
-		logger.debug(" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
+		//logger.debug(" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
 		MessageType msgType = message.getType();
 		switch (msgType) {
 		case BITFIELD:
@@ -105,6 +105,7 @@ public class MessageHandler {
 			return;
 
 		fileHandler.addPiece(peerInfo.getRequestedPieceIndex(), message.getPayload(), clientPeerID);
+		logger.debug(" ------ incoming message " + message + " received from " + clientPeerID + " -----------------------");
 		logger.info("Peer [peer_ID " + myInfo.peerId + "] has downloaded the piece ["
 				+ peerInfo.getRequestedPieceIndex() + "] from [peer_ID " + clientPeerID + "]. \n Now the number of pieces it has is ["+ myInfo.getBitfield().cardinality()+"]");
 		peerInfo.setRequestedPieceIndex(-1);
@@ -115,13 +116,15 @@ public class MessageHandler {
 	synchronized private void sendRequestMessage(ObjectOutputStream out) throws ClassNotFoundException, IOException {
 		PeerInfo clientPeerInfo = peerMap.get(clientPeerID);
 		logger.debug("--------inside unchoke || the unchoker "+ clientPeerID +"has these pieces available:" + peerMap.get(clientPeerID).getBitfield());
-		Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
-		int interestedPieceId = getInterestedPieceId(clientPeerInfo);
-		logger.debug("Intereted piece ID:- " + interestedPieceId);
-		if (interestedPieceId != -1) {
-			clientPeerInfo.setRequestedPieceIndex(interestedPieceId);
-			requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
-			requestMessage.write(out);
+		if(clientPeerInfo.getRequestedPieceIndex()==-1) {
+			Request requestMessage = (Request) Message.getInstance(MessageType.REQUEST);
+			int interestedPieceId = getInterestedPieceId(clientPeerInfo);
+			logger.debug("Intereted piece ID:- " + interestedPieceId);
+			if (interestedPieceId != -1) {
+				clientPeerInfo.setRequestedPieceIndex(interestedPieceId);
+				requestMessage.setPayload(CommonUtils.intToByteArray(interestedPieceId));
+				requestMessage.write(out);
+			}
 		}
 	}
 
@@ -142,7 +145,7 @@ public class MessageHandler {
 		if (peerMap.get(clientPeerID).getBitfield().cardinality() == fileHandler.getBitmapSize()) {
 			if (fileHandler.isFileCompleted() && fileHandler.isEverythingComplete()) {
 				logger.info("-----------System.exit()-----------");
-				System.exit(0);
+				//System.exit(0);
 			}
 		}
 	}

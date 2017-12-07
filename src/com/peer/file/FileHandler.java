@@ -50,7 +50,7 @@ public class FileHandler {
 			receivedPieces.set(0, bitsetSize);
 			properties.randomlySelectPreferredNeighbors.set(true);
 		}
-		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval());
+		this.piecesBeingRequested = new RequestedPieces(bitsetSize, properties.getUnchokingInterval(), peerMap);
 		this.properties = properties;
 
 	}
@@ -84,7 +84,7 @@ public class FileHandler {
 			fileOps.mergeFile(receivedPieces.cardinality());
 			if (isEverythingComplete()) {
 				logger.debug("No.of active threads were: " + Thread.activeCount());
-				System.exit(0);
+				//System.exit(0);
 			}
 		}
 	}

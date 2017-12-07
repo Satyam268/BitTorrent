@@ -4,6 +4,7 @@ package com.peer;
 
 
 import java.util.BitSet;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -15,6 +16,7 @@ public class RequestedPieces {
 	private final long timeOut;
 	final static Logger logger = Logger.getLogger(RequestedPieces.class);
 
+	private  Map<Integer, PeerInfo> peerMap;
 	public synchronized int getPartToRequest(BitSet requestabableParts) {
 		requestabableParts.andNot(reqPieces);
 
@@ -26,7 +28,13 @@ public class RequestedPieces {
 				@Override
 				public void run() {
 					synchronized (reqPieces) {
+						for(PeerInfo peerInfo:peerMap.values()) {
+							if(peerInfo.getRequestedPieceIndex()==partId) {
+								peerInfo.setRequestedPieceIndex(-1);
+							}
+						}	
 						reqPieces.clear(partId);
+						
 						logger.debug("clearing requested parts for part " + partId);
 					}
 				}
@@ -36,8 +44,9 @@ public class RequestedPieces {
 		return -1;
 	}
 
-	public RequestedPieces(int nParts, long unchokingInterval) {
+	public RequestedPieces(int nParts, long unchokingInterval, Map<Integer, PeerInfo> peerMap) {
 		reqPieces = new BitSet(nParts);
 		timeOut = unchokingInterval * 2;
+		this.peerMap = peerMap;
 	}
 }

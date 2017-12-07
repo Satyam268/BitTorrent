@@ -57,6 +57,6 @@ public class ActualMsg extends Message {
 	}
 
 	public String toString() {
-		return "Message Details -- length: " + length + " type: " + type + " payload: " + ((this.getType()==MessageType.PIECE)?"":(new String(payload)));
+		return "Message Details -- length: " + length + " type: " + type + " payload: " + (new String(payload));
 	}
 }
